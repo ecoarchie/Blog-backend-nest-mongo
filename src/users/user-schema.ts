@@ -12,8 +12,8 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema()
 export class User {
-  @Prop()
-  id: Types.ObjectId;
+  // @Prop()
+  // id: Types.ObjectId;
 
   @Prop({
     required: true,
@@ -49,19 +49,38 @@ export class CreateUserDto {
   @Matches(/^[a-zA-Z0-9_-]*$/)
   @Length(3, 10)
   @IsNotEmpty()
-  @IsString()
   login: string;
 
   @Matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
   @IsNotEmpty()
   @IsEmail()
-  @IsString()
   email: string;
 
   @Length(6, 20)
   @IsNotEmpty()
-  @IsString()
   password: string;
+}
+
+type SortDirection = 'asc' | 'desc';
+
+export class UserPaginatorOptions {
+  public sortBy: string;
+  public sortDirection: SortDirection;
+  public pageNumber: number;
+  public pageSize: number;
+  public searchLoginTerm: string;
+  public searchEmailTerm: string;
+  public skip: number;
+
+  constructor(data: Partial<UserPaginatorOptions> = {}) {
+    this.sortBy = data.sortBy || 'createdAt';
+    this.sortDirection = data.sortDirection || 'desc';
+    this.pageNumber = Number(data.pageNumber) || 1;
+    this.pageSize = Number(data.pageSize) || 10;
+    this.searchLoginTerm = data.searchLoginTerm || null;
+    this.searchEmailTerm = data.searchEmailTerm || null;
+    this.skip = (this.pageNumber - 1) * this.pageSize;
+  }
 }
 
 UserSchema.set('toJSON', {
