@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { UsersQueryRepository } from '../repositories/users.query-repository';
 import {
-  User,
   CreateUserDto,
   UserPaginatorOptions,
   UsersPagination,
@@ -32,10 +31,6 @@ export class UserController {
   async findAll(
     @Query() userPaginatorQuery: UserPaginatorOptions,
   ): Promise<UsersPagination> {
-    console.log(
-      '🚀 ~ file: users.controller.ts:30 ~ UserController ~ userPaginatorQuery',
-      userPaginatorQuery,
-    );
     const userPaginatorOptions = new UserPaginatorOptions(userPaginatorQuery);
     const users = await this.userQueryRepository.findAll(userPaginatorOptions);
     return users;

@@ -1,12 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Length,
-  Matches,
-} from 'class-validator';
+import { HydratedDocument } from 'mongoose';
+import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -83,11 +77,14 @@ export class UserPaginatorOptions {
   }
 }
 
-export interface UsersPagination {
+export interface Pagination {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
+}
+
+export interface UsersPagination extends Pagination {
   items: User[];
 }
 
