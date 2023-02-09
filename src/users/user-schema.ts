@@ -83,6 +83,14 @@ export class UserPaginatorOptions {
   }
 }
 
+export interface UsersPagination {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: User[];
+}
+
 UserSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,

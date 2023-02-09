@@ -1,7 +1,12 @@
 import { Model, Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument, UserPaginatorOptions } from '../user-schema';
+import {
+  User,
+  UserDocument,
+  UserPaginatorOptions,
+  UsersPagination,
+} from '../user-schema';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -9,7 +14,7 @@ export class UsersQueryRepository {
 
   async findAll(
     paginatorOptions: UserPaginatorOptions,
-  ): Promise<UserDocument[]> {
+  ): Promise<UsersPagination> {
     const loginRegex = new RegExp(paginatorOptions.searchLoginTerm, 'i');
     const emailRegex = new RegExp(paginatorOptions.searchEmailTerm, 'i');
     const result = await this.userModel
@@ -32,7 +37,16 @@ export class UsersQueryRepository {
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
       .select({ password: 0 })
       .exec();
-    return result;
+
+    const totalCount = result.length;
+    const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
+    return {
+      pagesCount,
+      page: paginatorOptions.pageNumber,
+      pageSize: paginatorOptions.pageSize,
+      totalCount,
+      items: result,
+    };
   }
 
   async findUserById(id: string) {

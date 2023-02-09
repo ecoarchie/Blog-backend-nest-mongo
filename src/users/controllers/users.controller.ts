@@ -12,7 +12,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { UsersQueryRepository } from '../repositories/users.query-repository';
-import { User, CreateUserDto, UserPaginatorOptions } from '../user-schema';
+import {
+  User,
+  CreateUserDto,
+  UserPaginatorOptions,
+  UsersPagination,
+} from '../user-schema';
 import { UsersService } from '../services/users.service';
 import { Request, Response } from 'express';
 
@@ -26,7 +31,7 @@ export class UserController {
   @Get()
   async findAll(
     @Query() userPaginatorQuery: UserPaginatorOptions,
-  ): Promise<User[]> {
+  ): Promise<UsersPagination> {
     console.log(
       '🚀 ~ file: users.controller.ts:30 ~ UserController ~ userPaginatorQuery',
       userPaginatorQuery,
