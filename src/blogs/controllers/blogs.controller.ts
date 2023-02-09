@@ -5,6 +5,7 @@ import {
   HttpCode,
   Param,
   Post,
+  Put,
   Query,
   Res,
   UsePipes,
@@ -17,6 +18,7 @@ import {
   BlogPaginatorOptions,
   BlogsPagination,
   CreateBlogDto,
+  UpdateBlogDto,
 } from '../blog-schema';
 import { Response } from 'express';
 
@@ -50,5 +52,22 @@ export class BlogsController {
     const blogFound = await this.blogsQueryRepository.findBlogById(id);
     if (!blogFound) return res.sendStatus(404);
     return res.status(200).send(blogFound);
+  }
+
+  @Put(':id')
+  @UsePipes(ValidationPipe)
+  async updateBlog(
+    @Param('id') blogId: string,
+    @Body() updateBlogDto: UpdateBlogDto,
+    @Res() res: Response,
+  ) {
+    const blog = await this.blogsQueryRepository.findBlogById(blogId);
+    if (!blog) return res.sendStatus(404);
+    blog.setName(updateBlogDto.name);
+    blog.setDescription(updateBlogDto.description);
+    blog.setWebsiteUrl(updateBlogDto.websiteUrl);
+    const result = await this.blogsQueryRepository.saveBlog(blog);
+    if (result) return res.sendStatus(204);
+    else return res.sendStatus(400);
   }
 }

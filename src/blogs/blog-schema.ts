@@ -31,9 +31,31 @@ export class Blog {
     default: false,
   })
   isMembership: boolean;
+
+  setName(newName: string) {
+    this.name = newName;
+  }
+
+  setDescription(newDescription: string) {
+    this.description = newDescription;
+  }
+
+  setWebsiteUrl(newUrl: string) {
+    this.websiteUrl = newUrl;
+  }
+
+  setMembership(membership: boolean) {
+    this.isMembership = membership;
+  }
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);
+BlogSchema.methods = {
+  setName: Blog.prototype.setName,
+  setDescription: Blog.prototype.setDescription,
+  setWebsiteUrl: Blog.prototype.setWebsiteUrl,
+  setMembership: Blog.prototype.setMembership,
+};
 
 export class CreateBlogDto {
   @IsNotEmpty()

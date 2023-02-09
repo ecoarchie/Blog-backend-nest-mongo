@@ -13,7 +13,7 @@ import { resourceLimits } from 'worker_threads';
 export class BlogsQueryRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
 
-  async findBlogById(blogId: string): Promise<Blog> {
+  async findBlogById(blogId: string): Promise<BlogDocument> {
     if (!Types.ObjectId.isValid(blogId)) return null;
     return this.blogModel.findById(blogId).exec();
   }
@@ -40,5 +40,10 @@ export class BlogsQueryRepository {
       totalCount,
       items: result,
     };
+  }
+
+  async saveBlog(blog: BlogDocument): Promise<BlogDocument['id']> {
+    const result = await blog.save();
+    return result.id;
   }
 }
