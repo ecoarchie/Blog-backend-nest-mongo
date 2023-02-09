@@ -3,8 +3,10 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
   Post,
   Query,
+  Res,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,6 +18,7 @@ import {
   BlogsPagination,
   CreateBlogDto,
 } from '../blog-schema';
+import { Response } from 'express';
 
 @Controller('blogs')
 export class BlogsController {
@@ -40,5 +43,12 @@ export class BlogsController {
       blogsPaginatorOptions,
     );
     return blogs;
+  }
+
+  @Get(':id')
+  async findBlogById(@Param('id') id: string, @Res() res: Response) {
+    const blogFound = await this.blogsQueryRepository.findBlogById(id);
+    if (!blogFound) return res.sendStatus(404);
+    return res.status(200).send(blogFound);
   }
 }

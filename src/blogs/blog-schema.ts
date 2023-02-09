@@ -52,6 +52,8 @@ export class CreateBlogDto {
   websiteUrl: string;
 }
 
+export class UpdateBlogDto extends CreateBlogDto {}
+
 export interface BlogsPagination extends Pagination {
   items: Blog[];
 }

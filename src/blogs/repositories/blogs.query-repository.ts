@@ -6,14 +6,15 @@ import {
   BlogPaginatorOptions,
   BlogsPagination,
 } from '../blog-schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { resourceLimits } from 'worker_threads';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
 
-  async findBlogById(blogId: string): Promise<BlogDocument> {
+  async findBlogById(blogId: string): Promise<Blog> {
+    if (!Types.ObjectId.isValid(blogId)) return null;
     return this.blogModel.findById(blogId).exec();
   }
 
@@ -28,7 +29,6 @@ export class BlogsQueryRepository {
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
-      // .select({ password: 0 })
       .exec();
 
     const totalCount = result.length;
