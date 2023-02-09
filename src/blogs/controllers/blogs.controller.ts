@@ -63,10 +63,7 @@ export class BlogsController {
   ) {
     const blog = await this.blogsQueryRepository.findBlogById(blogId);
     if (!blog) return res.sendStatus(404);
-    blog.setName(updateBlogDto.name);
-    blog.setDescription(updateBlogDto.description);
-    blog.setWebsiteUrl(updateBlogDto.websiteUrl);
-    const result = await this.blogsQueryRepository.saveBlog(blog);
+    const result = await this.blogsService.updateBlog(blog, updateBlogDto);
     if (result) return res.sendStatus(204);
     else return res.sendStatus(400);
   }

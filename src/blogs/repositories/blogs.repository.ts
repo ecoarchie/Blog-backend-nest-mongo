@@ -7,9 +7,9 @@ import { Model } from 'mongoose';
 export class BlogsRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
 
-  async createBlog(dto: CreateBlogDto): Promise<BlogDocument['id']> {
-    const newBlog = new this.blogModel(dto);
-    const result = await newBlog.save();
-    return result._id.toString();
-  }
+  // async createBlog(dto: CreateBlogDto): Promise<BlogDocument['id']> {
+  //   const newBlog = new this.blogModel(dto);
+  //   const result = await newBlog.save();
+  //   return result._id.toString();
+  // }
 }
