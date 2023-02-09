@@ -7,7 +7,6 @@ import {
   BlogsPagination,
 } from '../blog-schema';
 import { Model, Types } from 'mongoose';
-import { resourceLimits } from 'worker_threads';
 
 @Injectable()
 export class BlogsQueryRepository {

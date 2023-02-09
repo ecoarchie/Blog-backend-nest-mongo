@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { BlogsRepository } from '../repositories/blogs.repository';
 import {
   Blog,
   BlogDocument,
@@ -20,7 +19,6 @@ export class BlogsService {
   async createNewBlog(dto: CreateBlogDto) {
     const newBlog = new this.blogModel(dto);
     const blogId = await this.blogsQueryRepository.saveBlog(newBlog);
-    // return await this.blogsRepository.createBlog(dto);
     return blogId;
   }
 

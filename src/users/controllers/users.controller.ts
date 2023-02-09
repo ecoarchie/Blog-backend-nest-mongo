@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
   Param,
   Post,
   Query,
@@ -18,7 +17,7 @@ import {
   UsersPagination,
 } from '../user-schema';
 import { UsersService } from '../services/users.service';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 
 @Controller('users')
 export class UserController {
