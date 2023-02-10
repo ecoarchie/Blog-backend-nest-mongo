@@ -15,6 +15,7 @@ export class BlogsQueryRepository {
   async findBlogById(blogId: string): Promise<Partial<Blog>> {
     if (!Types.ObjectId.isValid(blogId)) return null;
     const blogDocument = await this.blogModel.findById(blogId);
+    if (!blogDocument) return null;
     return this.toBlogDto(blogDocument);
   }
 

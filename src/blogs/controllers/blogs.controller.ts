@@ -7,8 +7,6 @@ import {
   Put,
   Query,
   Res,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { BlogsQueryRepository } from '../repositories/blogs.query-repository';
 import { BlogsService } from '../services/blogs.service';
@@ -20,7 +18,11 @@ import {
   UpdateBlogDto,
 } from '../blog-schema';
 import { Response } from 'express';
-import { CreatePostDto } from 'src/posts/post-schema';
+import {
+  BlogIdParam,
+  CreatePostDto,
+  PostPaginatorOptions,
+} from 'src/posts/post-schema';
 import { PostsQueryRepository } from 'src/posts/repositories/posts.query-repository';
 
 @Controller('blogs')
@@ -32,7 +34,6 @@ export class BlogsController {
   ) {}
 
   @Post()
-  // @UsePipes(ValidationPipe)
   async createBlog(@Body() blogDto: CreateBlogDto): Promise<Partial<Blog>> {
     const newBlogId = await this.blogsService.createNewBlog(blogDto);
     return this.blogsQueryRepository.findBlogById(newBlogId);
@@ -57,7 +58,6 @@ export class BlogsController {
   }
 
   @Put(':id')
-  // @UsePipes(ValidationPipe)
   async updateBlog(
     @Param('id') blogId: string,
     @Body() updateBlogDto: UpdateBlogDto,
@@ -81,5 +81,22 @@ export class BlogsController {
     if (!postId) return res.sendStatus(404);
     const post = await this.postsQueryRepository.findPostById(postId);
     res.send(post);
+  }
+
+  @Get(':blogId/posts')
+  async getAllPostForBlog(
+    @Param('blogId') blogId: string,
+    @Query() postsPaginatorQuery: PostPaginatorOptions,
+    @Res() res: Response,
+  ) {
+    const blogFound = await this.blogsQueryRepository.findBlogById(blogId);
+    if (!blogFound) return res.sendStatus(404);
+
+    const postsPaginatorOptions = new PostPaginatorOptions(postsPaginatorQuery);
+    const posts = await this.postsQueryRepository.findAllPostsForBlog(
+      blogId,
+      postsPaginatorOptions,
+    );
+    res.send(posts);
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Post, PostDocument } from '../post-schema';
+import { Post, PostDocument, PostPaginatorOptions } from '../post-schema';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -15,6 +15,27 @@ export class PostsQueryRepository {
     if (!Types.ObjectId.isValid(postId)) return null;
     const postDocument = await this.postModel.findById(postId);
     return this.toPostDto(postDocument);
+  }
+
+  async findAllPostsForBlog(
+    blogId: string,
+    paginatorOptions: PostPaginatorOptions,
+  ) {
+    const result = await this.postModel
+      .find({ blogId: new Types.ObjectId(blogId) })
+      .limit(paginatorOptions.pageSize)
+      .skip(paginatorOptions.skip)
+      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]]);
+    console.log(result);
+    const totalCount = result.length;
+    const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
+    return {
+      pagesCount,
+      page: paginatorOptions.pageNumber,
+      pageSize: paginatorOptions.pageSize,
+      totalCount,
+      items: result.map(this.toPostDto),
+    };
   }
 
   private toPostDto(post: PostDocument) {

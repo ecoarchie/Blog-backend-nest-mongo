@@ -74,6 +74,11 @@ export class CreatePostDto {
   content: string;
 }
 
+export class BlogIdParam {
+  @IsMongoId()
+  blogId: string;
+}
+
 export class UpdatePostDto extends CreatePostDto {}
 
 export interface PostsPagination extends Pagination {
@@ -82,14 +87,14 @@ export interface PostsPagination extends Pagination {
 
 type SortDirection = 'asc' | 'desc';
 
-export class BlogPaginatorOptions {
+export class PostPaginatorOptions {
   public sortBy: string;
   public sortDirection: SortDirection;
   public pageNumber: number;
   public pageSize: number;
   public skip: number;
 
-  constructor(data: Partial<BlogPaginatorOptions> = {}) {
+  constructor(data: Partial<PostPaginatorOptions> = {}) {
     this.sortBy = data.sortBy || 'createdAt';
     this.sortDirection = data.sortDirection || 'desc';
     this.pageNumber = Number(data.pageNumber) || 1;
