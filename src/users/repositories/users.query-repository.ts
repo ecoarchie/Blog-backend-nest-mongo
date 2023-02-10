@@ -1,4 +1,4 @@
-import { Model, Types } from 'mongoose';
+import { LeanDocument, Model, Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
@@ -34,7 +34,8 @@ export class UsersQueryRepository {
       )
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
-      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]]);
+      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
+      .lean();
 
     const totalCount = result.length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
@@ -48,7 +49,7 @@ export class UsersQueryRepository {
   }
 
   async findUserById(id: string) {
-    const user = await this.userModel.findById(id);
+    const user = await this.userModel.findById(id).lean();
 
     return this.toUserDto(user);
   }
@@ -59,7 +60,7 @@ export class UsersQueryRepository {
     return result.deletedCount === 1;
   }
 
-  private toUserDto(user: UserDocument) {
+  private toUserDto(user: UserDocument | LeanDocument<UserDocument>) {
     return {
       id: user._id.toString(),
       login: user.login,
