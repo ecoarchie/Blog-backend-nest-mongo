@@ -8,9 +8,8 @@ import {
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogsRepository } from '../repositories/blogs.repository';
-import { CreatePostDto, Post, PostDocument } from 'src/posts/post-schema';
+import { CreatePostDto, BlogPost, PostDocument } from 'src/posts/post-schema';
 import { PostsRepository } from 'src/posts/repositories/posts.repository';
-import { IsMongoId } from 'class-validator';
 
 @Injectable()
 export class BlogsService {
@@ -18,7 +17,7 @@ export class BlogsService {
     private blogsRepository: BlogsRepository,
     private postsRepository: PostsRepository,
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
-    @InjectModel(Post.name) private postModel: Model<PostDocument>,
+    @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
   ) {}
 
   async createNewBlog(dto: CreateBlogDto) {

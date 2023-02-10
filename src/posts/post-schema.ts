@@ -3,7 +3,7 @@ import { IsMongoId, IsNotEmpty, MaxLength } from 'class-validator';
 import { HydratedDocument, Types } from 'mongoose';
 import { Pagination } from 'src/users/user-schema';
 
-export type PostDocument = HydratedDocument<Post>;
+export type PostDocument = HydratedDocument<BlogPost>;
 
 @Schema()
 export class LikesDetails {
@@ -35,7 +35,7 @@ export const ExtendedLikesInfoSchema =
   SchemaFactory.createForClass(ExtendedLikesInfo);
 
 @Schema()
-export class Post {
+export class BlogPost {
   @Prop({ required: true })
   title: string;
 
@@ -58,7 +58,7 @@ export class Post {
   extendedLikesInfo: ExtendedLikesInfo;
 }
 
-export const PostSchema = SchemaFactory.createForClass(Post);
+export const PostSchema = SchemaFactory.createForClass(BlogPost);
 
 export class CreatePostDto {
   @IsNotEmpty()
@@ -74,6 +74,11 @@ export class CreatePostDto {
   content: string;
 }
 
+export class CreatePostWithBlogId extends CreatePostDto {
+  @IsNotEmpty()
+  blogId: string;
+}
+
 export class BlogIdParam {
   @IsMongoId()
   blogId: string;
@@ -82,7 +87,7 @@ export class BlogIdParam {
 export class UpdatePostDto extends CreatePostDto {}
 
 export interface PostsPagination extends Pagination {
-  items: Post[];
+  items: BlogPost[];
 }
 
 type SortDirection = 'asc' | 'desc';

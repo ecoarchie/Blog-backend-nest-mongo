@@ -6,7 +6,7 @@ import { BlogsQueryRepository } from './repositories/blogs.query-repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blog-schema';
 import { PostsModule } from 'src/posts/posts.module';
-import { Post, PostSchema } from 'src/posts/post-schema';
+import { BlogPost, PostSchema } from 'src/posts/post-schema';
 
 @Module({
   imports: [
@@ -16,13 +16,13 @@ import { Post, PostSchema } from 'src/posts/post-schema';
         schema: BlogSchema,
       },
       {
-        name: Post.name,
+        name: BlogPost.name,
         schema: PostSchema,
       },
     ]),
     PostsModule,
   ],
-
+  exports: [BlogsRepository],
   controllers: [BlogsController],
   providers: [BlogsService, BlogsRepository, BlogsQueryRepository],
 })

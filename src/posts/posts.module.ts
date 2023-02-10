@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { BlogsModule } from 'src/blogs/blogs.module';
 import { PostsController } from './controllers/posts.controller';
-import { PostSchema, Post } from './post-schema';
+import { PostSchema, BlogPost } from './post-schema';
 import { PostsQueryRepository } from './repositories/posts.query-repository';
 import { PostsRepository } from './repositories/posts.repository';
 import { PostsService } from './services/posts.service';
@@ -10,10 +11,11 @@ import { PostsService } from './services/posts.service';
   imports: [
     MongooseModule.forFeature([
       {
-        name: Post.name,
+        name: BlogPost.name,
         schema: PostSchema,
       },
     ]),
+    forwardRef(() => BlogsModule),
   ],
   exports: [PostsRepository, PostsQueryRepository],
   controllers: [PostsController],

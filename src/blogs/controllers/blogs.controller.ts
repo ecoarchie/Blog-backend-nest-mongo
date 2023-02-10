@@ -18,11 +18,7 @@ import {
   UpdateBlogDto,
 } from '../blog-schema';
 import { Response } from 'express';
-import {
-  BlogIdParam,
-  CreatePostDto,
-  PostPaginatorOptions,
-} from 'src/posts/post-schema';
+import { CreatePostDto, PostPaginatorOptions } from 'src/posts/post-schema';
 import { PostsQueryRepository } from 'src/posts/repositories/posts.query-repository';
 
 @Controller('blogs')
