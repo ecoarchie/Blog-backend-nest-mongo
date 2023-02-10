@@ -6,7 +6,7 @@ import {
   BlogPaginatorOptions,
   BlogsPagination,
 } from '../blog-schema';
-import { Model, Types } from 'mongoose';
+import { LeanDocument, Model, Types } from 'mongoose';
 
 @Injectable()
 export class BlogsQueryRepository {
@@ -14,7 +14,7 @@ export class BlogsQueryRepository {
 
   async findBlogById(blogId: string): Promise<Partial<Blog>> {
     if (!Types.ObjectId.isValid(blogId)) return null;
-    const blogDocument = await this.blogModel.findById(blogId);
+    const blogDocument = await this.blogModel.findById(blogId).lean();
     if (!blogDocument) return null;
     return this.toBlogDto(blogDocument);
   }
@@ -29,7 +29,8 @@ export class BlogsQueryRepository {
       )
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
-      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]]);
+      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
+      .lean();
 
     const totalCount = result.length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
@@ -42,9 +43,9 @@ export class BlogsQueryRepository {
     };
   }
 
-  private toBlogDto(blog: BlogDocument) {
+  private toBlogDto(blog: LeanDocument<BlogDocument>) {
     return {
-      id: blog._id.toString(),
+      id: blog._id,
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.websiteUrl,

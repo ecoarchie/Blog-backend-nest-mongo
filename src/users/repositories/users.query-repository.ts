@@ -60,9 +60,9 @@ export class UsersQueryRepository {
     return result.deletedCount === 1;
   }
 
-  private toUserDto(user: UserDocument | LeanDocument<UserDocument>) {
+  private toUserDto(user: LeanDocument<UserDocument>) {
     return {
-      id: user._id.toString(),
+      id: user._id,
       login: user.login,
       email: user.email,
       createdAt: user.createdAt,

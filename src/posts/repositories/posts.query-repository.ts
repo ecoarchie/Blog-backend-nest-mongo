@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { LeanDocument, Model, Types } from 'mongoose';
 import { BlogPost, PostDocument, PostPaginatorOptions } from '../post-schema';
 
 @Injectable()
@@ -15,9 +15,7 @@ export class PostsQueryRepository {
 
   async findPostById(postId: Types.ObjectId) {
     if (!Types.ObjectId.isValid(postId)) return null;
-    console.log('before post doc, postId = ', postId);
-    const postDocument = await this.postModel.findById(postId);
-    console.log('post doc ', postDocument);
+    const postDocument = await this.postModel.findById(postId).lean();
     return this.toPostDto(postDocument);
   }
 
@@ -29,7 +27,8 @@ export class PostsQueryRepository {
       .find({ blogId: new Types.ObjectId(blogId) })
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
-      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]]);
+      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
+      .lean();
     const totalCount = result.length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
@@ -46,7 +45,8 @@ export class PostsQueryRepository {
       .find()
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
-      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]]);
+      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
+      .lean();
 
     const totalCount = result.length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
@@ -59,7 +59,7 @@ export class PostsQueryRepository {
     };
   }
 
-  private toPostDto(post: PostDocument) {
+  private toPostDto(post: LeanDocument<PostDocument>) {
     return {
       id: post._id.toString(),
       title: post.title,
