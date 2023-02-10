@@ -12,9 +12,10 @@ import { Model, Types } from 'mongoose';
 export class BlogsQueryRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
 
-  async findBlogById(blogId: string): Promise<BlogDocument> {
+  async findBlogById(blogId: string): Promise<Partial<Blog>> {
     if (!Types.ObjectId.isValid(blogId)) return null;
-    return this.blogModel.findById(blogId).exec();
+    const blogDocument = await this.blogModel.findById(blogId);
+    return this.toBlogDto(blogDocument);
   }
 
   async findAll(
@@ -27,8 +28,7 @@ export class BlogsQueryRepository {
       )
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
-      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
-      .exec();
+      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]]);
 
     const totalCount = result.length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
@@ -37,12 +37,18 @@ export class BlogsQueryRepository {
       page: paginatorOptions.pageNumber,
       pageSize: paginatorOptions.pageSize,
       totalCount,
-      items: result,
+      items: result.map(this.toBlogDto),
     };
   }
 
-  async saveBlog(blog: BlogDocument): Promise<BlogDocument['id']> {
-    const result = await blog.save();
-    return result.id;
+  private toBlogDto(blog: BlogDocument) {
+    return {
+      id: blog._id.toString(),
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt,
+      isMembership: blog.isMembership,
+    };
   }
 }

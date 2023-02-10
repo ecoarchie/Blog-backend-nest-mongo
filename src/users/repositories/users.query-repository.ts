@@ -34,9 +34,7 @@ export class UsersQueryRepository {
       )
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
-      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
-      .select({ password: 0 })
-      .exec();
+      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]]);
 
     const totalCount = result.length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
@@ -45,17 +43,28 @@ export class UsersQueryRepository {
       page: paginatorOptions.pageNumber,
       pageSize: paginatorOptions.pageSize,
       totalCount,
-      items: result,
+      items: result.map(this.toUserDto),
     };
   }
 
   async findUserById(id: string) {
-    return this.userModel.findById(id).select({ password: 0 }).exec();
+    const user = await this.userModel.findById(id);
+
+    return this.toUserDto(user);
   }
 
   async deleteUserById(id: string): Promise<boolean> {
     if (!Types.ObjectId.isValid(id)) return false;
     const result = await this.userModel.deleteOne({ _id: id });
     return result.deletedCount === 1;
+  }
+
+  private toUserDto(user: UserDocument) {
+    return {
+      id: user._id.toString(),
+      login: user.login,
+      email: user.email,
+      createdAt: user.createdAt,
+    };
   }
 }

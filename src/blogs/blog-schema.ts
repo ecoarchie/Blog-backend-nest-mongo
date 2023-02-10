@@ -77,7 +77,7 @@ export class CreateBlogDto {
 export class UpdateBlogDto extends CreateBlogDto {}
 
 export interface BlogsPagination extends Pagination {
-  items: Blog[];
+  items: Partial<Blog>[];
 }
 
 type SortDirection = 'asc' | 'desc';
@@ -99,12 +99,3 @@ export class BlogPaginatorOptions {
     this.skip = (this.pageNumber - 1) * this.pageSize;
   }
 }
-
-BlogSchema.set('toJSON', {
-  virtuals: true,
-  versionKey: false,
-  transform: function (doc, ret) {
-    ret.id = ret._id;
-    delete ret._id;
-  },
-});

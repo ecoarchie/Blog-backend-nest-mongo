@@ -5,32 +5,55 @@ import {
   CreateBlogDto,
   UpdateBlogDto,
 } from '../blog-schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { BlogsQueryRepository } from '../repositories/blogs.query-repository';
+import { BlogsRepository } from '../repositories/blogs.repository';
+import { CreatePostDto, Post, PostDocument } from 'src/posts/post-schema';
+import { PostsRepository } from 'src/posts/repositories/posts.repository';
+import { IsMongoId } from 'class-validator';
 
 @Injectable()
 export class BlogsService {
   constructor(
-    private blogsQueryRepository: BlogsQueryRepository,
+    private blogsRepository: BlogsRepository,
+    private postsRepository: PostsRepository,
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
+    @InjectModel(Post.name) private postModel: Model<PostDocument>,
   ) {}
 
   async createNewBlog(dto: CreateBlogDto) {
     const newBlog = new this.blogModel(dto);
-    const blogId = await this.blogsQueryRepository.saveBlog(newBlog);
+    const blogId = await this.blogsRepository.saveBlog(newBlog);
     return blogId;
   }
 
-  async updateBlog(blog: BlogDocument, updateBlogDto: UpdateBlogDto) {
+  async updateBlog(
+    blogId: string,
+    updateBlogDto: UpdateBlogDto,
+  ): Promise<BlogDocument['_id']> {
+    const blog = await this.blogsRepository.findBlogById(blogId);
+    if (!blog) return null;
+
     blog.setName(updateBlogDto.name);
     blog.setDescription(updateBlogDto.description);
     blog.setWebsiteUrl(updateBlogDto.websiteUrl);
-    const result = await this.blogsQueryRepository.saveBlog(blog);
-    console.log(
-      '🚀 ~ file: blogs.service.ts:32 ~ BlogsService ~ updateBlog ~ result',
-      result,
-    );
-    return result;
+    return this.blogsRepository.saveBlog(blog);
+  }
+
+  async createBlogPost(
+    blogId: string,
+    createPostDto: CreatePostDto,
+  ): Promise<PostDocument['_id']> {
+    if (!Types.ObjectId.isValid(blogId)) return null; //TODO make with class validator
+    const blog = await this.blogsRepository.findBlogById(blogId);
+    if (!blog) return null;
+
+    const newPost = new this.postModel({
+      ...createPostDto,
+      blogId: blog._id,
+      blogName: blog.name,
+    });
+    const newPostId = await this.postsRepository.savePost(newPost);
+    return newPostId;
   }
 }

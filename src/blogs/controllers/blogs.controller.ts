@@ -20,17 +20,20 @@ import {
   UpdateBlogDto,
 } from '../blog-schema';
 import { Response } from 'express';
+import { CreatePostDto } from 'src/posts/post-schema';
+import { PostsQueryRepository } from 'src/posts/repositories/posts.query-repository';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly blogsService: BlogsService,
+    private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
 
   @Post()
-  @UsePipes(ValidationPipe)
-  async createBlog(@Body() blogDto: CreateBlogDto): Promise<Blog> {
+  // @UsePipes(ValidationPipe)
+  async createBlog(@Body() blogDto: CreateBlogDto): Promise<Partial<Blog>> {
     const newBlogId = await this.blogsService.createNewBlog(blogDto);
     return this.blogsQueryRepository.findBlogById(newBlogId);
   }
@@ -54,16 +57,29 @@ export class BlogsController {
   }
 
   @Put(':id')
-  @UsePipes(ValidationPipe)
+  // @UsePipes(ValidationPipe)
   async updateBlog(
     @Param('id') blogId: string,
     @Body() updateBlogDto: UpdateBlogDto,
     @Res() res: Response,
   ) {
-    const blog = await this.blogsQueryRepository.findBlogById(blogId);
-    if (!blog) return res.sendStatus(404);
-    const result = await this.blogsService.updateBlog(blog, updateBlogDto);
+    const result = await this.blogsService.updateBlog(blogId, updateBlogDto);
     if (result) return res.sendStatus(204);
-    else return res.sendStatus(400);
+    else res.sendStatus(404);
+  }
+
+  @Post(':blogId/posts')
+  async createBlogPost(
+    @Param('blogId') blogId: string,
+    @Body() createPostDto: CreatePostDto,
+    @Res() res: Response,
+  ) {
+    const postId = await this.blogsService.createBlogPost(
+      blogId,
+      createPostDto,
+    );
+    if (!postId) return res.sendStatus(404);
+    const post = await this.postsQueryRepository.findPostById(postId);
+    res.send(post);
   }
 }

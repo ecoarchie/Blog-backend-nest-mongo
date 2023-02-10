@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
 
 export type UserDocument = HydratedDocument<User>;
@@ -7,7 +7,7 @@ export type UserDocument = HydratedDocument<User>;
 @Schema()
 export class User {
   // @Prop()
-  // id: Types.ObjectId;
+  // _id: Types.ObjectId;
 
   @Prop({
     required: true,
@@ -85,14 +85,5 @@ export interface Pagination {
 }
 
 export interface UsersPagination extends Pagination {
-  items: User[];
+  items: Partial<User>[];
 }
-
-UserSchema.set('toJSON', {
-  virtuals: true,
-  versionKey: false,
-  transform: function (doc, ret) {
-    ret.id = ret._id;
-    delete ret._id;
-  },
-});
