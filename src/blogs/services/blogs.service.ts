@@ -42,7 +42,7 @@ export class BlogsService {
   async createBlogPost(
     blogId: string,
     createPostDto: CreatePostDto,
-  ): Promise<PostDocument['_id']> {
+  ): Promise<PostDocument['id']> {
     if (!Types.ObjectId.isValid(blogId)) return null; //TODO make with class validator
     const blog = await this.blogsRepository.findBlogById(blogId);
     if (!blog) return null;
@@ -53,6 +53,6 @@ export class BlogsService {
       blogName: blog.name,
     });
     const newPostId = await this.postsRepository.savePost(newPost);
-    return newPostId;
+    return newPostId.toString();
   }
 }

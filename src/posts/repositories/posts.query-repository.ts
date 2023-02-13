@@ -8,14 +8,15 @@ export class PostsQueryRepository {
   constructor(
     @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
   ) {}
-  async savePost(post: PostDocument): Promise<PostDocument['_id']> {
+  async savePost(post: PostDocument): Promise<PostDocument['id']> {
     const result = await post.save();
     return result.id;
   }
 
-  async findPostById(postId: Types.ObjectId) {
+  async findPostById(postId: string) {
     if (!Types.ObjectId.isValid(postId)) return null;
     const postDocument = await this.postModel.findById(postId).lean();
+    if (!postDocument) return null;
     return this.toPostDto(postDocument);
   }
 
@@ -59,6 +60,13 @@ export class PostsQueryRepository {
     };
   }
 
+  async deletePostById(postId: string) {
+    const result = await this.postModel.deleteOne({
+      _id: postId,
+    });
+    return result.deletedCount === 1;
+  }
+
   private toPostDto(post: LeanDocument<PostDocument>) {
     return {
       id: post._id.toString(),
@@ -71,6 +79,7 @@ export class PostsQueryRepository {
       extendedLikesInfo: {
         likesCount: post.extendedLikesInfo.likesCount,
         dislikesCount: post.extendedLikesInfo.dislikesCount,
+        myStatus: 'None', //TODO get users like status
         newestLikes: post.extendedLikesInfo.newestLikes,
       },
     };

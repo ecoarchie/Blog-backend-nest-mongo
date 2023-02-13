@@ -56,9 +56,26 @@ export class BlogPost {
 
   @Prop({ type: ExtendedLikesInfoSchema, default: async () => ({}) })
   extendedLikesInfo: ExtendedLikesInfo;
+
+  setTitle(newTitle: string) {
+    this.title = newTitle;
+  }
+
+  setDescription(newDescription: string) {
+    this.shortDescription = newDescription;
+  }
+
+  setContent(newContent: string) {
+    this.content = newContent;
+  }
 }
 
 export const PostSchema = SchemaFactory.createForClass(BlogPost);
+PostSchema.methods = {
+  setTitle: BlogPost.prototype.setTitle,
+  setDescription: BlogPost.prototype.setDescription,
+  setContent: BlogPost.prototype.setContent,
+};
 
 export class CreatePostDto {
   @IsNotEmpty()
@@ -74,20 +91,20 @@ export class CreatePostDto {
   content: string;
 }
 
-export class CreatePostWithBlogId extends CreatePostDto {
+export class CreatePostWithBlogIdDto extends CreatePostDto {
   @IsNotEmpty()
   blogId: string;
 }
+
+export class UpdatePostDto extends CreatePostWithBlogIdDto {}
 
 export class BlogIdParam {
   @IsMongoId()
   blogId: string;
 }
 
-export class UpdatePostDto extends CreatePostDto {}
-
 export interface PostsPagination extends Pagination {
-  items: BlogPost[];
+  items: Partial<BlogPost>[];
 }
 
 type SortDirection = 'asc' | 'desc';
