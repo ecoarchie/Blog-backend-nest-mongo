@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -94,5 +95,14 @@ export class BlogsController {
       postsPaginatorOptions,
     );
     res.send(posts);
+  }
+
+  @Delete(':blogId')
+  async deletePostById(@Param('blogId') blogId: string, @Res() res: Response) {
+    const isBlogDeleted = await this.blogsQueryRepository.deleteBlogById(
+      blogId,
+    );
+    if (!isBlogDeleted) return res.sendStatus(404);
+    return res.sendStatus(204);
   }
 }

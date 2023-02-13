@@ -43,6 +43,13 @@ export class BlogsQueryRepository {
     };
   }
 
+  async deleteBlogById(blogId: string) {
+    const result = await this.blogModel.deleteOne({
+      _id: blogId,
+    });
+    return result.deletedCount === 1;
+  }
+
   private toBlogDto(blog: LeanDocument<BlogDocument>) {
     return {
       id: blog._id,
