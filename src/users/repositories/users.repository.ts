@@ -16,4 +16,8 @@ export class UsersRepository {
   async saveUser(user: UserDocument) {
     await user.save();
   }
+
+  async deleteAllUsers() {
+    return this.userModel.deleteMany({});
+  }
 }

@@ -15,6 +15,7 @@ import { UsersRepository } from './repositories/users.repository';
       },
     ]),
   ],
+  exports: [UsersRepository],
   controllers: [UserController],
   providers: [UsersQueryRepository, UsersRepository, UsersService],
 })

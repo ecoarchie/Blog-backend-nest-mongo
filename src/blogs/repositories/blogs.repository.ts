@@ -15,4 +15,8 @@ export class BlogsRepository {
   async findBlogById(blogId: string): Promise<BlogDocument> {
     return this.blogModel.findById(blogId);
   }
+
+  async deleteAllBlogs() {
+    return this.blogModel.deleteMany({});
+  }
 }

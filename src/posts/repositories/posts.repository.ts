@@ -30,4 +30,8 @@ export class PostsRepository {
     const postId = await this.savePost(newPost);
     return postId as string;
   }
+
+  async deleteAllPosts() {
+    return this.postModel.deleteMany({});
+  }
 }

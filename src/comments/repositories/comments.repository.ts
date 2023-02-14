@@ -6,6 +6,10 @@ import { Comment, CommentDocument } from '../comment-schema';
 @Injectable()
 export class CommentsRepository {
   constructor(
-    @InjectModel(Comment.name) private postModel: Model<CommentDocument>,
+    @InjectModel(Comment.name) private commentsModel: Model<CommentDocument>,
   ) {}
+
+  async deleteAllComments() {
+    return this.commentsModel.deleteMany({});
+  }
 }
