@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Controller, Delete } from '@nestjs/common';
 import { BlogsRepository } from './blogs/repositories/blogs.repository';
 import { CommentsRepository } from './comments/repositories/comments.repository';
 import { PostsRepository } from './posts/repositories/posts.repository';
@@ -12,7 +12,7 @@ export class AppController {
     private readonly commentsRepository: CommentsRepository,
     private readonly usersRepository: UsersRepository,
   ) {}
-  @Post('testing/all-data')
+  @Delete('testing/all-data')
   async deleteAllData() {
     await this.blogsRepository.deleteAllBlogs();
     await this.postsRepository.deleteAllPosts();
