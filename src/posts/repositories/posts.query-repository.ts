@@ -31,7 +31,7 @@ export class PostsQueryRepository {
       .skip(paginatorOptions.skip)
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
       .lean();
-    const totalCount = result.length;
+    const totalCount = await this.countPostsByBlogId(blogId);
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
       pagesCount,
@@ -40,6 +40,9 @@ export class PostsQueryRepository {
       totalCount,
       items: result.map(this.toPostDto),
     };
+  }
+  private async countPostsByBlogId(blogId: string) {
+    return this.postModel.count({ blogId });
   }
 
   async findAll(paginatorOptions: PostPaginatorOptions) {
@@ -50,7 +53,7 @@ export class PostsQueryRepository {
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
       .lean();
 
-    const totalCount = result.length;
+    const totalCount = await this.postModel.count();
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
       pagesCount,

@@ -37,7 +37,7 @@ export class UsersQueryRepository {
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
       .lean();
 
-    const totalCount = result.length;
+    const totalCount = await this.userModel.count();
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
       pagesCount,
