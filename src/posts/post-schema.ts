@@ -6,7 +6,7 @@ import { Pagination } from 'src/users/user-schema';
 export type PostDocument = HydratedDocument<BlogPost>;
 
 @Schema()
-export class LikesDetails {
+export class NewestLikesDetails {
   @Prop()
   addedAt: Date;
 
@@ -17,7 +17,8 @@ export class LikesDetails {
   login: string;
 }
 
-export const LikesDetailsSchema = SchemaFactory.createForClass(LikesDetails);
+export const LikesDetailsSchema =
+  SchemaFactory.createForClass(NewestLikesDetails);
 
 @Schema()
 export class ExtendedLikesInfo {
@@ -27,8 +28,11 @@ export class ExtendedLikesInfo {
   @Prop({ default: 0 })
   dislikesCount: number;
 
-  @Prop({ type: [LikesDetailsSchema], default: () => [] as LikesDetails[] })
-  newestLikes: [LikesDetails];
+  @Prop({
+    type: [LikesDetailsSchema],
+    default: () => [] as NewestLikesDetails[],
+  })
+  newestLikes: [NewestLikesDetails];
 }
 
 export const ExtendedLikesInfoSchema =

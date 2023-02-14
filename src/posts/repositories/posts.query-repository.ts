@@ -8,6 +8,7 @@ export class PostsQueryRepository {
   constructor(
     @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
   ) {}
+
   async savePost(post: PostDocument): Promise<PostDocument['id']> {
     const result = await post.save();
     return result.id;
