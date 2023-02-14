@@ -102,10 +102,10 @@ export class CreatePostWithBlogIdDto extends CreatePostDto {
 
 export class UpdatePostDto extends CreatePostWithBlogIdDto {}
 
-export class BlogIdParam {
-  @IsMongoId()
-  blogId: string;
-}
+// export class PostIdParam {
+//   @IsMongoId()
+//   postId: string;
+// }
 
 export interface PostsPagination extends Pagination {
   items: Partial<BlogPost>[];
