@@ -50,7 +50,7 @@ export class PostsController {
   async getPostById(@Param('postId') postId: string, @Res() res: Response) {
     const postFound = await this.postsQueryRepository.findPostById(postId);
     if (!postFound) return res.sendStatus(404);
-    return postFound;
+    res.status(200).send(postFound);
   }
 
   @Put(':postId')
