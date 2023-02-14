@@ -32,7 +32,9 @@ export class BlogsQueryRepository {
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
       .lean();
 
-    const totalCount = await this.blogModel.count();
+    const totalCount = paginatorOptions.searchNameTerm
+      ? result.length
+      : await this.blogModel.count();
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
       pagesCount,

@@ -42,7 +42,7 @@ export class PostsQueryRepository {
     };
   }
   private async countPostsByBlogId(blogId: string) {
-    return this.postModel.count({ blogId });
+    return this.postModel.count({ blogId: new Types.ObjectId(blogId) });
   }
 
   async findAll(paginatorOptions: PostPaginatorOptions) {
