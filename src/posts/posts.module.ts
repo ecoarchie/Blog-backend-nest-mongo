@@ -1,5 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthService } from 'src/auth/services/auth.service';
 import { BlogsModule } from 'src/blogs/blogs.module';
 import { PostsController } from './controllers/posts.controller';
 import { PostSchema, BlogPost } from './post-schema';
@@ -19,6 +20,6 @@ import { PostsService } from './services/posts.service';
   ],
   exports: [PostsRepository, PostsQueryRepository],
   controllers: [PostsController],
-  providers: [PostsRepository, PostsQueryRepository, PostsService],
+  providers: [PostsRepository, PostsQueryRepository, PostsService, AuthService],
 })
 export class PostsModule {}

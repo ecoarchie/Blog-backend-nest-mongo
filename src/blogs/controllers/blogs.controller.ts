@@ -8,6 +8,7 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogsQueryRepository } from '../repositories/blogs.query-repository';
 import { BlogsService } from '../services/blogs.service';
@@ -21,6 +22,7 @@ import {
 import { Response } from 'express';
 import { CreatePostDto, PostPaginatorOptions } from 'src/posts/post-schema';
 import { PostsQueryRepository } from 'src/posts/repositories/posts.query-repository';
+import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
 
 @Controller('blogs')
 export class BlogsController {
@@ -30,6 +32,7 @@ export class BlogsController {
     private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
 
+  @UseGuards(BasicAuthGuard)
   @Post()
   async createBlog(@Body() blogDto: CreateBlogDto): Promise<Partial<Blog>> {
     const newBlogId = await this.blogsService.createNewBlog(blogDto);
@@ -54,6 +57,7 @@ export class BlogsController {
     return res.status(200).send(blogFound);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Put(':id')
   async updateBlog(
     @Param('id') blogId: string,
@@ -65,6 +69,7 @@ export class BlogsController {
     else res.sendStatus(404);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Post(':blogId/posts')
   async createBlogPost(
     @Param('blogId') blogId: string,
@@ -97,6 +102,7 @@ export class BlogsController {
     res.send(posts);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Delete(':blogId')
   async deletePostById(@Param('blogId') blogId: string, @Res() res: Response) {
     const isBlogDeleted = await this.blogsQueryRepository.deleteBlogById(

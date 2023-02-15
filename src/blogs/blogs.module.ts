@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blog-schema';
 import { PostsModule } from 'src/posts/posts.module';
 import { BlogPost, PostSchema } from 'src/posts/post-schema';
+import { AuthService } from 'src/auth/services/auth.service';
 
 @Module({
   imports: [
@@ -24,6 +25,6 @@ import { BlogPost, PostSchema } from 'src/posts/post-schema';
   ],
   exports: [BlogsRepository],
   controllers: [BlogsController],
-  providers: [BlogsService, BlogsRepository, BlogsQueryRepository],
+  providers: [BlogsService, BlogsRepository, BlogsQueryRepository, AuthService],
 })
 export class BlogsModule {}

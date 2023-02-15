@@ -8,8 +8,10 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
 import {
   CreatePostWithBlogIdDto,
   BlogPost,
@@ -38,6 +40,7 @@ export class PostsController {
     return posts;
   }
 
+  @UseGuards(BasicAuthGuard)
   @Post()
   async createPost(
     @Body() postDto: CreatePostWithBlogIdDto,
@@ -53,6 +56,7 @@ export class PostsController {
     res.status(200).send(postFound);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Put(':postId')
   async updatePostById(
     @Param('postId') postId: string,
@@ -65,6 +69,7 @@ export class PostsController {
     else res.sendStatus(204);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Delete(':postId')
   async deletePostById(@Param('postId') postId: string, @Res() res: Response) {
     const isPostDeleted = await this.postsQueryRepository.deletePostById(

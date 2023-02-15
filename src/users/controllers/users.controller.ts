@@ -7,6 +7,7 @@ import {
   Post,
   Query,
   Res,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -18,7 +19,9 @@ import {
 } from '../user-schema';
 import { UsersService } from '../services/users.service';
 import { Response } from 'express';
+import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
 
+@UseGuards(BasicAuthGuard)
 @Controller('users')
 export class UserController {
   constructor(
