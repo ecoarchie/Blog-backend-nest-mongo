@@ -12,8 +12,10 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { BearerAuthGuard } from 'src/auth/guards/bearer.auth.guard';
+import { UsersQueryRepository } from 'src/users/repositories/users.query-repository';
 import { UpdateCommentDto } from './comment-schema';
 import { CommentsService } from './comments.services';
+import { LikeInputDto } from './like.schema';
 import { CommentsQueryRepository } from './repositories/comments.query-repository';
 
 @Controller('comments')
@@ -21,6 +23,7 @@ export class CommentsController {
   constructor(
     private readonly commentsQueryRepository: CommentsQueryRepository,
     private readonly commentsService: CommentsService,
+    private readonly usersQueryRepo: UsersQueryRepository,
   ) {}
 
   @Get(':commentId')
@@ -34,7 +37,7 @@ export class CommentsController {
       req.userId,
     );
     if (!commentFound) return res.sendStatus(404);
-    return commentFound;
+    return res.send(commentFound);
   }
 
   @HttpCode(204)
@@ -60,5 +63,23 @@ export class CommentsController {
       updateCommentDto.content,
       req.userId,
     );
+  }
+
+  @UseGuards(BearerAuthGuard)
+  @Put(':commentId/like-status')
+  async reactToComment(
+    @Param('commentId') commentId: string,
+    @Body() likeStatusDto: LikeInputDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const userLogin = await this.usersQueryRepo.getUserLoginById(req.userId);
+    await this.commentsService.reactToComment(
+      req.userId,
+      userLogin,
+      commentId,
+      likeStatusDto.likeStatus,
+    );
+    res.sendStatus(204);
   }
 }

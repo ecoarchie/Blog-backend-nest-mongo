@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Comment, CommentDocument } from './comment-schema';
+import { LikeReaction } from './like.schema';
 import { CommentsRepository } from './repositories/comments.repository';
 
 @Injectable()
@@ -49,5 +50,19 @@ export class CommentsService {
       throw new ForbiddenException();
 
     this.commentsRepository.deleteCommentById(commentId);
+  }
+
+  async reactToComment(
+    userId: string,
+    userLogin: string,
+    commentId: string,
+    likeStatus: LikeReaction,
+  ) {
+    const comment = await this.commentsRepository.findCommentById(
+      commentId,
+      userId,
+    );
+    comment.makeReaction(likeStatus, userId, userLogin);
+    await this.commentsRepository.saveComment(comment);
   }
 }

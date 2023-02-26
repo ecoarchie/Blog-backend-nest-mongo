@@ -60,12 +60,58 @@ export class Comment {
   updateContent(content: string) {
     this.content = content;
   }
+
+  makeReaction(newReaction: LikeReaction, userId: string, userLogin: string) {
+    const userLikeObj = this.likesInfo.userLikes.find(
+      (u) => u.userId.toString() === userId,
+    );
+    const oldReaction = userLikeObj ? userLikeObj.reaction : 'None';
+    if (!userLikeObj) {
+      this.likesInfo.userLikes.push({
+        userId: new Types.ObjectId(userId),
+        login: userLogin,
+        reaction: newReaction,
+      } as Omit<Like, 'createdAt'>);
+    } else {
+      userLikeObj.reaction = newReaction;
+    }
+    this.changeLikeDislikeCount(oldReaction, newReaction);
+  }
+
+  changeLikeDislikeCount(oldReaction: LikeReaction, newReaction: LikeReaction) {
+    if (oldReaction === newReaction) return;
+
+    if (oldReaction === 'None') {
+      if (newReaction === 'Like') this.likesInfo.likesCount += 1;
+      else this.likesInfo.dislikesCount += 1;
+    }
+
+    if (oldReaction === 'Like') {
+      if (newReaction === 'Dislike') {
+        this.likesInfo.likesCount -= 1;
+        this.likesInfo.dislikesCount += 1;
+      } else if (newReaction === 'None') {
+        this.likesInfo.likesCount -= 1;
+      }
+    }
+
+    if (oldReaction === 'Dislike') {
+      if (newReaction === 'Like') {
+        this.likesInfo.dislikesCount -= 1;
+        this.likesInfo.likesCount += 1;
+      } else if (newReaction === 'None') {
+        this.likesInfo.dislikesCount -= 1;
+      }
+    }
+  }
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
 CommentSchema.methods = {
   getMyLikeStatus: Comment.prototype.getMyLikeStatus,
   updateContent: Comment.prototype.updateContent,
+  makeReaction: Comment.prototype.makeReaction,
+  changeLikeDislikeCount: Comment.prototype.changeLikeDislikeCount,
 };
 
 export class CreateCommentDto {

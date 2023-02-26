@@ -62,6 +62,13 @@ export class CommentsRepository {
     };
   }
 
+  async findCommentById(commentId: string, userId: string) {
+    const comment = await this.commentsModel.findById(commentId);
+    if (!comment) return null;
+
+    return comment;
+  }
+
   async countAllCommentsForPost(postId: string) {
     return this.commentsModel.count({ postId: new Types.ObjectId(postId) });
   }
