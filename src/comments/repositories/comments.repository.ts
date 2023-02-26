@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Comment, CommentDocument } from '../comment-schema';
 
 @Injectable()
@@ -13,10 +13,21 @@ export class CommentsRepository {
     return this.commentsModel.deleteMany({});
   }
 
-  async createComment(content: string): Promise<CommentDocument['id']> {
-    const newComment = new this.commentsModel({ content });
+  async createComment(
+    content: string,
+    commentatorId: string,
+    commentatorLogin: string,
+  ): Promise<CommentDocument['id']> {
+    const newComment = new this.commentsModel({
+      content,
+      commentatorInfo: {
+        userId: new Types.ObjectId(commentatorId),
+        userLogin: commentatorLogin,
+      },
+    });
     return this.saveComment(newComment);
   }
+
   async saveComment(
     newComment: CommentDocument,
   ): Promise<CommentDocument['id']> {

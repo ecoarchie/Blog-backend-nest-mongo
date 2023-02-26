@@ -1,10 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsString, MaxLength, MinLength } from 'class-validator';
 import { HydratedDocument, Types } from 'mongoose';
+import { Like, LikeSchema } from './like.schema';
 
 export type CommentDocument = HydratedDocument<Comment>;
 
-@Schema()
+@Schema({ _id: false })
 export class CommentLikesInfo {
   @Prop({ default: 0 })
   likesCount: number;
@@ -14,11 +15,14 @@ export class CommentLikesInfo {
 
   @Prop({ default: 'None' })
   myStatus: string;
+
+  @Prop({ type: [LikeSchema] })
+  userLikes: Like[];
 }
 
 const CommentLikesInfoSchema = SchemaFactory.createForClass(CommentLikesInfo);
 
-@Schema()
+@Schema({ _id: false })
 export class CommentatorInfo {
   @Prop({ required: true })
   userId: Types.ObjectId;

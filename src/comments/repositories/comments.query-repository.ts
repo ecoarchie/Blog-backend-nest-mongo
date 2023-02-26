@@ -18,7 +18,7 @@ export class CommentsQueryRepository {
 
   private toCommentDto(commentDoc: LeanDocument<CommentDocument>) {
     return {
-      id: commentDoc.id,
+      id: commentDoc._id,
       content: commentDoc.content,
       commentatorInfo: {
         userId: commentDoc.commentatorInfo.userId,

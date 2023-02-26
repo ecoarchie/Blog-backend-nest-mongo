@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Comment, CommentSchema } from './comment-schema';
-import { CommentsController } from './controllers/comments.controller';
+import { CommentsController } from './comments.controller';
+import { CommentsService } from './comments.services';
 import { CommentsQueryRepository } from './repositories/comments.query-repository';
 import { CommentsRepository } from './repositories/comments.repository';
-import { CommentsService } from './services/comments.services';
 
 @Module({
   imports: [

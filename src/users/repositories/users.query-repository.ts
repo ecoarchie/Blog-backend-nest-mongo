@@ -81,6 +81,12 @@ export class UsersQueryRepository {
     return this.toUserDto(user);
   }
 
+  async getUserLoginById(id: string): Promise<string> {
+    const user = await this.userModel.findById(id).lean();
+
+    return user.login;
+  }
+
   async deleteUserById(id: string): Promise<boolean> {
     if (!Types.ObjectId.isValid(id)) return false;
     const result = await this.userModel.deleteOne({ _id: id });

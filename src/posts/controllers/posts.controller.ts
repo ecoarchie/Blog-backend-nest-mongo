@@ -7,15 +7,17 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
 import { BearerAuthGuard } from 'src/auth/guards/bearer.auth.guard';
 import { CreateCommentDto } from 'src/comments/comment-schema';
+import { CommentsService } from 'src/comments/comments.services';
 import { CommentsQueryRepository } from 'src/comments/repositories/comments.query-repository';
-import { CommentsService } from 'src/comments/services/comments.services';
+import { UsersQueryRepository } from 'src/users/repositories/users.query-repository';
 import {
   BlogPost,
   CreatePostWithBlogIdDto,
@@ -33,6 +35,7 @@ export class PostsController {
     private readonly postService: PostsService,
     private readonly commentsService: CommentsService,
     private readonly commentsQueryRepo: CommentsQueryRepository,
+    private readonly usersQueryRepo: UsersQueryRepository,
   ) {}
 
   @Get()
@@ -91,13 +94,19 @@ export class PostsController {
     @Param('postId') postId: string,
     @Body() createCommentDto: CreateCommentDto,
     @Res() res: Response,
+    @Req() req: Request,
   ) {
     const isPostExist = await this.postsQueryRepository.findPostById(postId);
     if (!isPostExist) return res.sendStatus(404);
 
+    const commentatorLogin = await this.usersQueryRepo.getUserLoginById(
+      req.userId,
+    );
     const newCommentId = await this.commentsService.createComment(
       createCommentDto.content,
+      req.userId,
+      commentatorLogin,
     );
-    return this.commentsQueryRepo.findCommentById(newCommentId);
+    res.send(await this.commentsQueryRepo.findCommentById(newCommentId));
   }
 }
