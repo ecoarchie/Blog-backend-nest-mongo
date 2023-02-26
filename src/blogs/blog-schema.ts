@@ -7,29 +7,19 @@ export type BlogDocument = HydratedDocument<Blog>;
 
 @Schema()
 export class Blog {
-  @Prop({
-    required: true,
-  })
+  @Prop({ required: true })
   name: string;
 
-  @Prop({
-    required: true,
-  })
+  @Prop({ required: true })
   description: string;
 
-  @Prop({
-    required: true,
-  })
+  @Prop({ required: true })
   websiteUrl: string;
 
-  @Prop({
-    default: Date.now,
-  })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({
-    default: false,
-  })
+  @Prop({ default: false })
   isMembership: boolean;
 
   setName(newName: string) {

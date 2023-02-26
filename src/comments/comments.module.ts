@@ -15,7 +15,7 @@ import { CommentsService } from './services/comments.services';
       },
     ]),
   ],
-  exports: [CommentsRepository],
+  exports: [CommentsRepository, CommentsQueryRepository, CommentsService],
   controllers: [CommentsController],
   providers: [CommentsRepository, CommentsQueryRepository, CommentsService],
 })

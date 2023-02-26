@@ -1,17 +1,17 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
-import { Observable } from 'rxjs';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class BearerAuthGuard implements CanActivate {
   constructor(protected authService: AuthService) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
     const authorization = request.headers.authorization;
-    return this.authService.validateUserBearer(authorization);
+    const userId = await this.authService.validateUserBearer(authorization);
+    request.userId = userId;
+    if (userId) return true;
+    else return false;
   }
 }

@@ -20,5 +20,6 @@ export class AppController {
     await this.postsRepository.deleteAllPosts();
     await this.commentsRepository.deleteAllComments();
     await this.usersRepository.deleteAllUsers();
+    await this.usersRepository.deleteAllSessions();
   }
 }

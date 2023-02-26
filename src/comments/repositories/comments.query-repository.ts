@@ -11,9 +11,9 @@ export class CommentsQueryRepository {
 
   async findCommentById(commentId: string) {
     if (!Types.ObjectId.isValid(commentId)) return null;
-    const postDocument = await this.commentModel.findById(commentId).lean();
-    if (!postDocument) return null;
-    return this.toCommentDto(postDocument);
+    const commentDocument = await this.commentModel.findById(commentId).lean();
+    if (!commentDocument) return null;
+    return this.toCommentDto(commentDocument);
   }
 
   private toCommentDto(commentDoc: LeanDocument<CommentDocument>) {

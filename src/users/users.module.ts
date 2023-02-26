@@ -1,11 +1,13 @@
-import { Module } from '@nestjs/common';
-import { UserController } from './controllers/users.controller';
-import { UsersQueryRepository } from './repositories/users.query-repository';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './user-schema';
-import { UsersService } from './services/users.service';
+import { AuthModule } from 'src/auth/auth.module';
+import { EmailService } from 'src/utils/email.service';
+import { UsersQueryRepository } from './repositories/users.query-repository';
 import { UsersRepository } from './repositories/users.repository';
-import { AuthService } from 'src/auth/services/auth.service';
+import { Session, SessionSchema } from './sessions/session.schema';
+import { User, UserSchema } from './user-schema';
+import { UserController } from './users.controller';
+import { UsersService } from './users.service';
 
 @Module({
   imports: [
@@ -14,10 +16,20 @@ import { AuthService } from 'src/auth/services/auth.service';
         name: User.name,
         schema: UserSchema,
       },
+      {
+        name: Session.name,
+        schema: SessionSchema,
+      },
     ]),
+    forwardRef(() => AuthModule),
   ],
-  exports: [UsersRepository],
+  exports: [UsersRepository, UsersQueryRepository, UsersService],
   controllers: [UserController],
-  providers: [UsersQueryRepository, UsersRepository, UsersService, AuthService],
+  providers: [
+    UsersQueryRepository,
+    UsersRepository,
+    UsersService,
+    EmailService,
+  ],
 })
 export class UserModule {}

@@ -12,4 +12,15 @@ export class CommentsRepository {
   async deleteAllComments() {
     return this.commentsModel.deleteMany({});
   }
+
+  async createComment(content: string): Promise<CommentDocument['id']> {
+    const newComment = new this.commentsModel({ content });
+    return this.saveComment(newComment);
+  }
+  async saveComment(
+    newComment: CommentDocument,
+  ): Promise<CommentDocument['id']> {
+    const result = await newComment.save();
+    return result.id as string;
+  }
 }

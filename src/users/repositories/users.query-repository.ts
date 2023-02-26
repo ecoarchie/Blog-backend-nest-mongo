@@ -1,6 +1,6 @@
-import { LeanDocument, Model, Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { LeanDocument, Model, Types } from 'mongoose';
 import {
   User,
   UserDocument,
@@ -54,6 +54,30 @@ export class UsersQueryRepository {
   async findUserById(id: string) {
     const user = await this.userModel.findById(id).lean();
 
+    return this.toUserDto(user);
+  }
+
+  async findUserByRecoveryCode(recoveryCode: string) {
+    const user = await this.userModel
+      .findOne({ 'passwordRecovery.recoveryCode': recoveryCode })
+      .lean();
+
+    return user;
+  }
+
+  async findUserLeanDocumentById(id: string) {
+    const user = await this.userModel.findById(id).lean();
+    const { password, ...rest } = user;
+    return rest;
+  }
+
+  async findUserByLoginOrEmail(login: string, email: string) {
+    const user = await this.userModel
+      .findOne()
+      .or([{ login }, { email }])
+      .lean();
+
+    if (!user) return null;
     return this.toUserDto(user);
   }
 

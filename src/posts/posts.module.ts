@@ -1,9 +1,10 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthService } from 'src/auth/services/auth.service';
+import { AuthModule } from 'src/auth/auth.module';
 import { BlogsModule } from 'src/blogs/blogs.module';
+import { CommentsModule } from 'src/comments/comments.module';
 import { PostsController } from './controllers/posts.controller';
-import { PostSchema, BlogPost } from './post-schema';
+import { BlogPost, PostSchema } from './post-schema';
 import { PostsQueryRepository } from './repositories/posts.query-repository';
 import { PostsRepository } from './repositories/posts.repository';
 import { PostsService } from './services/posts.service';
@@ -17,9 +18,11 @@ import { PostsService } from './services/posts.service';
       },
     ]),
     forwardRef(() => BlogsModule),
+    AuthModule,
+    CommentsModule,
   ],
   exports: [PostsRepository, PostsQueryRepository],
   controllers: [PostsController],
-  providers: [PostsRepository, PostsQueryRepository, PostsService, AuthService],
+  providers: [PostsRepository, PostsQueryRepository, PostsService],
 })
 export class PostsModule {}

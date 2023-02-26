@@ -11,15 +11,15 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { UsersQueryRepository } from '../repositories/users.query-repository';
+import { Response } from 'express';
+import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
+import { UsersQueryRepository } from './repositories/users.query-repository';
 import {
   CreateUserDto,
   UserPaginatorOptions,
   UsersPagination,
-} from '../user-schema';
-import { UsersService } from '../services/users.service';
-import { Response } from 'express';
-import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
+} from './user-schema';
+import { UsersService } from './users.service';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')

@@ -12,9 +12,13 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
+import { BearerAuthGuard } from 'src/auth/guards/bearer.auth.guard';
+import { CreateCommentDto } from 'src/comments/comment-schema';
+import { CommentsQueryRepository } from 'src/comments/repositories/comments.query-repository';
+import { CommentsService } from 'src/comments/services/comments.services';
 import {
-  CreatePostWithBlogIdDto,
   BlogPost,
+  CreatePostWithBlogIdDto,
   PostPaginatorOptions,
   PostsPagination,
   UpdatePostDto,
@@ -27,6 +31,8 @@ export class PostsController {
   constructor(
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly postService: PostsService,
+    private readonly commentsService: CommentsService,
+    private readonly commentsQueryRepo: CommentsQueryRepository,
   ) {}
 
   @Get()
@@ -77,5 +83,21 @@ export class PostsController {
     );
     if (!isPostDeleted) return res.sendStatus(404);
     return res.sendStatus(204);
+  }
+
+  @UseGuards(BearerAuthGuard)
+  @Post(':postId/comments')
+  async createComment(
+    @Param('postId') postId: string,
+    @Body() createCommentDto: CreateCommentDto,
+    @Res() res: Response,
+  ) {
+    const isPostExist = await this.postsQueryRepository.findPostById(postId);
+    if (!isPostExist) return res.sendStatus(404);
+
+    const newCommentId = await this.commentsService.createComment(
+      createCommentDto.content,
+    );
+    return this.commentsQueryRepo.findCommentById(newCommentId);
   }
 }
