@@ -1,5 +1,7 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from 'src/auth/auth.module';
+import { AccessTokenValidationMiddleware } from 'src/middlewares/accessTokenCkeck.middleware';
 import { Comment, CommentSchema } from './comment-schema';
 import { CommentsController } from './comments.controller';
 import { CommentsService } from './comments.services';
@@ -14,9 +16,16 @@ import { CommentsRepository } from './repositories/comments.repository';
         schema: CommentSchema,
       },
     ]),
+    AuthModule,
   ],
   exports: [CommentsRepository, CommentsQueryRepository, CommentsService],
   controllers: [CommentsController],
   providers: [CommentsRepository, CommentsQueryRepository, CommentsService],
 })
-export class CommentsModule {}
+export class CommentsModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AccessTokenValidationMiddleware)
+      .forRoutes(CommentsController);
+  }
+}

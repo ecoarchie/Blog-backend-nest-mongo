@@ -17,6 +17,10 @@ export class CommentsRepository {
     return this.commentsModel.deleteMany({});
   }
 
+  async deleteCommentById(commentId: string) {
+    await this.commentsModel.findByIdAndDelete(commentId);
+  }
+
   async createComment(
     content: string,
     postId: string,

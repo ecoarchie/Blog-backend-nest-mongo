@@ -124,7 +124,7 @@ export class PostsController {
       req.userId,
       commentatorLogin,
     );
-    res.send(await this.commentsQueryRepo.findCommentById(newCommentId));
+    res.send(await this.commentsQueryRepo.findCommentById(newCommentId, null));
   }
 
   @Get(':postId/comments')
@@ -143,7 +143,7 @@ export class PostsController {
     const commentsPaginatorOptions = new CommentsPaginationOptions(
       commentsPaginator,
     );
-    const comments = await this.commentsRepository.findCommentsForPost(
+    const comments = await this.commentsQueryRepo.findCommentsForPost(
       req.userId,
       postId,
       commentsPaginatorOptions,

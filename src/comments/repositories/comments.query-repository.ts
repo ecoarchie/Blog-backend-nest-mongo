@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { LeanDocument, Model, Types } from 'mongoose';
-import { Comment, CommentDocument } from '../comment-schema';
+import {
+  Comment,
+  CommentDocument,
+  CommentsPaginationOptions,
+} from '../comment-schema';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -10,14 +14,46 @@ export class CommentsQueryRepository {
   ) {}
 
   //TODO need to check like status from repository
-  async findCommentById(commentId: string) {
+  async findCommentById(commentId: string, userId: string) {
     if (!Types.ObjectId.isValid(commentId)) return null;
     const commentDocument = await this.commentModel.findById(commentId).lean();
     if (!commentDocument) return null;
-    return this.toCommentDto(commentDocument);
+    return this.toCommentDtoWithMyLikeStatus(commentDocument, userId);
   }
 
-  private toCommentDto(commentDoc: LeanDocument<CommentDocument>) {
+  async findCommentsForPost(
+    userId: string,
+    postId: string,
+    paginator: CommentsPaginationOptions,
+  ) {
+    const result = await this.commentModel
+      .find({ postId: new Types.ObjectId(postId) })
+      .limit(paginator.pageSize)
+      .skip(paginator.skip)
+      .sort([[paginator.sortBy, paginator.sortDirection]])
+      .lean();
+
+    const totalCount = await this.countAllCommentsForPost(postId);
+    const pagesCount = Math.ceil(totalCount / paginator.pageSize);
+    return {
+      pagesCount,
+      page: paginator.pageNumber,
+      pageSize: paginator.pageSize,
+      totalCount,
+      items: result.map((c) => {
+        return this.toCommentDtoWithMyLikeStatus(c, userId);
+      }),
+    };
+  }
+
+  async countAllCommentsForPost(postId: string) {
+    return this.commentModel.count({ postId: new Types.ObjectId(postId) });
+  }
+
+  private toCommentDtoWithMyLikeStatus(
+    commentDoc: LeanDocument<CommentDocument>,
+    userId: string,
+  ) {
     return {
       id: commentDoc._id,
       content: commentDoc.content,
@@ -29,7 +65,10 @@ export class CommentsQueryRepository {
       likesInfo: {
         likesCount: commentDoc.likesInfo.likesCount,
         dislikesCount: commentDoc.likesInfo.dislikesCount,
-        myStatus: commentDoc.likesInfo.myStatus,
+        myStatus:
+          commentDoc.likesInfo.userLikes.find(
+            (u) => u.userId.toString() === userId,
+          )?.reaction || 'None',
       },
     };
   }

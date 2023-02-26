@@ -70,6 +70,8 @@ export class CreateCommentDto {
   content: string;
 }
 
+export class UpdateCommentDto extends CreateCommentDto {}
+
 type SortDirection = 'asc' | 'desc';
 
 export class CommentsPaginationOptions {
