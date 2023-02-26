@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { LikeReaction } from 'src/comments/like.schema';
 import {
   BlogPost,
   CreatePostWithBlogIdDto,
@@ -32,5 +33,16 @@ export class PostsService {
     post.setDescription(updatePostDto.shortDescription);
     post.setContent(updatePostDto.content);
     return this.postsRepository.savePost(post);
+  }
+
+  async reactToPost(
+    userId: string,
+    userLogin: string,
+    postId: string,
+    likeStatus: LikeReaction,
+  ) {
+    const post = await this.postsRepository.findPostById(postId);
+    post.makeReaction(likeStatus, userId, userLogin);
+    await this.postsRepository.savePost(post);
   }
 }

@@ -14,16 +14,16 @@ export class PostsQueryRepository {
     return result.id;
   }
 
-  async findPostById(postId: string) {
+  async findPostById(postId: string, userId: string) {
     if (!Types.ObjectId.isValid(postId)) return null;
     const postDocument = await this.postModel.findById(postId).lean();
-    if (!postDocument) return null;
-    return this.toPostDto(postDocument);
+    return postDocument ? this.toPostDto(postDocument, userId) : null;
   }
 
   async findAllPostsForBlog(
     blogId: string,
     paginatorOptions: PostPaginatorOptions,
+    userId: string,
   ) {
     const result = await this.postModel
       .find({ blogId: new Types.ObjectId(blogId) })
@@ -38,14 +38,16 @@ export class PostsQueryRepository {
       page: paginatorOptions.pageNumber,
       pageSize: paginatorOptions.pageSize,
       totalCount,
-      items: result.map(this.toPostDto),
+      items: result.map((i) => {
+        return this.toPostDto(i, userId);
+      }),
     };
   }
   private async countPostsByBlogId(blogId: string) {
     return this.postModel.count({ blogId: new Types.ObjectId(blogId) });
   }
 
-  async findAll(paginatorOptions: PostPaginatorOptions) {
+  async findAll(userId: string, paginatorOptions: PostPaginatorOptions) {
     const result = await this.postModel
       .find()
       .limit(paginatorOptions.pageSize)
@@ -60,7 +62,9 @@ export class PostsQueryRepository {
       page: paginatorOptions.pageNumber,
       pageSize: paginatorOptions.pageSize,
       totalCount,
-      items: result.map(this.toPostDto),
+      items: result.map((i) => {
+        return this.toPostDto(i, userId);
+      }),
     };
   }
 
@@ -71,7 +75,8 @@ export class PostsQueryRepository {
     return result.deletedCount === 1;
   }
 
-  private toPostDto(post: LeanDocument<PostDocument>) {
+  private toPostDto(post: LeanDocument<PostDocument>, userId: string) {
+    console.log(userId);
     return {
       id: post._id.toString(),
       title: post.title,
@@ -83,8 +88,21 @@ export class PostsQueryRepository {
       extendedLikesInfo: {
         likesCount: post.extendedLikesInfo.likesCount,
         dislikesCount: post.extendedLikesInfo.dislikesCount,
-        myStatus: 'None', //TODO get users like status
-        newestLikes: post.extendedLikesInfo.newestLikes,
+        myStatus:
+          post.extendedLikesInfo.userLikes.find(
+            (u) => u.userId.toString() === userId,
+          )?.reaction || 'None',
+        newestLikes: post.extendedLikesInfo.userLikes
+          .filter((u) => u.reaction === 'Like')
+          .slice(-3)
+          .reverse()
+          .map((u) => {
+            return {
+              userId: u.userId,
+              login: u.login,
+              addedAt: u.addedAt,
+            };
+          }),
       },
     };
   }

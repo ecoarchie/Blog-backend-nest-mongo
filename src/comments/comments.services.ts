@@ -14,11 +14,13 @@ export class CommentsService {
 
   async createComment(
     content: string,
+    postId: string,
     commentatorId: string,
     commentatorLogin: string,
   ): Promise<CommentDocument['id']> {
     const commentId = await this.commentsRepository.createComment(
       content,
+      postId,
       commentatorId,
       commentatorLogin,
     );

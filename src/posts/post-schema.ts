@@ -1,24 +1,25 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IsMongoId, IsNotEmpty, MaxLength } from 'class-validator';
+import { IsNotEmpty, MaxLength } from 'class-validator';
 import { HydratedDocument, Types } from 'mongoose';
+import { Like, LikeReaction, LikeSchema } from 'src/comments/like.schema';
 import { Pagination } from 'src/users/user-schema';
 
 export type PostDocument = HydratedDocument<BlogPost>;
 
-@Schema()
-export class NewestLikesDetails {
-  @Prop()
-  addedAt: Date;
+// @Schema()
+// export class NewestLikesDetails {
+//   @Prop()
+//   addedAt: Date;
 
-  @Prop()
-  userId: Types.ObjectId;
+//   @Prop()
+//   userId: Types.ObjectId;
 
-  @Prop()
-  login: string;
-}
+//   @Prop()
+//   login: string;
+// }
 
-export const LikesDetailsSchema =
-  SchemaFactory.createForClass(NewestLikesDetails);
+// export const LikesDetailsSchema =
+//   SchemaFactory.createForClass(NewestLikesDetails);
 
 @Schema()
 export class ExtendedLikesInfo {
@@ -28,11 +29,8 @@ export class ExtendedLikesInfo {
   @Prop({ default: 0 })
   dislikesCount: number;
 
-  @Prop({
-    type: [LikesDetailsSchema],
-    default: () => [] as NewestLikesDetails[],
-  })
-  newestLikes: [NewestLikesDetails];
+  @Prop({ type: [LikeSchema], default: () => [] as Like[] })
+  userLikes: Like[];
 }
 
 export const ExtendedLikesInfoSchema =
@@ -72,6 +70,50 @@ export class BlogPost {
   setContent(newContent: string) {
     this.content = newContent;
   }
+
+  makeReaction(newReaction: LikeReaction, userId: string, userLogin: string) {
+    const userLikeObj = this.extendedLikesInfo.userLikes.find(
+      (u) => u.userId.toString() === userId,
+    );
+    const oldReaction = userLikeObj ? userLikeObj.reaction : 'None';
+    if (!userLikeObj) {
+      this.extendedLikesInfo.userLikes.push({
+        userId: new Types.ObjectId(userId),
+        login: userLogin,
+        reaction: newReaction,
+      } as Omit<Like, 'createdAt'>);
+    } else {
+      userLikeObj.reaction = newReaction;
+    }
+    this.changeLikeDislikeCount(oldReaction, newReaction);
+  }
+
+  changeLikeDislikeCount(oldReaction: LikeReaction, newReaction: LikeReaction) {
+    if (oldReaction === newReaction) return;
+
+    if (oldReaction === 'None') {
+      if (newReaction === 'Like') this.extendedLikesInfo.likesCount += 1;
+      else this.extendedLikesInfo.dislikesCount += 1;
+    }
+
+    if (oldReaction === 'Like') {
+      if (newReaction === 'Dislike') {
+        this.extendedLikesInfo.likesCount -= 1;
+        this.extendedLikesInfo.dislikesCount += 1;
+      } else if (newReaction === 'None') {
+        this.extendedLikesInfo.likesCount -= 1;
+      }
+    }
+
+    if (oldReaction === 'Dislike') {
+      if (newReaction === 'Like') {
+        this.extendedLikesInfo.dislikesCount -= 1;
+        this.extendedLikesInfo.likesCount += 1;
+      } else if (newReaction === 'None') {
+        this.extendedLikesInfo.dislikesCount -= 1;
+      }
+    }
+  }
 }
 
 export const PostSchema = SchemaFactory.createForClass(BlogPost);
@@ -79,6 +121,8 @@ PostSchema.methods = {
   setTitle: BlogPost.prototype.setTitle,
   setDescription: BlogPost.prototype.setDescription,
   setContent: BlogPost.prototype.setContent,
+  makeReaction: BlogPost.prototype.makeReaction,
+  changeLikeDislikeCount: BlogPost.prototype.changeLikeDislikeCount,
 };
 
 export class CreatePostDto {

@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { IsIn } from 'class-validator';
 import { HydratedDocument, Types } from 'mongoose';
 
-type LikeReaction = 'None' | 'Like' | 'Dislike';
+export type LikeReaction = 'None' | 'Like' | 'Dislike';
 
-@Schema()
+@Schema({ _id: false })
 export class Like {
   @Prop({ default: Date.now })
   addedAt: Date;
@@ -20,3 +21,8 @@ export class Like {
 
 export const LikeSchema = SchemaFactory.createForClass(Like);
 export type LikeDocument = HydratedDocument<Like>;
+
+export class LikeInputDto {
+  @IsIn(['None', 'Like', 'Dislike'])
+  likeStatus: LikeReaction;
+}

@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from 'src/auth/auth.module';
+import { AccessTokenValidationMiddleware } from 'src/middlewares/accessTokenCkeck.middleware';
 import { BlogPost, PostSchema } from 'src/posts/post-schema';
 import { PostsModule } from 'src/posts/posts.module';
 import { Blog, BlogSchema } from './blog-schema';
@@ -28,4 +29,8 @@ import { BlogsService } from './services/blogs.service';
   controllers: [BlogsController],
   providers: [BlogsService, BlogsRepository, BlogsQueryRepository],
 })
-export class BlogsModule {}
+export class BlogsModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AccessTokenValidationMiddleware).forRoutes(BlogsController);
+  }
+}

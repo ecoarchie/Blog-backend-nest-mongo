@@ -9,6 +9,7 @@ export class CommentsQueryRepository {
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
 
+  //TODO need to check like status from repository
   async findCommentById(commentId: string) {
     if (!Types.ObjectId.isValid(commentId)) return null;
     const commentDocument = await this.commentModel.findById(commentId).lean();

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -14,15 +15,18 @@ import {
 import { Request, Response } from 'express';
 import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
 import { BearerAuthGuard } from 'src/auth/guards/bearer.auth.guard';
-import { CreateCommentDto } from 'src/comments/comment-schema';
+import {
+  CommentsPaginationOptions,
+  CreateCommentDto,
+} from 'src/comments/comment-schema';
 import { CommentsService } from 'src/comments/comments.services';
+import { LikeInputDto } from 'src/comments/like.schema';
 import { CommentsQueryRepository } from 'src/comments/repositories/comments.query-repository';
+import { CommentsRepository } from 'src/comments/repositories/comments.repository';
 import { UsersQueryRepository } from 'src/users/repositories/users.query-repository';
 import {
-  BlogPost,
   CreatePostWithBlogIdDto,
   PostPaginatorOptions,
-  PostsPagination,
   UpdatePostDto,
 } from '../post-schema';
 import { PostsQueryRepository } from '../repositories/posts.query-repository';
@@ -34,6 +38,7 @@ export class PostsController {
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly postService: PostsService,
     private readonly commentsService: CommentsService,
+    private readonly commentsRepository: CommentsRepository,
     private readonly commentsQueryRepo: CommentsQueryRepository,
     private readonly usersQueryRepo: UsersQueryRepository,
   ) {}
@@ -41,26 +46,34 @@ export class PostsController {
   @Get()
   async findAllPosts(
     @Query() postsPaginatorQuery: PostPaginatorOptions,
-  ): Promise<PostsPagination> {
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
     const postsPaginatorOptions = new PostPaginatorOptions(postsPaginatorQuery);
     const posts = await this.postsQueryRepository.findAll(
+      req.userId,
       postsPaginatorOptions,
     );
-    return posts;
+    return res.send(posts);
   }
 
   @UseGuards(BasicAuthGuard)
   @Post()
-  async createPost(
-    @Body() postDto: CreatePostWithBlogIdDto,
-  ): Promise<Partial<BlogPost>> {
+  async createPost(@Body() postDto: CreatePostWithBlogIdDto) {
     const newPostId = await this.postService.createNewPost(postDto);
-    return this.postsQueryRepository.findPostById(newPostId);
+    return this.postsQueryRepository.findPostById(newPostId, null);
   }
 
   @Get(':postId')
-  async getPostById(@Param('postId') postId: string, @Res() res: Response) {
-    const postFound = await this.postsQueryRepository.findPostById(postId);
+  async getPostById(
+    @Param('postId') postId: string,
+    @Res() res: Response,
+    @Req() req: Request,
+  ) {
+    const postFound = await this.postsQueryRepository.findPostById(
+      postId,
+      req.userId,
+    );
     if (!postFound) return res.sendStatus(404);
     res.status(200).send(postFound);
   }
@@ -96,7 +109,10 @@ export class PostsController {
     @Res() res: Response,
     @Req() req: Request,
   ) {
-    const isPostExist = await this.postsQueryRepository.findPostById(postId);
+    const isPostExist = await this.postsQueryRepository.findPostById(
+      postId,
+      req.userId,
+    );
     if (!isPostExist) return res.sendStatus(404);
 
     const commentatorLogin = await this.usersQueryRepo.getUserLoginById(
@@ -104,9 +120,51 @@ export class PostsController {
     );
     const newCommentId = await this.commentsService.createComment(
       createCommentDto.content,
+      postId,
       req.userId,
       commentatorLogin,
     );
     res.send(await this.commentsQueryRepo.findCommentById(newCommentId));
+  }
+
+  @Get(':postId/comments')
+  async getCommentsForPost(
+    @Param('postId') postId: string,
+    @Query() commentsPaginator: CommentsPaginationOptions,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const isPostExist = await this.postsQueryRepository.findPostById(
+      postId,
+      req.userId,
+    );
+    if (!isPostExist) throw new NotFoundException();
+
+    const commentsPaginatorOptions = new CommentsPaginationOptions(
+      commentsPaginator,
+    );
+    const comments = await this.commentsRepository.findCommentsForPost(
+      req.userId,
+      postId,
+      commentsPaginatorOptions,
+    );
+    res.send(comments);
+  }
+
+  @Put(':postId/like-status')
+  async reactToPost(
+    @Param('postId') postId: string,
+    @Body() likeStatusDto: LikeInputDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const userLogin = await this.usersQueryRepo.getUserLoginById(req.userId);
+    await this.postService.reactToPost(
+      req.userId,
+      userLogin,
+      postId,
+      likeStatusDto.likeStatus,
+    );
+    res.sendStatus(204);
   }
 }

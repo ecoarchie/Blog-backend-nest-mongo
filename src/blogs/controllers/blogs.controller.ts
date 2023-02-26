@@ -7,11 +7,14 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { BlogsQueryRepository } from '../repositories/blogs.query-repository';
-import { BlogsService } from '../services/blogs.service';
+import { Request, Response } from 'express';
+import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
+import { CreatePostDto, PostPaginatorOptions } from 'src/posts/post-schema';
+import { PostsQueryRepository } from 'src/posts/repositories/posts.query-repository';
 import {
   Blog,
   BlogPaginatorOptions,
@@ -19,10 +22,8 @@ import {
   CreateBlogDto,
   UpdateBlogDto,
 } from '../blog-schema';
-import { Response } from 'express';
-import { CreatePostDto, PostPaginatorOptions } from 'src/posts/post-schema';
-import { PostsQueryRepository } from 'src/posts/repositories/posts.query-repository';
-import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
+import { BlogsQueryRepository } from '../repositories/blogs.query-repository';
+import { BlogsService } from '../services/blogs.service';
 
 @Controller('blogs')
 export class BlogsController {
@@ -75,13 +76,17 @@ export class BlogsController {
     @Param('blogId') blogId: string,
     @Body() createPostDto: CreatePostDto,
     @Res() res: Response,
+    @Req() req: Request,
   ) {
     const postId = await this.blogsService.createBlogPost(
       blogId,
       createPostDto,
     );
     if (!postId) return res.sendStatus(404);
-    const post = await this.postsQueryRepository.findPostById(postId);
+    const post = await this.postsQueryRepository.findPostById(
+      postId,
+      req.userId,
+    );
     res.send(post);
   }
 
@@ -90,6 +95,7 @@ export class BlogsController {
     @Param('blogId') blogId: string,
     @Query() postsPaginatorQuery: PostPaginatorOptions,
     @Res() res: Response,
+    @Req() req: Request,
   ) {
     const blogFound = await this.blogsQueryRepository.findBlogById(blogId);
     if (!blogFound) return res.sendStatus(404);
@@ -98,6 +104,7 @@ export class BlogsController {
     const posts = await this.postsQueryRepository.findAllPostsForBlog(
       blogId,
       postsPaginatorOptions,
+      req.userId,
     );
     res.send(posts);
   }
