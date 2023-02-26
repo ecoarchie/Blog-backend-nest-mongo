@@ -30,6 +30,17 @@ export class CommentsService {
     return commentId;
   }
 
+  async updateCommentById(commentId: string, content: string, userId: string) {
+    const comment = await this.commentModel.findById(commentId);
+    if (!comment) throw new NotFoundException();
+
+    if (comment.commentatorInfo.userId.toString() !== userId)
+      throw new ForbiddenException();
+
+    comment.updateContent(content);
+    await this.commentsRepository.saveComment(comment);
+  }
+
   async deleteCommentById(commentId: string, userId: string) {
     const comment = await this.commentModel.findById(commentId);
     if (!comment) throw new NotFoundException();

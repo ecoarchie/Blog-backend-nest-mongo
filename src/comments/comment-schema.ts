@@ -56,11 +56,16 @@ export class Comment {
     );
     return myLikeObj ? myLikeObj.reaction : 'None';
   }
+
+  updateContent(content: string) {
+    this.content = content;
+  }
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
 CommentSchema.methods = {
   getMyLikeStatus: Comment.prototype.getMyLikeStatus,
+  updateContent: Comment.prototype.updateContent,
 };
 
 export class CreateCommentDto {

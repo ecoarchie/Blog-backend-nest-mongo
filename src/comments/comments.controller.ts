@@ -1,15 +1,18 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   Param,
+  Put,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { BearerAuthGuard } from 'src/auth/guards/bearer.auth.guard';
+import { UpdateCommentDto } from './comment-schema';
 import { CommentsService } from './comments.services';
 import { CommentsQueryRepository } from './repositories/comments.query-repository';
 
@@ -42,5 +45,20 @@ export class CommentsController {
     @Req() req: Request,
   ) {
     await this.commentsService.deleteCommentById(commentId, req.userId);
+  }
+
+  @HttpCode(204)
+  @UseGuards(BearerAuthGuard)
+  @Put(':commentId')
+  async updateCommentById(
+    @Param('commentId') commentId: string,
+    @Body() updateCommentDto: UpdateCommentDto,
+    @Req() req: Request,
+  ) {
+    await this.commentsService.updateCommentById(
+      commentId,
+      updateCommentDto.content,
+      req.userId,
+    );
   }
 }
