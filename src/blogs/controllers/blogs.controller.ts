@@ -12,9 +12,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
 import { CreatePostDto, PostPaginatorOptions } from 'src/posts/post-schema';
 import { PostsQueryRepository } from 'src/posts/repositories/posts.query-repository';
+import { BasicAuthGuard } from '../../auth/guards/basic.auth.guard';
 import {
   Blog,
   BlogPaginatorOptions,

@@ -28,9 +28,9 @@ import {
   CreatePostWithBlogIdDto,
   PostPaginatorOptions,
   UpdatePostDto,
-} from '../post-schema';
-import { PostsQueryRepository } from '../repositories/posts.query-repository';
-import { PostsService } from '../services/posts.service';
+} from './post-schema';
+import { PostsQueryRepository } from './repositories/posts.query-repository';
+import { PostsService } from './services/posts.service';
 
 @Controller('posts')
 export class PostsController {
