@@ -127,7 +127,6 @@ export class UsersService {
 
   async logoutUser(refreshToken: string) {
     const validSession = await this.authService.verifyToken(refreshToken);
-    console.log(validSession);
     if (!validSession) throw new UnauthorizedException();
 
     await this.usersRepository.deleteSession(validSession.id);
