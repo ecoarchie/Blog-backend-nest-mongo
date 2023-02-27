@@ -13,7 +13,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
-      stopAtFirstError: true,
+      stopAtFirstError: false,
       exceptionFactory: (errors) => {
         const errorsForResponse: any = [];
 
