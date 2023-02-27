@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { LikeReaction } from '../comments/like.schema';
@@ -27,7 +31,12 @@ export class PostsService {
     updatePostDto: UpdatePostDto,
   ): Promise<PostDocument['id']> {
     const post = await this.postsRepository.findPostById(postId);
-    if (!post) return null;
+    if (!post) throw new NotFoundException();
+    if (post.blogId.toString() !== updatePostDto.blogId)
+      throw new BadRequestException({
+        message: 'Wrong blogId',
+        field: 'blogId',
+      });
 
     post.setTitle(updatePostDto.title);
     post.setDescription(updatePostDto.shortDescription);

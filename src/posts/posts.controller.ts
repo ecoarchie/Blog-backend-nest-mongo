@@ -85,10 +85,8 @@ export class PostsController {
     @Body() updatePostDto: UpdatePostDto,
     @Res() res: Response,
   ) {
-    //TODO why we need blogId in postImputModel?
-    const result = await this.postService.updatePostById(postId, updatePostDto);
-    if (!result) return res.sendStatus(404);
-    else res.sendStatus(204);
+    await this.postService.updatePostById(postId, updatePostDto);
+    res.sendStatus(204);
   }
 
   @UseGuards(BasicAuthGuard)
