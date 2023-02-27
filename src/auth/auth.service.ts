@@ -81,13 +81,13 @@ export class AuthService {
       if (tokenData.exp < Date.now() / 1000) {
         return null;
       }
-      const session = await this.sessionModel.findOne({
-        $and: [
+      const session = await this.sessionModel
+        .findOne()
+        .and([
           { lastActiveDate: new Date(tokenData.iat * 1000) },
           { deviceId: tokenData.deviceId },
           { userId: tokenData.userId },
-        ],
-      });
+        ]);
       return session;
     } catch (error) {
       console.log(error);
