@@ -65,7 +65,7 @@ export class UsersService {
     try {
       await this.emailService.sendEmailConfirmationMessage(leanUser);
     } catch (error) {
-      console.log('Could not send email');
+      console.log('Could not send email!');
       console.log(error);
       return;
     }
