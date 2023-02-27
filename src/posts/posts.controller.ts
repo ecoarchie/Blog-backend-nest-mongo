@@ -151,6 +151,7 @@ export class PostsController {
     res.send(comments);
   }
 
+  @UseGuards(BearerAuthGuard)
   @Put(':postId/like-status')
   async reactToPost(
     @Param('postId') postId: string,

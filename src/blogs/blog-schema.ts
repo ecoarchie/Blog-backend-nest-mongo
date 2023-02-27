@@ -48,19 +48,19 @@ BlogSchema.methods = {
 };
 
 export class CreateBlogDto {
-  @IsNotEmpty()
   @MaxLength(15)
+  @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
   @MaxLength(500)
+  @IsNotEmpty()
   description: string;
 
-  @IsNotEmpty()
   @MaxLength(100)
   @Matches(
     /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/,
   )
+  @IsNotEmpty()
   websiteUrl: string;
 }
 
