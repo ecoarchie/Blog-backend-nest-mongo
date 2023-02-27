@@ -36,11 +36,7 @@ export class PostsRepository {
 
   async createPost(postDto: CreatePostWithBlogIdDto) {
     const blog = await this.blogsRepository.findBlogById(postDto.blogId);
-    if (!blog)
-      throw new BadRequestException({
-        message: 'blog with passed ID is not found',
-        field: 'blogId',
-      });
+    if (!blog) throw new BadRequestException();
     const newPost = new this.postModel({ ...postDto, blogName: blog.name });
     const postId = await this.savePost(newPost);
     return postId as string;

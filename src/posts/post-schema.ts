@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsMongoId, IsNotEmpty, MaxLength } from 'class-validator';
+import { IsMongoId, IsNotEmpty, MaxLength, Validate } from 'class-validator';
 import { HydratedDocument, Types } from 'mongoose';
 import { Like, LikeReaction, LikeSchema } from '../comments/like.schema';
 import { Pagination } from '../users/user-schema';
+import { IsBlogExistsConstraint } from '../utils/blog-id.validator';
 
 export type PostDocument = HydratedDocument<BlogPost>;
 
@@ -138,10 +139,12 @@ export class CreatePostDto {
 
   @MaxLength(1000)
   @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   content: string;
 }
 
 export class CreatePostWithBlogIdDto extends CreatePostDto {
+  @Validate(IsBlogExistsConstraint)
   @IsMongoId()
   @IsNotEmpty()
   blogId: string;

@@ -4,6 +4,7 @@ import { AuthModule } from '../auth/auth.module';
 import { AccessTokenValidationMiddleware } from '../middlewares/accessTokenCkeck.middleware';
 import { BlogPost, PostSchema } from '../posts/post-schema';
 import { PostsModule } from '../posts/posts.module';
+import { IsBlogExistsConstraint } from '../utils/blog-id.validator';
 import { Blog, BlogSchema } from './blog-schema';
 import { BlogsController } from './blogs.controller';
 import { BlogsQueryRepository } from './repositories/blogs.query-repository';
@@ -27,7 +28,12 @@ import { BlogsService } from './services/blogs.service';
   ],
   exports: [BlogsRepository],
   controllers: [BlogsController],
-  providers: [BlogsService, BlogsRepository, BlogsQueryRepository],
+  providers: [
+    BlogsService,
+    BlogsRepository,
+    BlogsQueryRepository,
+    IsBlogExistsConstraint,
+  ],
 })
 export class BlogsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
