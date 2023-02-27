@@ -76,7 +76,6 @@ export class PostsQueryRepository {
   }
 
   private toPostDto(post: LeanDocument<PostDocument>, userId: string) {
-    console.log(userId);
     return {
       id: post._id.toString(),
       title: post.title,

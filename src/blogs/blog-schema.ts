@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsNotEmpty, Matches, MaxLength } from 'class-validator';
+import { IsMongoId, IsNotEmpty, Matches, MaxLength } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
 import { Pagination } from '../users/user-schema';
 
@@ -90,4 +90,9 @@ export class BlogPaginatorOptions {
     this.searchNameTerm = data.searchNameTerm || null;
     this.skip = (this.pageNumber - 1) * this.pageSize;
   }
+}
+
+export class BlogIdParam {
+  @IsMongoId()
+  postId: string;
 }

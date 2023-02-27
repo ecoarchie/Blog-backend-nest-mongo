@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsNotEmpty, MaxLength } from 'class-validator';
+import { IsMongoId, IsNotEmpty, MaxLength } from 'class-validator';
 import { HydratedDocument, Types } from 'mongoose';
 import { Like, LikeReaction, LikeSchema } from '../comments/like.schema';
 import { Pagination } from '../users/user-schema';
@@ -142,16 +142,17 @@ export class CreatePostDto {
 }
 
 export class CreatePostWithBlogIdDto extends CreatePostDto {
+  @IsMongoId()
   @IsNotEmpty()
   blogId: string;
 }
 
 export class UpdatePostDto extends CreatePostWithBlogIdDto {}
 
-// export class PostIdParam {
-//   @IsMongoId()
-//   postId: string;
-// }
+export class PostIdParam {
+  @IsMongoId()
+  postId: string;
+}
 
 export interface PostsPagination extends Pagination {
   items: Partial<BlogPost>[];
