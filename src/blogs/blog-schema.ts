@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsNotEmpty, Matches, MaxLength } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
-import { Pagination } from 'src/users/user-schema';
+import { Pagination } from '../users/user-schema';
 
 export type BlogDocument = HydratedDocument<Blog>;
 

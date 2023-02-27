@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { SessionRepository } from 'src/users/sessions/sessions.repository';
+import { SessionRepository } from './sessions.repository';
 
 @Controller('security')
 export class SessionController {

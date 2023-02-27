@@ -13,24 +13,24 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
-import { BearerAuthGuard } from 'src/auth/guards/bearer.auth.guard';
+import { BasicAuthGuard } from '../auth/guards/basic.auth.guard';
+import { BearerAuthGuard } from '../auth/guards/bearer.auth.guard';
 import {
   CommentsPaginationOptions,
   CreateCommentDto,
-} from 'src/comments/comment-schema';
-import { CommentsService } from 'src/comments/comments.services';
-import { LikeInputDto } from 'src/comments/like.schema';
-import { CommentsQueryRepository } from 'src/comments/repositories/comments.query-repository';
-import { CommentsRepository } from 'src/comments/repositories/comments.repository';
-import { UsersQueryRepository } from 'src/users/repositories/users.query-repository';
+} from '../comments/comment-schema';
+import { CommentsService } from '../comments/comments.services';
+import { LikeInputDto } from '../comments/like.schema';
+import { CommentsQueryRepository } from '../comments/repositories/comments.query-repository';
+import { CommentsRepository } from '../comments/repositories/comments.repository';
+import { UsersQueryRepository } from '../users/repositories/users.query-repository';
 import {
   CreatePostWithBlogIdDto,
   PostPaginatorOptions,
   UpdatePostDto,
 } from './post-schema';
+import { PostsService } from './posts.service';
 import { PostsQueryRepository } from './repositories/posts.query-repository';
-import { PostsService } from './services/posts.service';
 
 @Controller('posts')
 export class PostsController {

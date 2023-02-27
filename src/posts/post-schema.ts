@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsNotEmpty, MaxLength } from 'class-validator';
 import { HydratedDocument, Types } from 'mongoose';
-import { Like, LikeReaction, LikeSchema } from 'src/comments/like.schema';
-import { Pagination } from 'src/users/user-schema';
+import { Like, LikeReaction, LikeSchema } from '../comments/like.schema';
+import { Pagination } from '../users/user-schema';
 
 export type PostDocument = HydratedDocument<BlogPost>;
 

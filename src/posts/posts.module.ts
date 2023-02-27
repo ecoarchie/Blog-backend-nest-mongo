@@ -6,16 +6,16 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from 'src/auth/auth.module';
-import { BlogsModule } from 'src/blogs/blogs.module';
-import { CommentsModule } from 'src/comments/comments.module';
-import { AccessTokenValidationMiddleware } from 'src/middlewares/accessTokenCkeck.middleware';
-import { UserModule } from 'src/users/users.module';
+import { AuthModule } from '../auth/auth.module';
+import { BlogsModule } from '../blogs/blogs.module';
+import { CommentsModule } from '../comments/comments.module';
+import { AccessTokenValidationMiddleware } from '../middlewares/accessTokenCkeck.middleware';
+import { UserModule } from '../users/users.module';
 import { BlogPost, PostSchema } from './post-schema';
 import { PostsController } from './posts.controller';
+import { PostsService } from './posts.service';
 import { PostsQueryRepository } from './repositories/posts.query-repository';
 import { PostsRepository } from './repositories/posts.repository';
-import { PostsService } from './services/posts.service';
 
 @Module({
   imports: [

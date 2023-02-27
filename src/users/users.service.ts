@@ -4,11 +4,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { NewPasswordDto } from 'src/auth/auth.schema';
-import { AuthService } from 'src/auth/auth.service';
-import { EmailService } from 'src/utils/email.service';
 import { v4 as uuidv4 } from 'uuid';
-import { UsersQueryRepository } from './repositories/users.query-repository';
+import { NewPasswordDto } from '../auth/auth.schema';
+import { AuthService } from '../auth/auth.service';
+import { EmailService } from '../utils/email.service';
 import { UsersRepository } from './repositories/users.repository';
 import { CreateUserDto, UserDocument } from './user-schema';
 
@@ -16,7 +15,6 @@ import { CreateUserDto, UserDocument } from './user-schema';
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly usersQueryRepository: UsersQueryRepository,
     private readonly authService: AuthService,
     private readonly emailService: EmailService,
   ) {}

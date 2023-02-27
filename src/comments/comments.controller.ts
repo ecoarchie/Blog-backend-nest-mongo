@@ -11,8 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { BearerAuthGuard } from 'src/auth/guards/bearer.auth.guard';
-import { UsersQueryRepository } from 'src/users/repositories/users.query-repository';
+import { BearerAuthGuard } from '../auth/guards/bearer.auth.guard';
+import { UsersQueryRepository } from '../users/repositories/users.query-repository';
 import { UpdateCommentDto } from './comment-schema';
 import { CommentsService } from './comments.services';
 import { LikeInputDto } from './like.schema';

@@ -12,7 +12,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { BasicAuthGuard } from 'src/auth/guards/basic.auth.guard';
+import { BasicAuthGuard } from '../auth/guards/basic.auth.guard';
 import { UsersQueryRepository } from './repositories/users.query-repository';
 import {
   CreateUserDto,

@@ -1,8 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from 'src/auth/auth.module';
-import { AccessTokenValidationMiddleware } from 'src/middlewares/accessTokenCkeck.middleware';
-import { UserModule } from 'src/users/users.module';
+import { AuthModule } from '../auth/auth.module';
+import { AccessTokenValidationMiddleware } from '../middlewares/accessTokenCkeck.middleware';
+import { UserModule } from '../users/users.module';
 import { Comment, CommentSchema } from './comment-schema';
 import { CommentsController } from './comments.controller';
 import { CommentsService } from './comments.services';

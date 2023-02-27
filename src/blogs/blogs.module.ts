@@ -1,11 +1,11 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from 'src/auth/auth.module';
-import { AccessTokenValidationMiddleware } from 'src/middlewares/accessTokenCkeck.middleware';
-import { BlogPost, PostSchema } from 'src/posts/post-schema';
-import { PostsModule } from 'src/posts/posts.module';
+import { AuthModule } from '../auth/auth.module';
+import { AccessTokenValidationMiddleware } from '../middlewares/accessTokenCkeck.middleware';
+import { BlogPost, PostSchema } from '../posts/post-schema';
+import { PostsModule } from '../posts/posts.module';
 import { Blog, BlogSchema } from './blog-schema';
-import { BlogsController } from './controllers/blogs.controller';
+import { BlogsController } from './blogs.controller';
 import { BlogsQueryRepository } from './repositories/blogs.query-repository';
 import { BlogsRepository } from './repositories/blogs.repository';
 import { BlogsService } from './services/blogs.service';

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import * as nodemailer from 'nodemailer';
-import { ILeanUser } from 'src/users/user-schema';
+import { ILeanUser } from '../users/user-schema';
 
 dotenv.config();
 

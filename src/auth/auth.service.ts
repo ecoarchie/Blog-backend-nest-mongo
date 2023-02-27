@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
-import { Session, SessionDocument } from 'src/users/sessions/session.schema';
+import { Session, SessionDocument } from '../users/sessions/session.schema';
 
 @Injectable()
 export class AuthService {

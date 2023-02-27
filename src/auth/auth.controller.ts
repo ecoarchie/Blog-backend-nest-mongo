@@ -13,9 +13,9 @@ import {
 } from '@nestjs/common';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { Request, Response } from 'express';
-import { UsersQueryRepository } from 'src/users/repositories/users.query-repository';
-import { CreateUserDto, EmailDto } from 'src/users/user-schema';
-import { UsersService } from 'src/users/users.service';
+import { UsersQueryRepository } from '../users/repositories/users.query-repository';
+import { CreateUserDto, EmailDto } from '../users/user-schema';
+import { UsersService } from '../users/users.service';
 import { AuthUserDto, NewPasswordDto } from './auth.schema';
 import { BearerAuthGuard } from './guards/bearer.auth.guard';
 

@@ -12,18 +12,18 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { CreatePostDto, PostPaginatorOptions } from 'src/posts/post-schema';
-import { PostsQueryRepository } from 'src/posts/repositories/posts.query-repository';
-import { BasicAuthGuard } from '../../auth/guards/basic.auth.guard';
+import { BasicAuthGuard } from '../auth/guards/basic.auth.guard';
+import { CreatePostDto, PostPaginatorOptions } from '../posts/post-schema';
+import { PostsQueryRepository } from '../posts/repositories/posts.query-repository';
 import {
   Blog,
   BlogPaginatorOptions,
   BlogsPagination,
   CreateBlogDto,
   UpdateBlogDto,
-} from '../blog-schema';
-import { BlogsQueryRepository } from '../repositories/blogs.query-repository';
-import { BlogsService } from '../services/blogs.service';
+} from './blog-schema';
+import { BlogsQueryRepository } from './repositories/blogs.query-repository';
+import { BlogsService } from './services/blogs.service';
 
 @Controller('blogs')
 export class BlogsController {
