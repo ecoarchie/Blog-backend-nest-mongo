@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import {
+  registerDecorator,
   ValidationArguments,
+  ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
@@ -21,13 +23,14 @@ export class IsBlogExistsConstraint implements ValidatorConstraintInterface {
   }
 }
 
-// export function IsBlogExists(validationOptions?: ValidationOptions) {
-//   return function (object: object, propertyName: string) {
-//     registerDecorator({
-//       target: object.constructor,
-//       propertyName: propertyName,
-//       options: validationOptions,
-//       constraints: [],
-//       validator: IsBlogExistsConstraint,
-//     });
-//   };
+export function IsBlogExists(validationOptions?: ValidationOptions) {
+  return function (object: object, propertyName: string) {
+    registerDecorator({
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [],
+      validator: IsBlogExistsConstraint,
+    });
+  };
+}
