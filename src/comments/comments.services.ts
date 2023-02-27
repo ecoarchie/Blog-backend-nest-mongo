@@ -62,6 +62,7 @@ export class CommentsService {
       commentId,
       userId,
     );
+    if (!comment) throw new NotFoundException();
     comment.makeReaction(likeStatus, userId, userLogin);
     await this.commentsRepository.saveComment(comment);
   }

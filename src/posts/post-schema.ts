@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Transform, TransformFnParams } from 'class-transformer';
 import { IsNotEmpty, MaxLength } from 'class-validator';
 import { HydratedDocument, Types } from 'mongoose';
 import { Like, LikeReaction, LikeSchema } from '../comments/like.schema';
@@ -126,16 +127,17 @@ PostSchema.methods = {
 };
 
 export class CreatePostDto {
-  @IsNotEmpty()
   @MaxLength(30)
+  @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   title: string;
 
-  @IsNotEmpty()
   @MaxLength(100)
+  @IsNotEmpty()
   shortDescription: string;
 
-  @IsNotEmpty()
   @MaxLength(1000)
+  @IsNotEmpty()
   content: string;
 }
 

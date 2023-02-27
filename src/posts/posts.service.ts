@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { LikeReaction } from '../comments/like.schema';
@@ -42,6 +42,7 @@ export class PostsService {
     likeStatus: LikeReaction,
   ) {
     const post = await this.postsRepository.findPostById(postId);
+    if (!post) throw new NotFoundException();
     post.makeReaction(likeStatus, userId, userLogin);
     await this.postsRepository.savePost(post);
   }
