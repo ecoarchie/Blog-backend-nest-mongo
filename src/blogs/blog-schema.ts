@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Transform, TransformFnParams } from 'class-transformer';
 import { IsNotEmpty, Matches, MaxLength } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
 import { Pagination } from '../users/user-schema';
@@ -50,6 +51,7 @@ BlogSchema.methods = {
 export class CreateBlogDto {
   @MaxLength(15)
   @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   name: string;
 
   @MaxLength(500)
