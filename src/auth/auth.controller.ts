@@ -46,7 +46,7 @@ export class AuthController {
       ip,
       browserTitle,
     );
-    res.cookie('refreshToken', refreshToken, { httpOnly: true });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
     res.status(200).send({ accessToken });
   }
 
@@ -118,6 +118,7 @@ export class AuthController {
     const { newAccessToken, newRefreshToken } = result;
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
+      secure: true,
     });
     res.status(200).send({ accessToken: newAccessToken });
   }
