@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from '../auth/auth.module';
-import { EmailService } from '../utils/email.service';
+import { AuthModule } from 'src/auth/auth.module';
+import { EmailService } from 'src/utils/email.service';
 import { UsersQueryRepository } from './repositories/users.query-repository';
 import { UsersRepository } from './repositories/users.repository';
 import { SessionController } from './sessions/session.controller';
