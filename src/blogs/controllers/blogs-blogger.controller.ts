@@ -28,9 +28,9 @@ import {
   CreateBlogDto,
   UpdateBlogDto,
 } from '../blog-schema';
-import { BlogsQueryRepository } from '../public/repositories/blogs.query-repository';
-import { BlogsRepository } from '../public/repositories/blogs.repository';
-import { BlogsService } from '../public/services/blogs.service';
+import { BlogsQueryRepository } from '../repositories/blogs.query-repository';
+import { BlogsRepository } from '../repositories/blogs.repository';
+import { BlogsService } from '../services/blogs.service';
 
 @Controller('blogger/blogs')
 @UseGuards(BearerAuthGuard)

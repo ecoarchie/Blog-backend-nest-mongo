@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { BlogsRepository } from '../blogs/public/repositories/blogs.repository';
+import { BlogsRepository } from '../blogs/repositories/blogs.repository';
 import { LikeReaction } from '../comments/like.schema';
 import {
   BlogPost,

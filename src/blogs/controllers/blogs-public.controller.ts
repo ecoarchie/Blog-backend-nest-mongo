@@ -3,8 +3,8 @@ import { Request, Response } from 'express';
 import { PostPaginatorOptions } from '../../posts/post-schema';
 import { PostsQueryRepository } from '../../posts/repositories/posts.query-repository';
 import { BlogPaginatorOptions, BlogsPagination } from '../blog-schema';
-import { BlogsQueryRepository } from './repositories/blogs.query-repository';
-import { BlogsService } from './services/blogs.service';
+import { BlogsQueryRepository } from '../repositories/blogs.query-repository';
+import { BlogsService } from '../services/blogs.service';
 
 @Controller('blogs')
 export class BlogsController {

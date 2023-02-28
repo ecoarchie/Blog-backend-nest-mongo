@@ -10,7 +10,7 @@ import {
   BlogDocument,
   BlogPaginatorOptions,
   BlogsPagination,
-} from '../../blog-schema';
+} from '../blog-schema';
 
 @Injectable()
 export class BlogsQueryRepository {

@@ -6,11 +6,11 @@ import { BlogPost, PostSchema } from '../posts/post-schema';
 import { PostsModule } from '../posts/posts.module';
 import { IsBlogExistsConstraint } from '../utils/blog-id.validator';
 import { Blog, BlogSchema } from './blog-schema';
-import { BloggerBlogsController } from './blogger/blogs-blogger.controller';
-import { BlogsController } from './public/blogs.controller';
-import { BlogsQueryRepository } from './public/repositories/blogs.query-repository';
-import { BlogsRepository } from './public/repositories/blogs.repository';
-import { BlogsService } from './public/services/blogs.service';
+import { BloggerBlogsController } from './controllers/blogs-blogger.controller';
+import { BlogsController } from './controllers/blogs-public.controller';
+import { BlogsQueryRepository } from './repositories/blogs.query-repository';
+import { BlogsRepository } from './repositories/blogs.repository';
+import { BlogsService } from './services/blogs.service';
 
 @Module({
   imports: [

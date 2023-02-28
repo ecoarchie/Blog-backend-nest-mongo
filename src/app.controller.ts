@@ -1,5 +1,5 @@
 import { Controller, Delete, HttpCode } from '@nestjs/common';
-import { BlogsRepository } from './blogs/public/repositories/blogs.repository';
+import { BlogsRepository } from './blogs/repositories/blogs.repository';
 import { CommentsRepository } from './comments/repositories/comments.repository';
 import { PostsRepository } from './posts/repositories/posts.repository';
 import { UsersRepository } from './users/repositories/users.repository';
