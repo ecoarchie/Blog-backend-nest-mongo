@@ -27,7 +27,7 @@ export class BlogsRepository {
   async deleteBlogById(currentUserId: string, blogId: string): Promise<void> {
     const blogToDelete = await this.blogModel.findById(blogId);
     if (!blogToDelete) throw new NotFoundException();
-    if (!blogToDelete.ownerId.equals(currentUserId))
+    if (!blogToDelete.ownerInfo.userId.equals(currentUserId))
       throw new ForbiddenException();
 
     await this.blogModel.deleteOne({

@@ -6,6 +6,17 @@ import { Pagination } from '../users/user-schema';
 
 export type BlogDocument = HydratedDocument<Blog>;
 
+@Schema({ _id: false })
+export class BlogOwnerInfo {
+  @Prop()
+  userId: Types.ObjectId;
+
+  @Prop()
+  userLogin: string;
+}
+
+export const BlogOwnerInfoSchema = SchemaFactory.createForClass(BlogOwnerInfo);
+
 @Schema()
 export class Blog {
   @Prop({ required: true })
@@ -23,8 +34,8 @@ export class Blog {
   @Prop({ default: false })
   isMembership: boolean;
 
-  @Prop({ required: true })
-  ownerId: Types.ObjectId;
+  @Prop({ type: BlogOwnerInfoSchema, default: async () => ({}) })
+  ownerInfo: BlogOwnerInfo;
 
   setName(newName: string) {
     this.name = newName;

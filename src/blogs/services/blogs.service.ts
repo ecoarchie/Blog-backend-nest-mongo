@@ -40,7 +40,8 @@ export class BlogsService {
   ): Promise<void> {
     const blog = await this.blogsRepository.findBlogById(blogId);
     if (!blog) throw new NotFoundException();
-    if (!blog.ownerId.equals(currentUserId)) throw new ForbiddenException();
+    if (!blog.ownerInfo.userId.equals(currentUserId))
+      throw new ForbiddenException();
 
     blog.setName(updateBlogDto.name);
     blog.setDescription(updateBlogDto.description);
@@ -56,7 +57,8 @@ export class BlogsService {
     if (!Types.ObjectId.isValid(blogId)) return null; //TODO make with class validator
     const blog = await this.blogsRepository.findBlogById(blogId);
     if (!blog) throw new NotFoundException();
-    if (!blog.ownerId.equals(currentUserId)) throw new ForbiddenException();
+    if (!blog.ownerInfo.userId.equals(currentUserId))
+      throw new ForbiddenException();
 
     const newPost = new this.postModel({
       ...createPostDto,

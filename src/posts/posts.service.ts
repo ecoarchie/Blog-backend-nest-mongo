@@ -38,7 +38,8 @@ export class PostsService {
     const blog = await this.blogsRepository.findBlogById(blogId);
     const post = await this.postsRepository.findPostById(postId);
     if (!blog || !post) throw new NotFoundException();
-    if (!blog.ownerId.equals(currentUserId)) throw new ForbiddenException();
+    if (!blog.ownerInfo.userId.equals(currentUserId))
+      throw new ForbiddenException();
 
     if (post.blogId.toString() !== blogId)
       throw new BadRequestException({
@@ -68,7 +69,8 @@ export class PostsService {
     const blog = await this.blogsRepository.findBlogById(blogId);
     const post = await this.postsRepository.findPostById(postId);
     if (!blog || !post) throw new NotFoundException();
-    if (!blog.ownerId.equals(currentUserId)) throw new ForbiddenException();
+    if (!blog.ownerInfo.userId.equals(currentUserId))
+      throw new ForbiddenException();
 
     await this.postsRepository.deletePostById(post.id);
   }
