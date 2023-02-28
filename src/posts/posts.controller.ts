@@ -24,11 +24,7 @@ import { LikeInputDto } from '../comments/like.schema';
 import { CommentsQueryRepository } from '../comments/repositories/comments.query-repository';
 import { CommentsRepository } from '../comments/repositories/comments.repository';
 import { UsersQueryRepository } from '../users/repositories/users.query-repository';
-import {
-  CreatePostWithBlogIdDto,
-  PostPaginatorOptions,
-  UpdatePostDto,
-} from './post-schema';
+import { CreatePostWithBlogIdDto, PostPaginatorOptions } from './post-schema';
 import { PostsService } from './posts.service';
 import { PostsQueryRepository } from './repositories/posts.query-repository';
 
@@ -78,16 +74,16 @@ export class PostsController {
     res.status(200).send(postFound);
   }
 
-  @UseGuards(BasicAuthGuard)
-  @Put(':postId')
-  async updatePostById(
-    @Param('postId') postId: string,
-    @Body() updatePostDto: UpdatePostDto,
-    @Res() res: Response,
-  ) {
-    await this.postService.updatePostById(postId, updatePostDto);
-    res.sendStatus(204);
-  }
+  // @UseGuards(BasicAuthGuard)
+  // @Put(':postId')
+  // async updatePostById(
+  //   @Param('postId') postId: string,
+  //   @Body() updatePostDto: UpdatePostDto,
+  //   @Res() res: Response,
+  // ) {
+  //   await this.postService.updatePostById(postId, updatePostDto);
+  //   res.sendStatus(204);
+  // }
 
   @UseGuards(BasicAuthGuard)
   @Delete(':postId')

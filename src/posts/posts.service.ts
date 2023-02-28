@@ -1,16 +1,18 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { BlogsRepository } from '../blogs/public/repositories/blogs.repository';
 import { LikeReaction } from '../comments/like.schema';
 import {
   BlogPost,
   CreatePostWithBlogIdDto,
   PostDocument,
-  UpdatePostDto,
+  UpdatePostWithoutBlogIdDto,
 } from './post-schema';
 import { PostsRepository } from './repositories/posts.repository';
 
@@ -18,6 +20,7 @@ import { PostsRepository } from './repositories/posts.repository';
 export class PostsService {
   constructor(
     private postsRepository: PostsRepository,
+    private blogsRepository: BlogsRepository,
     @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
   ) {}
 
@@ -27,12 +30,17 @@ export class PostsService {
   }
 
   async updatePostById(
+    blogId: string,
     postId: string,
-    updatePostDto: UpdatePostDto,
+    updatePostDto: UpdatePostWithoutBlogIdDto,
+    currentUserId: string,
   ): Promise<PostDocument['id']> {
+    const blog = await this.blogsRepository.findBlogById(blogId);
     const post = await this.postsRepository.findPostById(postId);
-    if (!post) throw new NotFoundException();
-    if (post.blogId.toString() !== updatePostDto.blogId)
+    if (!blog || !post) throw new NotFoundException();
+    if (!blog.ownerId.equals(currentUserId)) throw new ForbiddenException();
+
+    if (post.blogId.toString() !== blogId)
       throw new BadRequestException({
         message: 'Wrong blogId',
         field: 'blogId',
@@ -54,5 +62,14 @@ export class PostsService {
     if (!post) throw new NotFoundException();
     post.makeReaction(likeStatus, userId, userLogin);
     await this.postsRepository.savePost(post);
+  }
+
+  async deletePostById(blogId: string, postId: string, currentUserId: string) {
+    const blog = await this.blogsRepository.findBlogById(blogId);
+    const post = await this.postsRepository.findPostById(postId);
+    if (!blog || !post) throw new NotFoundException();
+    if (!blog.ownerId.equals(currentUserId)) throw new ForbiddenException();
+
+    await this.postsRepository.deletePostById(post.id);
   }
 }

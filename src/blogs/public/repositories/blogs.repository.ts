@@ -1,7 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { Blog, BlogDocument } from '../blog-schema';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Blog, BlogDocument } from '../../blog-schema';
 
 @Injectable()
 export class BlogsRepository {
@@ -18,5 +22,16 @@ export class BlogsRepository {
 
   async deleteAllBlogs() {
     return this.blogModel.deleteMany({});
+  }
+
+  async deleteBlogById(currentUserId: string, blogId: string): Promise<void> {
+    const blogToDelete = await this.blogModel.findById(blogId);
+    if (!blogToDelete) throw new NotFoundException();
+    if (!blogToDelete.ownerId.equals(currentUserId))
+      throw new ForbiddenException();
+
+    await this.blogModel.deleteOne({
+      _id: blogId,
+    });
   }
 }

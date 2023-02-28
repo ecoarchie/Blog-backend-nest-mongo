@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { BlogsRepository } from '../../blogs/repositories/blogs.repository';
+import { BlogsRepository } from '../../blogs/public/repositories/blogs.repository';
 import {
   BlogPost,
   CreatePostWithBlogIdDto,
@@ -44,5 +44,12 @@ export class PostsRepository {
 
   async deleteAllPosts() {
     return this.postModel.deleteMany({});
+  }
+
+  async deletePostById(postId: string) {
+    const result = await this.postModel.deleteOne({
+      _id: postId,
+    });
+    return result.deletedCount === 1;
   }
 }

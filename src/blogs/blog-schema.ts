@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform, TransformFnParams } from 'class-transformer';
 import { IsMongoId, IsNotEmpty, Matches, MaxLength } from 'class-validator';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { Pagination } from '../users/user-schema';
 
 export type BlogDocument = HydratedDocument<Blog>;
@@ -22,6 +22,9 @@ export class Blog {
 
   @Prop({ default: false })
   isMembership: boolean;
+
+  @Prop({ required: true })
+  ownerId: Types.ObjectId;
 
   setName(newName: string) {
     this.name = newName;

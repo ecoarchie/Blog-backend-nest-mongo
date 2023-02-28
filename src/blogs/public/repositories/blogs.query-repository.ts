@@ -1,12 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { LeanDocument, Model, Types } from 'mongoose';
 import {
   Blog,
   BlogDocument,
   BlogPaginatorOptions,
   BlogsPagination,
-} from '../blog-schema';
-import { LeanDocument, Model, Types } from 'mongoose';
+} from '../../blog-schema';
 
 @Injectable()
 export class BlogsQueryRepository {
@@ -21,12 +25,15 @@ export class BlogsQueryRepository {
 
   async findAll(
     paginatorOptions: BlogPaginatorOptions,
+    currentUserId: string,
   ): Promise<BlogsPagination> {
     const nameRegex = new RegExp(paginatorOptions.searchNameTerm, 'i');
     const result = await this.blogModel
-      .find(
+      .find()
+      .and([
         paginatorOptions.searchNameTerm ? { name: { $regex: nameRegex } } : {},
-      )
+        { ownerId: new Types.ObjectId(currentUserId) },
+      ])
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
@@ -34,7 +41,7 @@ export class BlogsQueryRepository {
 
     const totalCount = paginatorOptions.searchNameTerm
       ? result.length
-      : await this.blogModel.count();
+      : await this.blogModel.count(); //TODO maybe delete count all blogs since we need always result count
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
       pagesCount,
@@ -45,11 +52,15 @@ export class BlogsQueryRepository {
     };
   }
 
-  async deleteBlogById(blogId: string) {
-    const result = await this.blogModel.deleteOne({
+  async deleteBlogById(currentUserId: string, blogId: string): Promise<void> {
+    const blogToDelete = await this.blogModel.findById(blogId);
+    if (!blogToDelete) throw new NotFoundException();
+    if (!blogToDelete.ownerId.equals(currentUserId))
+      throw new ForbiddenException();
+
+    await this.blogModel.deleteOne({
       _id: blogId,
     });
-    return result.deletedCount === 1;
   }
 
   private toBlogDto(blog: LeanDocument<BlogDocument>) {

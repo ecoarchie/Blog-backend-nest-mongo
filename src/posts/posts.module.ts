@@ -30,9 +30,14 @@ import { PostsRepository } from './repositories/posts.repository';
     CommentsModule,
     UserModule,
   ],
-  exports: [PostsRepository, PostsQueryRepository],
+  exports: [PostsRepository, PostsQueryRepository, PostsService],
   controllers: [PostsController],
-  providers: [PostsRepository, PostsQueryRepository, PostsService],
+  providers: [
+    PostsRepository,
+    PostsQueryRepository,
+    PostsService,
+    // IsBlogExistsConstraint,
+  ],
 })
 export class PostsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

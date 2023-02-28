@@ -49,14 +49,14 @@ export class AuthService {
 
   async createJwtAccessToken(userId: string) {
     const token = jwt.sign({ userId }, process.env.SECRET, {
-      expiresIn: 10,
+      expiresIn: '3h',
     });
     return token;
   }
 
   async createJwtRefresh(userId: string, deviceId: string) {
     const token = jwt.sign({ userId, deviceId }, process.env.SECRET, {
-      expiresIn: 20,
+      expiresIn: '6h',
     });
     return token;
   }

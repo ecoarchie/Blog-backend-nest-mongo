@@ -153,6 +153,8 @@ export class CreatePostWithBlogIdDto extends CreatePostDto {
 
 export class UpdatePostDto extends CreatePostWithBlogIdDto {}
 
+export class UpdatePostWithoutBlogIdDto extends CreatePostDto {}
+
 export class PostIdParam {
   @IsMongoId()
   postId: string;
