@@ -4,6 +4,7 @@ import { AuthModule } from '../auth/auth.module';
 import { AccessTokenValidationMiddleware } from '../middlewares/accessTokenCkeck.middleware';
 import { BlogPost, PostSchema } from '../posts/post-schema';
 import { PostsModule } from '../posts/posts.module';
+import { UserModule } from '../users/users.module';
 import { IsBlogExistsConstraint } from '../utils/blog-id.validator';
 import { Blog, BlogSchema } from './blog-schema';
 import { BloggerBlogsController } from './controllers/blogs-blogger.controller';
@@ -26,6 +27,7 @@ import { BlogsService } from './services/blogs.service';
     ]),
     PostsModule,
     AuthModule,
+    UserModule,
   ],
   exports: [BlogsRepository],
   controllers: [BlogsController, BloggerBlogsController],

@@ -10,6 +10,7 @@ import { PostsRepository } from '../../posts/repositories/posts.repository';
 import {
   Blog,
   BlogDocument,
+  BlogOwnerInfo,
   CreateBlogDto,
   UpdateBlogDto,
 } from '../blog-schema';
@@ -24,10 +25,10 @@ export class BlogsService {
     @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
   ) {}
 
-  async createNewBlog(dto: CreateBlogDto, currentUserId: string) {
+  async createNewBlog(dto: CreateBlogDto, ownerInfo: BlogOwnerInfo) {
     const newBlog = new this.blogModel({
       ...dto,
-      ownerId: new Types.ObjectId(currentUserId),
+      ownerInfo,
     });
     const blogId = await this.blogsRepository.saveBlog(newBlog);
     return blogId;

@@ -13,6 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { BearerAuthGuard } from '../../auth/guards/bearer.auth.guard';
 import {
   CreatePostDto,
@@ -20,9 +21,11 @@ import {
 } from '../../posts/post-schema';
 import { PostsService } from '../../posts/posts.service';
 import { PostsQueryRepository } from '../../posts/repositories/posts.query-repository';
+import { UsersQueryRepository } from '../../users/repositories/users.query-repository';
 import { CurrentUserId } from '../../utils/current-user-id.param.decorator';
 import {
   Blog,
+  BlogOwnerInfo,
   BlogPaginatorOptions,
   BlogsPagination,
   CreateBlogDto,
@@ -36,6 +39,7 @@ import { BlogsService } from '../services/blogs.service';
 @UseGuards(BearerAuthGuard)
 export class BloggerBlogsController {
   constructor(
+    private readonly usersQueryRepo: UsersQueryRepository,
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly blogsRepository: BlogsRepository,
     private readonly blogsService: BlogsService,
@@ -48,10 +52,11 @@ export class BloggerBlogsController {
     @Body() blogDto: CreateBlogDto,
     @CurrentUserId() currentUserId: string,
   ): Promise<Partial<Blog>> {
-    const newBlogId = await this.blogsService.createNewBlog(
-      blogDto,
-      currentUserId,
-    );
+    const ownerInfo: BlogOwnerInfo = {
+      userId: new Types.ObjectId(currentUserId),
+      userLogin: await this.usersQueryRepo.getUserLoginById(currentUserId),
+    };
+    const newBlogId = await this.blogsService.createNewBlog(blogDto, ownerInfo);
     return this.blogsQueryRepository.findBlogById(newBlogId);
   }
 
