@@ -3,16 +3,16 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
   Post,
   Put,
   Query,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { BasicAuthGuard } from '../auth/guards/basic.auth.guard';
 import { BearerAuthGuard } from '../auth/guards/bearer.auth.guard';
 import {
@@ -24,6 +24,9 @@ import { LikeInputDto } from '../comments/like.schema';
 import { CommentsQueryRepository } from '../comments/repositories/comments.query-repository';
 import { CommentsRepository } from '../comments/repositories/comments.repository';
 import { UsersQueryRepository } from '../users/repositories/users.query-repository';
+import { CurrentUserReq } from '../users/user-schema';
+import { CurrentUserId } from '../utils/current-user-id.param.decorator';
+import { CurrentUser } from '../utils/current-user.param.decorator';
 import { CreatePostWithBlogIdDto, PostPaginatorOptions } from './post-schema';
 import { PostsService } from './posts.service';
 import { PostsQueryRepository } from './repositories/posts.query-repository';
@@ -42,12 +45,12 @@ export class PostsController {
   @Get()
   async findAllPosts(
     @Query() postsPaginatorQuery: PostPaginatorOptions,
-    @Req() req: Request,
+    @CurrentUserId() currentUserId: string,
     @Res() res: Response,
   ) {
     const postsPaginatorOptions = new PostPaginatorOptions(postsPaginatorQuery);
     const posts = await this.postsQueryRepository.findAll(
-      req.user.id,
+      currentUserId,
       postsPaginatorOptions,
     );
     return res.send(posts);
@@ -63,12 +66,12 @@ export class PostsController {
   @Get(':postId')
   async getPostById(
     @Param('postId') postId: string,
+    @CurrentUserId() currentUserId: string,
     @Res() res: Response,
-    @Req() req: Request,
   ) {
     const postFound = await this.postsQueryRepository.findPostById(
       postId,
-      req.user.id,
+      currentUserId,
     );
     if (!postFound) return res.sendStatus(404);
     res.status(200).send(postFound);
@@ -100,22 +103,22 @@ export class PostsController {
   async createComment(
     @Param('postId') postId: string,
     @Body() createCommentDto: CreateCommentDto,
+    @CurrentUser() currentUser: CurrentUserReq,
     @Res() res: Response,
-    @Req() req: Request,
   ) {
     const isPostExist = await this.postsQueryRepository.findPostById(
       postId,
-      req.user.id,
+      currentUser.id,
     );
     if (!isPostExist) return res.sendStatus(404);
 
-    const commentatorLogin = req.user.login;
     const newCommentId = await this.commentsService.createComment(
       createCommentDto.content,
       postId,
-      req.user.id,
-      commentatorLogin,
+      currentUser.id,
+      currentUser.login,
     );
+    console.log(currentUser);
     res.send(await this.commentsQueryRepo.findCommentById(newCommentId, null));
   }
 
@@ -123,12 +126,12 @@ export class PostsController {
   async getCommentsForPost(
     @Param('postId') postId: string,
     @Query() commentsPaginator: CommentsPaginationOptions,
-    @Req() req: Request,
+    @CurrentUserId() currentUserId: string,
     @Res() res: Response,
   ) {
     const isPostExist = await this.postsQueryRepository.findPostById(
       postId,
-      req.user.id,
+      currentUserId,
     );
     if (!isPostExist) throw new NotFoundException();
 
@@ -136,28 +139,26 @@ export class PostsController {
       commentsPaginator,
     );
     const comments = await this.commentsQueryRepo.findCommentsForPost(
-      req.user.id,
+      currentUserId,
       postId,
       commentsPaginatorOptions,
     );
     res.send(comments);
   }
 
+  @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @Put(':postId/like-status')
   async reactToPost(
     @Param('postId') postId: string,
     @Body() likeStatusDto: LikeInputDto,
-    @Req() req: Request,
-    @Res() res: Response,
+    @CurrentUser() currentUser: CurrentUserReq,
   ) {
-    const userLogin = req.user.login;
     await this.postService.reactToPost(
-      req.user.id,
-      userLogin,
+      currentUser.id,
+      currentUser.login,
       postId,
       likeStatusDto.likeStatus,
     );
-    res.sendStatus(204);
   }
 }

@@ -124,6 +124,11 @@ export class CreateUserDto {
   password: string;
 }
 
+export class CurrentUserReq {
+  id: string;
+  login: string;
+}
+
 export class EmailDto {
   @Matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
   @IsNotEmpty()

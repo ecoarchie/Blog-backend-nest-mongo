@@ -1,9 +1,8 @@
-import { User } from './users/user-schema';
-
+import { UserDocument } from '../src/users/user-schema';
 declare global {
   declare namespace Express {
     export interface Request {
-      user: Pick<User, 'id', 'login'> | null;
+      user: Pick<UserDocument, 'id' | 'login'> | null;
     }
   }
 }

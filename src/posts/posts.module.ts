@@ -47,6 +47,7 @@ export class PostsModule implements NestModule {
         { path: 'posts', method: RequestMethod.POST },
         { path: 'posts/:id', method: RequestMethod.DELETE },
         { path: 'posts/:postId/comments', method: RequestMethod.POST },
+        { path: 'posts/:postId/like-status', method: RequestMethod.PUT },
       )
       .forRoutes(PostsController);
   }
