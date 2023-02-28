@@ -8,11 +8,8 @@ import {
   Post,
   Put,
   Query,
-  Req,
-  Res,
   UseGuards,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import { BearerAuthGuard } from '../../auth/guards/bearer.auth.guard';
 import {
@@ -21,8 +18,9 @@ import {
 } from '../../posts/post-schema';
 import { PostsService } from '../../posts/posts.service';
 import { PostsQueryRepository } from '../../posts/repositories/posts.query-repository';
-import { UsersQueryRepository } from '../../users/repositories/users.query-repository';
+import { CurrentUserReq } from '../../users/user-schema';
 import { CurrentUserId } from '../../utils/current-user-id.param.decorator';
+import { CurrentUser } from '../../utils/current-user.param.decorator';
 import {
   Blog,
   BlogOwnerInfo,
@@ -39,7 +37,6 @@ import { BlogsService } from '../services/blogs.service';
 @UseGuards(BearerAuthGuard)
 export class BloggerBlogsController {
   constructor(
-    private readonly usersQueryRepo: UsersQueryRepository,
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly blogsRepository: BlogsRepository,
     private readonly blogsService: BlogsService,
@@ -50,11 +47,11 @@ export class BloggerBlogsController {
   @Post()
   async createBlog(
     @Body() blogDto: CreateBlogDto,
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser() currentUser: CurrentUserReq,
   ): Promise<Partial<Blog>> {
     const ownerInfo: BlogOwnerInfo = {
-      userId: new Types.ObjectId(currentUserId),
-      userLogin: await this.usersQueryRepo.getUserLoginById(currentUserId),
+      userId: new Types.ObjectId(currentUser.id),
+      userLogin: currentUser.login,
     };
     const newBlogId = await this.blogsService.createNewBlog(blogDto, ownerInfo);
     return this.blogsQueryRepository.findBlogById(newBlogId);
@@ -62,7 +59,7 @@ export class BloggerBlogsController {
 
   @Get()
   async findAllBlogs(
-    @Query() blogsPaginatorQuery: BlogPaginatorOptions,
+    @Query() blogsPaginatorQuery: BlogPaginatorOptions, //TODO check if casting into class works directly, maybe no need to create new class
     @CurrentUserId() currentUserId: string,
   ): Promise<BlogsPagination> {
     const blogsPaginatorOptions = new BlogPaginatorOptions(blogsPaginatorQuery);
@@ -83,13 +80,12 @@ export class BloggerBlogsController {
     await this.blogsService.updateBlog(currentUserId, blogId, updateBlogDto);
   }
 
+  @HttpCode(201)
   @Post(':blogId/posts')
   async createBlogPost(
     @Param('blogId') blogId: string,
     @CurrentUserId() currentUserId: string,
     @Body() createPostDto: CreatePostDto,
-    @Res() res: Response,
-    @Req() req: Request,
   ) {
     const postId = await this.blogsService.createBlogPost(
       blogId,
@@ -98,9 +94,9 @@ export class BloggerBlogsController {
     );
     const post = await this.postsQueryRepository.findPostById(
       postId,
-      req.user.id,
+      currentUserId,
     );
-    res.send(post);
+    return post;
   }
 
   @HttpCode(204)

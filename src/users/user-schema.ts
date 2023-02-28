@@ -8,6 +8,19 @@ import { v4 as uuidv4 } from 'uuid';
 export type UserDocument = HydratedDocument<User>;
 
 @Schema({ _id: false })
+export class BanInfo {
+  @Prop({ default: false })
+  isBanned: boolean;
+
+  @Prop()
+  banDate: Date;
+
+  @Prop()
+  banReason: string;
+}
+const BanInfoSchema = SchemaFactory.createForClass(BanInfo);
+
+@Schema({ _id: false })
 export class EmailComfirmation {
   @Prop({ default: uuidv4 })
   confirmationCode: string;
@@ -55,6 +68,9 @@ export class User {
 
   @Prop({ type: PasswordRecoverySchema, default: () => ({}) })
   passwordRecovery: PasswordRecovery;
+
+  @Prop({ type: BanInfoSchema, default: () => ({}) })
+  banInfo: BanInfo;
 
   async checkCredentials(password: string) {
     const match = await bcrypt.compare(password, this.password);
