@@ -98,7 +98,7 @@ export class BloggerBlogsController {
     );
     const post = await this.postsQueryRepository.findPostById(
       postId,
-      req.userId,
+      req.user.id,
     );
     res.send(post);
   }

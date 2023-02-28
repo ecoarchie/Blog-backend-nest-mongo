@@ -85,7 +85,7 @@ export class BlogsController {
     const posts = await this.postsQueryRepository.findAllPostsForBlog(
       blogId,
       postsPaginatorOptions,
-      req.userId,
+      req.user.id,
     );
     res.send(posts);
   }

@@ -47,7 +47,7 @@ export class PostsController {
   ) {
     const postsPaginatorOptions = new PostPaginatorOptions(postsPaginatorQuery);
     const posts = await this.postsQueryRepository.findAll(
-      req.userId,
+      req.user.id,
       postsPaginatorOptions,
     );
     return res.send(posts);
@@ -68,7 +68,7 @@ export class PostsController {
   ) {
     const postFound = await this.postsQueryRepository.findPostById(
       postId,
-      req.userId,
+      req.user.id,
     );
     if (!postFound) return res.sendStatus(404);
     res.status(200).send(postFound);
@@ -105,17 +105,15 @@ export class PostsController {
   ) {
     const isPostExist = await this.postsQueryRepository.findPostById(
       postId,
-      req.userId,
+      req.user.id,
     );
     if (!isPostExist) return res.sendStatus(404);
 
-    const commentatorLogin = await this.usersQueryRepo.getUserLoginById(
-      req.userId,
-    );
+    const commentatorLogin = req.user.login;
     const newCommentId = await this.commentsService.createComment(
       createCommentDto.content,
       postId,
-      req.userId,
+      req.user.id,
       commentatorLogin,
     );
     res.send(await this.commentsQueryRepo.findCommentById(newCommentId, null));
@@ -130,7 +128,7 @@ export class PostsController {
   ) {
     const isPostExist = await this.postsQueryRepository.findPostById(
       postId,
-      req.userId,
+      req.user.id,
     );
     if (!isPostExist) throw new NotFoundException();
 
@@ -138,7 +136,7 @@ export class PostsController {
       commentsPaginator,
     );
     const comments = await this.commentsQueryRepo.findCommentsForPost(
-      req.userId,
+      req.user.id,
       postId,
       commentsPaginatorOptions,
     );
@@ -153,9 +151,9 @@ export class PostsController {
     @Req() req: Request,
     @Res() res: Response,
   ) {
-    const userLogin = await this.usersQueryRepo.getUserLoginById(req.userId);
+    const userLogin = req.user.login;
     await this.postService.reactToPost(
-      req.userId,
+      req.user.id,
       userLogin,
       postId,
       likeStatusDto.likeStatus,
