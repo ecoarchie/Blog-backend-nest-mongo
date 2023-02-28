@@ -6,13 +6,13 @@ import {
   HttpCode,
   Param,
   Put,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { BearerAuthGuard } from '../auth/guards/bearer.auth.guard';
 import { UsersQueryRepository } from '../users/repositories/users.query-repository';
+import { CurrentUserId } from '../utils/current-user-id.param.decorator';
 import { UpdateCommentDto } from './comment-schema';
 import { CommentsService } from './comments.services';
 import { LikeInputDto } from './like.schema';
@@ -29,12 +29,12 @@ export class CommentsController {
   @Get(':commentId')
   async getCommentById(
     @Param('commentId') commentId: string,
+    @CurrentUserId() currentUserId: string,
     @Res() res: Response,
-    @Req() req: Request,
   ) {
     const commentFound = await this.commentsQueryRepository.findCommentById(
       commentId,
-      req.userId,
+      currentUserId,
     );
     if (!commentFound) return res.sendStatus(404);
     return res.send(commentFound);
@@ -45,9 +45,9 @@ export class CommentsController {
   @Delete(':commentId')
   async deleteCommentById(
     @Param('commentId') commentId: string,
-    @Req() req: Request,
+    @CurrentUserId() currentUserId: string,
   ) {
-    await this.commentsService.deleteCommentById(commentId, req.userId);
+    await this.commentsService.deleteCommentById(commentId, currentUserId);
   }
 
   @HttpCode(204)
@@ -56,30 +56,29 @@ export class CommentsController {
   async updateCommentById(
     @Param('commentId') commentId: string,
     @Body() updateCommentDto: UpdateCommentDto,
-    @Req() req: Request,
+    @CurrentUserId() currentUserId: string,
   ) {
     await this.commentsService.updateCommentById(
       commentId,
       updateCommentDto.content,
-      req.userId,
+      currentUserId,
     );
   }
 
+  @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @Put(':commentId/like-status')
   async reactToComment(
     @Param('commentId') commentId: string,
     @Body() likeStatusDto: LikeInputDto,
-    @Req() req: Request,
-    @Res() res: Response,
+    @CurrentUserId() currentUserId: string,
   ) {
-    const userLogin = await this.usersQueryRepo.getUserLoginById(req.userId);
+    const userLogin = await this.usersQueryRepo.getUserLoginById(currentUserId);
     await this.commentsService.reactToComment(
-      req.userId,
+      currentUserId,
       userLogin,
       commentId,
       likeStatusDto.likeStatus,
     );
-    res.sendStatus(204);
   }
 }

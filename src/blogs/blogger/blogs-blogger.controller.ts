@@ -61,14 +61,13 @@ export class BloggerBlogsController {
     @CurrentUserId() currentUserId: string,
   ): Promise<BlogsPagination> {
     const blogsPaginatorOptions = new BlogPaginatorOptions(blogsPaginatorQuery);
-    const blogs = await this.blogsQueryRepository.findAll(
+    const blogs = await this.blogsQueryRepository.findAllBlogsForCurrentUser(
       blogsPaginatorOptions,
       currentUserId,
     );
     return blogs;
   }
 
-  // +
   @HttpCode(204)
   @Put(':id')
   async updateBlog(
@@ -99,7 +98,6 @@ export class BloggerBlogsController {
     res.send(post);
   }
 
-  //TODO remake for blogId in params
   @HttpCode(204)
   @Put(':blogId/posts/:postId')
   async updatePostById(

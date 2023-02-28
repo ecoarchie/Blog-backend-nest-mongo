@@ -2,6 +2,7 @@ import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PostPaginatorOptions } from '../../posts/post-schema';
 import { PostsQueryRepository } from '../../posts/repositories/posts.query-repository';
+import { BlogPaginatorOptions, BlogsPagination } from '../blog-schema';
 import { BlogsQueryRepository } from './repositories/blogs.query-repository';
 import { BlogsService } from './services/blogs.service';
 
@@ -20,16 +21,16 @@ export class BlogsController {
   //   return this.blogsQueryRepository.findBlogById(newBlogId);
   // }
 
-  // @Get()
-  // async findAllBlogs(
-  //   @Query() blogsPaginatorQuery: BlogPaginatorOptions,
-  // ): Promise<BlogsPagination> {
-  //   const blogsPaginatorOptions = new BlogPaginatorOptions(blogsPaginatorQuery);
-  //   const blogs = await this.blogsQueryRepository.findAll(
-  //     blogsPaginatorOptions,
-  //   );
-  //   return blogs;
-  // }
+  @Get()
+  async findAllBlogs(
+    @Query() blogsPaginatorQuery: BlogPaginatorOptions,
+  ): Promise<BlogsPagination> {
+    const blogsPaginatorOptions = new BlogPaginatorOptions(blogsPaginatorQuery);
+    const blogs = await this.blogsQueryRepository.findAllBlogs(
+      blogsPaginatorOptions,
+    );
+    return blogs;
+  }
 
   @Get(':id')
   async findBlogById(@Param('id') id: string, @Res() res: Response) {

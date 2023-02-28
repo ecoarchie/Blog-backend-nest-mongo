@@ -23,7 +23,33 @@ export class BlogsQueryRepository {
     return this.toBlogDto(blogDocument);
   }
 
-  async findAll(
+  async findAllBlogs(
+    paginatorOptions: BlogPaginatorOptions,
+  ): Promise<BlogsPagination> {
+    const nameRegex = new RegExp(paginatorOptions.searchNameTerm, 'i');
+    const result = await this.blogModel
+      .find(
+        paginatorOptions.searchNameTerm ? { name: { $regex: nameRegex } } : {},
+      )
+      .limit(paginatorOptions.pageSize)
+      .skip(paginatorOptions.skip)
+      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
+      .lean();
+
+    const totalCount = paginatorOptions.searchNameTerm
+      ? result.length
+      : await this.blogModel.count();
+    const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
+    return {
+      pagesCount,
+      page: paginatorOptions.pageNumber,
+      pageSize: paginatorOptions.pageSize,
+      totalCount,
+      items: result.map(this.toBlogDto),
+    };
+  }
+
+  async findAllBlogsForCurrentUser(
     paginatorOptions: BlogPaginatorOptions,
     currentUserId: string,
   ): Promise<BlogsPagination> {
