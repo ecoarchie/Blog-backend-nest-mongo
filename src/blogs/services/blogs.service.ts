@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -7,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { BlogPost, CreatePostDto, PostDocument } from '../../posts/post-schema';
 import { PostsRepository } from '../../posts/repositories/posts.repository';
+import { UsersQueryRepository } from '../../users/repositories/users.query-repository';
 import {
   Blog,
   BlogDocument,
@@ -21,6 +23,7 @@ export class BlogsService {
   constructor(
     private blogsRepository: BlogsRepository,
     private postsRepository: PostsRepository,
+    private usersQueryRepo: UsersQueryRepository,
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
     @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
   ) {}
@@ -72,5 +75,18 @@ export class BlogsService {
 
   async deletePostsOfDeletedBlog(blogId: string): Promise<void> {
     await this.postModel.deleteMany({ blogId: new Types.ObjectId(blogId) });
+  }
+
+  async bindBlogToUser(blogId: string, userId: string): Promise<void> {
+    const blog = await this.blogsRepository.findBlogById(blogId);
+    if (blog.ownerInfo?.userId)
+      throw new BadRequestException({
+        message: 'Blog is already bound',
+        field: 'blodId',
+      });
+
+    const userLogin = await this.usersQueryRepo.getUserLoginById(userId);
+    blog.bindToUser(userId, userLogin);
+    await this.blogsRepository.saveBlog(blog);
   }
 }

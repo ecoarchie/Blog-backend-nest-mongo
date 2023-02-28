@@ -52,6 +52,11 @@ export class Blog {
   setMembership(membership: boolean) {
     this.isMembership = membership;
   }
+
+  bindToUser(userId: string, userLogin: string) {
+    this.ownerInfo.userId = new Types.ObjectId(userId);
+    this.ownerInfo.userLogin = userLogin;
+  }
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);

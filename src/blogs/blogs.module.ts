@@ -9,6 +9,7 @@ import { IsBlogExistsConstraint } from '../utils/blog-id.validator';
 import { Blog, BlogSchema } from './blog-schema';
 import { BloggerBlogsController } from './controllers/blogs-blogger.controller';
 import { BlogsController } from './controllers/blogs-public.controller';
+import { SuperUserBlogsController } from './controllers/blogs-sa.controller';
 import { BlogsQueryRepository } from './repositories/blogs.query-repository';
 import { BlogsRepository } from './repositories/blogs.repository';
 import { BlogsService } from './services/blogs.service';
@@ -30,7 +31,11 @@ import { BlogsService } from './services/blogs.service';
     UserModule,
   ],
   exports: [BlogsRepository],
-  controllers: [BlogsController, BloggerBlogsController],
+  controllers: [
+    BlogsController,
+    BloggerBlogsController,
+    SuperUserBlogsController,
+  ],
   providers: [
     BlogsService,
     BlogsRepository,
