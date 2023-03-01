@@ -1,6 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
-import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
+import { Transform, TransformFnParams } from 'class-transformer';
+import {
+  IsBoolean,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Length,
+  Matches,
+  MinLength,
+} from 'class-validator';
 import { add } from 'date-fns';
 import { HydratedDocument, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -111,6 +120,12 @@ export class User {
     // this.passwordRecovery.expirationDate = null;
     this.passwordRecovery.isUsed = true;
   }
+
+  updateBanInfo(banInfo: BanUserDto) {
+    this.banInfo.isBanned = banInfo.isBanned;
+    this.banInfo.banReason = banInfo.banReason;
+    this.banInfo.banDate = new Date();
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -122,6 +137,7 @@ UserSchema.methods = {
   setNewPasswordRecoveryCode: User.prototype.setNewPasswordRecoveryCode,
   updatePasswordAndResetRecoveryCode:
     User.prototype.updatePasswordAndResetRecoveryCode,
+  updateBanInfo: User.prototype.updateBanInfo,
 };
 
 export class CreateUserDto {
@@ -152,6 +168,18 @@ export class EmailDto {
   email: string;
 }
 
+export class BanUserDto {
+  @IsBoolean()
+  @IsNotEmpty()
+  isBanned: boolean;
+
+  @IsString()
+  @MinLength(20)
+  @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
+  banReason: string;
+}
+
 export interface ILeanUser {
   login: string;
   email: string;
@@ -162,7 +190,10 @@ export interface ILeanUser {
 
 type SortDirection = 'asc' | 'desc';
 
+type BanStatus = 'all' | 'banned' | 'notBanned';
+
 export class UserPaginatorOptions {
+  public banStatus: BanStatus;
   public sortBy: string;
   public sortDirection: SortDirection;
   public pageNumber: number;
@@ -172,6 +203,7 @@ export class UserPaginatorOptions {
   public skip: number;
 
   constructor(data: Partial<UserPaginatorOptions> = {}) {
+    this.banStatus = data.banStatus || 'all';
     this.sortBy = data.sortBy || 'createdAt';
     this.sortDirection = data.sortDirection || 'desc';
     this.pageNumber = Number(data.pageNumber) || 1;

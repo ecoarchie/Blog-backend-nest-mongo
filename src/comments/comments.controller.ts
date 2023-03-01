@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { BearerAuthGuard } from '../auth/guards/bearer.auth.guard';
-import { UsersQueryRepository } from '../users/repositories/users.query-repository';
+import { CurrentUserReq } from '../users/user-schema';
 import { CurrentUser } from '../utils/current-user.param.decorator';
 import { UpdateCommentDto } from './comment-schema';
 import { CommentsService } from './comments.services';
@@ -23,7 +23,6 @@ export class CommentsController {
   constructor(
     private readonly commentsQueryRepository: CommentsQueryRepository,
     private readonly commentsService: CommentsService,
-    private readonly usersQueryRepo: UsersQueryRepository,
   ) {}
 
   @Get(':commentId')
@@ -71,12 +70,12 @@ export class CommentsController {
   async reactToComment(
     @Param('commentId') commentId: string,
     @Body() likeStatusDto: LikeInputDto,
-    @CurrentUser('id') currentUserId: string,
+    @CurrentUser() currentUser: CurrentUserReq,
   ) {
-    const userLogin = await this.usersQueryRepo.getUserLoginById(currentUserId);
+    // const userLogin = await this.usersQueryRepo.getUserLoginById(currentUserId);
     await this.commentsService.reactToComment(
-      currentUserId,
-      userLogin,
+      currentUser.id,
+      currentUser.login,
       commentId,
       likeStatusDto.likeStatus,
     );

@@ -26,13 +26,17 @@ export class CommentsQueryRepository {
     paginator: CommentsPaginationOptions,
   ) {
     const result = await this.commentModel
-      .find({ postId: new Types.ObjectId(postId) })
+      .find()
+      .and([
+        { postId: new Types.ObjectId(postId) },
+        { 'commentatorInfo.isBanned': false },
+      ])
       .limit(paginator.pageSize)
       .skip(paginator.skip)
       .sort([[paginator.sortBy, paginator.sortDirection]])
       .lean();
 
-    const totalCount = await this.countAllCommentsForPost(postId);
+    const totalCount = result.length;
     const pagesCount = Math.ceil(totalCount / paginator.pageSize);
     return {
       pagesCount,

@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  forwardRef,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
 import { AccessTokenValidationMiddleware } from '../middlewares/accessTokenCkeck.middleware';
@@ -17,8 +22,9 @@ import { CommentsRepository } from './repositories/comments.repository';
         schema: CommentSchema,
       },
     ]),
-    AuthModule,
-    UserModule,
+    forwardRef(() => AuthModule),
+    forwardRef(() => UserModule),
+    // UserModule, // for bearerAuthValidation
   ],
   exports: [CommentsRepository, CommentsQueryRepository, CommentsService],
   controllers: [CommentsController],

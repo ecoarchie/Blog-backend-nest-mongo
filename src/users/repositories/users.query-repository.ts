@@ -17,30 +17,36 @@ export class UsersQueryRepository {
   ): Promise<UsersPagination> {
     const loginRegex = new RegExp(paginatorOptions.searchLoginTerm, 'i');
     const emailRegex = new RegExp(paginatorOptions.searchEmailTerm, 'i');
+    const banFilter =
+      paginatorOptions.banStatus === 'all'
+        ? {}
+        : paginatorOptions.banStatus === 'banned'
+        ? { 'banInfo.isBanned': true }
+        : { 'banInfo.isBanned': false };
+
+    const loginOrEmailFilter =
+      paginatorOptions.searchEmailTerm || paginatorOptions.searchLoginTerm
+        ? {
+            $or: [
+              {
+                login: { $regex: loginRegex },
+              },
+              {
+                email: { $regex: emailRegex },
+              },
+            ],
+          }
+        : {};
+
     const result = await this.userModel
-      .find(
-        paginatorOptions.searchEmailTerm || paginatorOptions.searchLoginTerm
-          ? {
-              $or: [
-                {
-                  login: { $regex: loginRegex },
-                },
-                {
-                  email: { $regex: emailRegex },
-                },
-              ],
-            }
-          : {},
-      )
+      .find()
+      .and([loginOrEmailFilter, banFilter])
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
       .lean();
 
-    const totalCount =
-      paginatorOptions.searchEmailTerm || paginatorOptions.searchLoginTerm
-        ? result.length
-        : await this.userModel.count();
+    const totalCount = result.length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
       pagesCount,
@@ -99,6 +105,7 @@ export class UsersQueryRepository {
       login: user.login,
       email: user.email,
       createdAt: user.createdAt,
+      banInfo: user.banInfo,
     };
   }
 }

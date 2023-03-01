@@ -7,16 +7,20 @@ import * as jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { NewPasswordDto } from '../auth/auth.schema';
 import { AuthService } from '../auth/auth.service';
+import { CommentsRepository } from '../comments/repositories/comments.repository';
 import { EmailService } from '../utils/email.service';
 import { UsersRepository } from './repositories/users.repository';
-import { CreateUserDto, UserDocument } from './user-schema';
+import { SessionRepository } from './sessions/sessions.repository';
+import { BanUserDto, CreateUserDto, UserDocument } from './user-schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
+    private readonly sessionsRepository: SessionRepository,
     private readonly authService: AuthService,
-    private readonly emailService: EmailService,
+    private readonly emailService: EmailService, // private readonly commentsRepository: CommentsRepository,
+    private readonly commentsRepository: CommentsRepository,
   ) {}
 
   async createNewUser(dto: CreateUserDto): Promise<UserDocument['id'] | null> {
@@ -28,7 +32,7 @@ export class UsersService {
       loginOrEmail,
       loginOrEmail,
     );
-    if (!user) return null;
+    if (!user || user.banInfo.isBanned) return null;
     const userId = await user.checkCredentials(password);
     if (userId) {
       const deviceId = uuidv4();
@@ -169,5 +173,17 @@ export class UsersService {
 
     await user.updatePasswordAndResetRecoveryCode(data.newPassword);
     await this.usersRepository.saveUser(user);
+  }
+
+  async banUnbanUser(userId: string, banUserDto: BanUserDto) {
+    const user = await this.usersRepository.findUserById(userId);
+    user.updateBanInfo(banUserDto);
+    await this.usersRepository.saveUser(user);
+
+    await this.sessionsRepository.deleteAllBannedUserSessions(userId);
+    await this.commentsRepository.updateCommentsForBannedUser(
+      userId,
+      banUserDto.isBanned,
+    );
   }
 }

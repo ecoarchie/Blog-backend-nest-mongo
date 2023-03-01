@@ -29,6 +29,9 @@ export class CommentatorInfo {
 
   @Prop({ required: true })
   userLogin: string;
+
+  @Prop({ default: false })
+  isBanned: boolean;
 }
 
 const CommentatorInfoSchema = SchemaFactory.createForClass(CommentatorInfo);

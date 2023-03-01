@@ -48,6 +48,10 @@ export class SessionRepository {
     return result.acknowledged;
   }
 
+  async deleteAllBannedUserSessions(userId: string): Promise<void> {
+    await this.sessionModel.deleteMany({ userId });
+  }
+
   async deleteDeviceSessions(
     refreshToken: string,
     deviceId: string,

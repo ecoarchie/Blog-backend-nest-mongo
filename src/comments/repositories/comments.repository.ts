@@ -73,6 +73,13 @@ export class CommentsRepository {
     return this.commentsModel.count({ postId: new Types.ObjectId(postId) });
   }
 
+  async updateCommentsForBannedUser(userId: string, isBanned: boolean) {
+    await this.commentsModel.updateMany(
+      { 'commentatorInfo.userId': new Types.ObjectId(userId) },
+      { 'commentatorInfo.isBanned': isBanned },
+    );
+  }
+
   async saveComment(
     newComment: CommentDocument,
   ): Promise<CommentDocument['id']> {
