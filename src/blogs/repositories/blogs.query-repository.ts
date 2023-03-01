@@ -49,6 +49,32 @@ export class BlogsQueryRepository {
     };
   }
 
+  async findAllBlogsWithOwnerInfo(
+    paginatorOptions: BlogPaginatorOptions,
+  ): Promise<BlogsPagination> {
+    const nameRegex = new RegExp(paginatorOptions.searchNameTerm, 'i');
+    const result = await this.blogModel
+      .find(
+        paginatorOptions.searchNameTerm ? { name: { $regex: nameRegex } } : {},
+      )
+      .limit(paginatorOptions.pageSize)
+      .skip(paginatorOptions.skip)
+      .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
+      .lean();
+
+    const totalCount = paginatorOptions.searchNameTerm
+      ? result.length
+      : await this.blogModel.count();
+    const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
+    return {
+      pagesCount,
+      page: paginatorOptions.pageNumber,
+      pageSize: paginatorOptions.pageSize,
+      totalCount,
+      items: result.map(this.toBlogWithOwnerInfoDto),
+    };
+  }
+
   async findAllBlogsForCurrentUser(
     paginatorOptions: BlogPaginatorOptions,
     currentUserId: string,
@@ -58,16 +84,17 @@ export class BlogsQueryRepository {
       .find()
       .and([
         paginatorOptions.searchNameTerm ? { name: { $regex: nameRegex } } : {},
-        { ownerId: new Types.ObjectId(currentUserId) },
+        { 'ownerInfo.userId': new Types.ObjectId(currentUserId) },
       ])
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
       .lean();
 
-    const totalCount = paginatorOptions.searchNameTerm
-      ? result.length
-      : await this.blogModel.count(); //TODO maybe delete count all blogs since we need always result count
+    // const totalCount = paginatorOptions.searchNameTerm
+    //   ? result.length
+    //   : await this.blogModel.count(); //TODO maybe delete count all blogs since we need always result count
+    const totalCount = result.length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
       pagesCount,
@@ -97,6 +124,18 @@ export class BlogsQueryRepository {
       websiteUrl: blog.websiteUrl,
       createdAt: blog.createdAt,
       isMembership: blog.isMembership,
+    };
+  }
+
+  private toBlogWithOwnerInfoDto(blog: LeanDocument<BlogDocument>) {
+    return {
+      id: blog._id,
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt,
+      isMembership: blog.isMembership,
+      blogOwnerInfo: blog.ownerInfo,
     };
   }
 }

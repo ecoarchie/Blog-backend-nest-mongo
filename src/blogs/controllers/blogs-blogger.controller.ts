@@ -19,7 +19,6 @@ import {
 import { PostsService } from '../../posts/posts.service';
 import { PostsQueryRepository } from '../../posts/repositories/posts.query-repository';
 import { CurrentUserReq } from '../../users/user-schema';
-import { CurrentUserId } from '../../utils/current-user-id.param.decorator';
 import { CurrentUser } from '../../utils/current-user.param.decorator';
 import {
   Blog,
@@ -60,7 +59,7 @@ export class BloggerBlogsController {
   @Get()
   async findAllBlogs(
     @Query() blogsPaginatorQuery: BlogPaginatorOptions, //TODO check if casting into class works directly, maybe no need to create new class
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
   ): Promise<BlogsPagination> {
     const blogsPaginatorOptions = new BlogPaginatorOptions(blogsPaginatorQuery);
     const blogs = await this.blogsQueryRepository.findAllBlogsForCurrentUser(
@@ -75,7 +74,7 @@ export class BloggerBlogsController {
   async updateBlog(
     @Param('id') blogId: string,
     @Body() updateBlogDto: UpdateBlogDto,
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
   ) {
     await this.blogsService.updateBlog(currentUserId, blogId, updateBlogDto);
   }
@@ -84,7 +83,7 @@ export class BloggerBlogsController {
   @Post(':blogId/posts')
   async createBlogPost(
     @Param('blogId') blogId: string,
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
     @Body() createPostDto: CreatePostDto,
   ) {
     const postId = await this.blogsService.createBlogPost(
@@ -102,7 +101,7 @@ export class BloggerBlogsController {
   @HttpCode(204)
   @Put(':blogId/posts/:postId')
   async updatePostById(
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
     @Param('blogId') blogId: string,
     @Param('postId') postId: string,
     @Body() updatePostDto: UpdatePostWithoutBlogIdDto,
@@ -119,7 +118,7 @@ export class BloggerBlogsController {
   @HttpCode(204)
   @Delete(':blogId')
   async deleteBlogById(
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
     @Param('blogId') blogId: string,
   ) {
     await this.blogsRepository.deleteBlogById(currentUserId, blogId);
@@ -129,7 +128,7 @@ export class BloggerBlogsController {
   @HttpCode(204)
   @Delete(':blogId/posts/:postId')
   async deletePostById(
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
     @Param('blogId') blogId: string,
     @Param('postId') postId: string,
   ) {

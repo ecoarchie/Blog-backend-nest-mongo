@@ -1,18 +1,43 @@
-import { Controller, HttpCode, Param, Put, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { BasicAuthGuard } from '../../auth/guards/basic.auth.guard';
+import {
+  BindToBlogDto,
+  BlogPaginatorOptions,
+  BlogsPagination,
+} from '../blog-schema';
+import { BlogsQueryRepository } from '../repositories/blogs.query-repository';
 import { BlogsService } from '../services/blogs.service';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
 export class SuperUserBlogsController {
-  constructor(private blogsService: BlogsService) {}
+  constructor(
+    private blogsService: BlogsService,
+    private blogsQueryRepo: BlogsQueryRepository,
+  ) {}
 
   @HttpCode(204)
-  @Put(':id/bind-with-user/:userId')
-  async bindBlogWithUser(
-    @Param('id') blogId: string,
-    @Param('userId') userId: string,
-  ) {
-    await this.blogsService.bindBlogToUser(blogId, userId);
+  @Put(':blogId/bind-with-user/:userId')
+  async bindBlogWithUser(@Param() bindData: BindToBlogDto) {
+    await this.blogsService.bindBlogToUser(bindData.blogId, bindData.userId);
+  }
+
+  @Get()
+  async findAllBlogsWithOwnerInfo(
+    @Query() blogsPaginatorQuery: BlogPaginatorOptions,
+  ): Promise<BlogsPagination> {
+    const blogsPaginatorOptions = new BlogPaginatorOptions(blogsPaginatorQuery);
+    const blogs = await this.blogsQueryRepo.findAllBlogsWithOwnerInfo(
+      blogsPaginatorOptions,
+    );
+    return blogs;
   }
 }

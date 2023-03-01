@@ -22,10 +22,7 @@ import {
 import { CommentsService } from '../comments/comments.services';
 import { LikeInputDto } from '../comments/like.schema';
 import { CommentsQueryRepository } from '../comments/repositories/comments.query-repository';
-import { CommentsRepository } from '../comments/repositories/comments.repository';
-import { UsersQueryRepository } from '../users/repositories/users.query-repository';
 import { CurrentUserReq } from '../users/user-schema';
-import { CurrentUserId } from '../utils/current-user-id.param.decorator';
 import { CurrentUser } from '../utils/current-user.param.decorator';
 import { CreatePostWithBlogIdDto, PostPaginatorOptions } from './post-schema';
 import { PostsService } from './posts.service';
@@ -37,15 +34,13 @@ export class PostsController {
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly postService: PostsService,
     private readonly commentsService: CommentsService,
-    private readonly commentsRepository: CommentsRepository,
     private readonly commentsQueryRepo: CommentsQueryRepository,
-    private readonly usersQueryRepo: UsersQueryRepository,
   ) {}
 
   @Get()
   async findAllPosts(
     @Query() postsPaginatorQuery: PostPaginatorOptions,
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
     @Res() res: Response,
   ) {
     const postsPaginatorOptions = new PostPaginatorOptions(postsPaginatorQuery);
@@ -66,7 +61,7 @@ export class PostsController {
   @Get(':postId')
   async getPostById(
     @Param('postId') postId: string,
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
     @Res() res: Response,
   ) {
     const postFound = await this.postsQueryRepository.findPostById(
@@ -126,7 +121,7 @@ export class PostsController {
   async getCommentsForPost(
     @Param('postId') postId: string,
     @Query() commentsPaginator: CommentsPaginationOptions,
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
     @Res() res: Response,
   ) {
     const isPostExist = await this.postsQueryRepository.findPostById(

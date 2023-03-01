@@ -12,7 +12,7 @@ import {
 import { Response } from 'express';
 import { BearerAuthGuard } from '../auth/guards/bearer.auth.guard';
 import { UsersQueryRepository } from '../users/repositories/users.query-repository';
-import { CurrentUserId } from '../utils/current-user-id.param.decorator';
+import { CurrentUser } from '../utils/current-user.param.decorator';
 import { UpdateCommentDto } from './comment-schema';
 import { CommentsService } from './comments.services';
 import { LikeInputDto } from './like.schema';
@@ -29,7 +29,7 @@ export class CommentsController {
   @Get(':commentId')
   async getCommentById(
     @Param('commentId') commentId: string,
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
     @Res() res: Response,
   ) {
     const commentFound = await this.commentsQueryRepository.findCommentById(
@@ -45,7 +45,7 @@ export class CommentsController {
   @Delete(':commentId')
   async deleteCommentById(
     @Param('commentId') commentId: string,
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
   ) {
     await this.commentsService.deleteCommentById(commentId, currentUserId);
   }
@@ -56,7 +56,7 @@ export class CommentsController {
   async updateCommentById(
     @Param('commentId') commentId: string,
     @Body() updateCommentDto: UpdateCommentDto,
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
   ) {
     await this.commentsService.updateCommentById(
       commentId,
@@ -71,7 +71,7 @@ export class CommentsController {
   async reactToComment(
     @Param('commentId') commentId: string,
     @Body() likeStatusDto: LikeInputDto,
-    @CurrentUserId() currentUserId: string,
+    @CurrentUser('id') currentUserId: string,
   ) {
     const userLogin = await this.usersQueryRepo.getUserLoginById(currentUserId);
     await this.commentsService.reactToComment(

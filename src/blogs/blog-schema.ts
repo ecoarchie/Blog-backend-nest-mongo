@@ -65,6 +65,7 @@ BlogSchema.methods = {
   setDescription: Blog.prototype.setDescription,
   setWebsiteUrl: Blog.prototype.setWebsiteUrl,
   setMembership: Blog.prototype.setMembership,
+  bindToUser: Blog.prototype.bindToUser,
 };
 
 export class CreateBlogDto {
@@ -83,6 +84,18 @@ export class CreateBlogDto {
   )
   @IsNotEmpty()
   websiteUrl: string;
+}
+
+export class BindToBlogDto {
+  @IsMongoId()
+  @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
+  blogId: string;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
+  userId: string;
 }
 
 export class UpdateBlogDto extends CreateBlogDto {}
