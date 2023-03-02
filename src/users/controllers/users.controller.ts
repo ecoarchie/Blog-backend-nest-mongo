@@ -33,10 +33,6 @@ export class UserController {
   async findAll(
     @Query() userPaginatorQuery: UserPaginatorOptions,
   ): Promise<UsersPagination> {
-    console.log(
-      '🚀 ~ file: users.controller.ts:36 ~ UserController ~ userPaginatorQuery:',
-      userPaginatorQuery,
-    );
     const userPaginatorOptions = new UserPaginatorOptions(userPaginatorQuery);
     const users = await this.userQueryRepository.findAll(userPaginatorOptions);
     return users;
@@ -44,10 +40,6 @@ export class UserController {
 
   @Post()
   async create(@Body() dto: CreateUserDto) {
-    console.log(
-      '🚀 ~ file: users.controller.ts:47 ~ UserController ~ create ~ dto:',
-      dto,
-    );
     const newUserId = await this.userService.createNewUser(dto);
     return this.userQueryRepository.findUserById(newUserId);
   }

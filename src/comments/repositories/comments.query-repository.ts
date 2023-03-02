@@ -15,7 +15,13 @@ export class CommentsQueryRepository {
 
   async findCommentById(commentId: string, userId: string) {
     if (!Types.ObjectId.isValid(commentId)) return null;
-    const commentDocument = await this.commentModel.findById(commentId).lean();
+    const commentDocument = await this.commentModel
+      .findOne()
+      .and([
+        { _id: new Types.ObjectId(commentId) },
+        { 'commentatorInfo.isBanned': false },
+      ])
+      .lean();
     if (!commentDocument) return null;
     return this.toCommentDtoWithMyLikeStatus(commentDocument, userId);
   }

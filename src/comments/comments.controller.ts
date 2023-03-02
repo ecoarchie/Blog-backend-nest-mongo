@@ -36,6 +36,7 @@ export class CommentsController {
       currentUserId,
     );
     if (!commentFound) return res.sendStatus(404);
+    // const isUserBanned = commentFound.likesInfo.
     return res.send(commentFound);
   }
 

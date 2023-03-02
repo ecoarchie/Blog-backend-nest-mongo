@@ -149,17 +149,14 @@ export class CreateUserDto {
   @Matches(/^[a-zA-Z0-9_-]*$/)
   @Length(3, 10)
   @IsNotEmpty()
-  // @Transform(({ value }: TransformFnParams) => value?.trim())
   login: string;
 
   @Matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
-  // @IsNotEmpty()
   @IsEmail()
   email: string;
 
   @Length(6, 20)
   @IsNotEmpty()
-  // @Transform(({ value }: TransformFnParams) => value?.trim())
   password: string;
 }
 
