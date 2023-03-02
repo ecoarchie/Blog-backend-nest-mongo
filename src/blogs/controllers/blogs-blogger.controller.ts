@@ -86,6 +86,10 @@ export class BloggerBlogsController {
     @CurrentUser('id') currentUserId: string,
     @Body() createPostDto: CreatePostDto,
   ) {
+    console.log(
+      '🚀 ~ file: blogs-blogger.controller.ts:89 ~ BloggerBlogsController ~ createPostDto:',
+      createPostDto,
+    );
     const postId = await this.blogsService.createBlogPost(
       blogId,
       createPostDto,
