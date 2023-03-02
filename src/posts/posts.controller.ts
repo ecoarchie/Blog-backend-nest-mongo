@@ -22,6 +22,7 @@ import {
 import { CommentsService } from '../comments/comments.services';
 import { LikeInputDto } from '../comments/like.schema';
 import { CommentsQueryRepository } from '../comments/repositories/comments.query-repository';
+import { CommentsRepository } from '../comments/repositories/comments.repository';
 import { CurrentUserReq } from '../users/user-schema';
 import { CurrentUser } from '../utils/current-user.param.decorator';
 import { CreatePostWithBlogIdDto, PostPaginatorOptions } from './post-schema';
@@ -35,6 +36,7 @@ export class PostsController {
     private readonly postService: PostsService,
     private readonly commentsService: CommentsService,
     private readonly commentsQueryRepo: CommentsQueryRepository,
+    private readonly commentsRepo: CommentsRepository,
   ) {}
 
   @Get()
@@ -133,7 +135,7 @@ export class PostsController {
     const commentsPaginatorOptions = new CommentsPaginationOptions(
       commentsPaginator,
     );
-    const comments = await this.commentsQueryRepo.findCommentsForPost(
+    const comments = await this.commentsQueryRepo.findCommentsDtoForPost(
       currentUserId,
       postId,
       commentsPaginatorOptions,

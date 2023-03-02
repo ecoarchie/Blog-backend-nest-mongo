@@ -20,7 +20,7 @@ export class CommentsQueryRepository {
     return this.toCommentDtoWithMyLikeStatus(commentDocument, userId);
   }
 
-  async findCommentsForPost(
+  async findCommentsDtoForPost(
     userId: string,
     postId: string,
     paginator: CommentsPaginationOptions,
@@ -66,8 +66,12 @@ export class CommentsQueryRepository {
       },
       createdAt: commentDoc.createdAt,
       likesInfo: {
-        likesCount: commentDoc.likesInfo.likesCount,
-        dislikesCount: commentDoc.likesInfo.dislikesCount,
+        likesCount: commentDoc.likesInfo.userLikes.filter(
+          (l) => l.reaction === 'Like' && !l.isBanned,
+        ).length,
+        dislikesCount: commentDoc.likesInfo.userLikes.filter(
+          (l) => l.reaction === 'Dislike' && !l.isBanned,
+        ).length,
         myStatus:
           commentDoc.likesInfo.userLikes.find(
             (u) => u.userId.toString() === userId,

@@ -44,12 +44,16 @@ export class CommentsRepository {
     paginator: CommentsPaginationOptions,
   ) {
     const result = await this.commentsModel
-      .find({ postId: new Types.ObjectId(postId) })
+      .find()
+      .and([
+        { postId: new Types.ObjectId(postId) },
+        { 'commentatorInfo.isBanned': false },
+      ])
       .limit(paginator.pageSize)
       .skip(paginator.skip)
       .sort([[paginator.sortBy, paginator.sortDirection]]);
 
-    const totalCount = await this.countAllCommentsForPost(postId);
+    const totalCount = result.length;
     const pagesCount = Math.ceil(totalCount / paginator.pageSize);
     return {
       pagesCount,
@@ -74,9 +78,16 @@ export class CommentsRepository {
   }
 
   async updateCommentsForBannedUser(userId: string, isBanned: boolean) {
+    //TODO refactor this into swparate methods with meaningful names
     await this.commentsModel.updateMany(
       { 'commentatorInfo.userId': new Types.ObjectId(userId) },
       { 'commentatorInfo.isBanned': isBanned },
+    );
+
+    await this.commentsModel.updateMany(
+      { 'likesInfo.userLikes.userId': new Types.ObjectId(userId) },
+      { 'likesInfo.userLikes.$[element].isBanned': isBanned },
+      { arrayFilters: [{ 'element.userId': new Types.ObjectId(userId) }] },
     );
   }
 
@@ -100,8 +111,8 @@ export class CommentsRepository {
       },
       createdAt: commentDoc.createdAt,
       likesInfo: {
-        likesCount: commentDoc.likesInfo.likesCount,
-        dislikesCount: commentDoc.likesInfo.dislikesCount,
+        likesCount: commentDoc.countLikes(),
+        dislikesCount: commentDoc.countDislikes(),
         myStatus: commentDoc.getMyLikeStatus(userId),
       },
     };

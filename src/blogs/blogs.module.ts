@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  forwardRef,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
 import { AccessTokenValidationMiddleware } from '../middlewares/accessTokenCkeck.middleware';
@@ -26,9 +31,9 @@ import { BlogsService } from './services/blogs.service';
         schema: PostSchema,
       },
     ]),
-    PostsModule,
-    AuthModule,
-    UserModule,
+    forwardRef(() => PostsModule),
+    forwardRef(() => AuthModule),
+    forwardRef(() => UserModule),
   ],
   exports: [BlogsRepository],
   controllers: [

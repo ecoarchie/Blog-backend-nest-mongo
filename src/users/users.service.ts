@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { NewPasswordDto } from '../auth/auth.schema';
 import { AuthService } from '../auth/auth.service';
 import { CommentsRepository } from '../comments/repositories/comments.repository';
+import { PostsRepository } from '../posts/repositories/posts.repository';
 import { EmailService } from '../utils/email.service';
 import { UsersRepository } from './repositories/users.repository';
 import { SessionRepository } from './sessions/sessions.repository';
@@ -19,8 +20,9 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
     private readonly sessionsRepository: SessionRepository,
     private readonly authService: AuthService,
-    private readonly emailService: EmailService, // private readonly commentsRepository: CommentsRepository,
+    private readonly emailService: EmailService,
     private readonly commentsRepository: CommentsRepository,
+    private readonly postsRepository: PostsRepository,
   ) {}
 
   async createNewUser(dto: CreateUserDto): Promise<UserDocument['id'] | null> {
@@ -182,6 +184,10 @@ export class UsersService {
 
     await this.sessionsRepository.deleteAllBannedUserSessions(userId);
     await this.commentsRepository.updateCommentsForBannedUser(
+      userId,
+      banUserDto.isBanned,
+    );
+    await this.postsRepository.updatePostsForBannedUser(
       userId,
       banUserDto.isBanned,
     );

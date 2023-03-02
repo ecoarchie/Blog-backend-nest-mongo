@@ -52,4 +52,12 @@ export class PostsRepository {
     });
     return result.deletedCount === 1;
   }
+
+  async updatePostsForBannedUser(userId: string, isBanned: boolean) {
+    await this.postModel.updateMany(
+      { 'extendedLikesInfo.userLikes.userId': new Types.ObjectId(userId) },
+      { 'extendedLikesInfo.userLikes.$[element].isBanned': isBanned },
+      { arrayFilters: [{ 'element.userId': new Types.ObjectId(userId) }] },
+    );
+  }
 }

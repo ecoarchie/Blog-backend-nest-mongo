@@ -17,6 +17,9 @@ export class Like {
 
   @Prop()
   reaction: LikeReaction;
+
+  @Prop({ default: false })
+  isBanned: boolean;
 }
 
 export const LikeSchema = SchemaFactory.createForClass(Like);

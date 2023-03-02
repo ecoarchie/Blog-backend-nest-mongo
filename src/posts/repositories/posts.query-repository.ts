@@ -85,14 +85,18 @@ export class PostsQueryRepository {
       blogName: post.blogName,
       createdAt: post.createdAt,
       extendedLikesInfo: {
-        likesCount: post.extendedLikesInfo.likesCount,
-        dislikesCount: post.extendedLikesInfo.dislikesCount,
+        likesCount: post.extendedLikesInfo.userLikes.filter(
+          (l) => l.reaction === 'Like' && !l.isBanned,
+        ).length,
+        dislikesCount: post.extendedLikesInfo.userLikes.filter(
+          (l) => l.reaction === 'Dislike' && !l.isBanned,
+        ).length,
         myStatus:
           post.extendedLikesInfo.userLikes.find(
             (u) => u.userId.toString() === userId,
           )?.reaction || 'None',
         newestLikes: post.extendedLikesInfo.userLikes
-          .filter((u) => u.reaction === 'Like')
+          .filter((u) => u.reaction === 'Like' && !u.isBanned)
           .slice(-3)
           .reverse()
           .map((u) => {

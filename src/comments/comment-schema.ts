@@ -7,11 +7,11 @@ export type CommentDocument = HydratedDocument<Comment>;
 
 @Schema({ _id: false })
 export class CommentLikesInfo {
-  @Prop({ default: 0 })
-  likesCount: number;
+  // @Prop({ default: 0 })
+  // likesCount: number;
 
-  @Prop({ default: 0 })
-  dislikesCount: number;
+  // @Prop({ default: 0 })
+  // dislikesCount: number;
 
   @Prop({ default: 'None' })
   myStatus: string;
@@ -64,6 +64,23 @@ export class Comment {
     this.content = content;
   }
 
+  // IMPORTANT remake makeReaction function
+  countLikes() {
+    const likes = this.likesInfo.userLikes.filter(
+      (l) => l.reaction === 'Like' && !l.isBanned,
+    );
+    console.log('get likes count method');
+    return likes.length;
+  }
+
+  countDislikes() {
+    const dislikes = this.likesInfo.userLikes.filter(
+      (l) => l.reaction === 'Dislike' && !l.isBanned,
+    );
+    console.log('get dislikes count method');
+    return dislikes.length;
+  }
+
   makeReaction(newReaction: LikeReaction, userId: string, userLogin: string) {
     const userLikeObj = this.likesInfo.userLikes.find(
       (u) => u.userId.toString() === userId,
@@ -78,35 +95,35 @@ export class Comment {
     } else {
       userLikeObj.reaction = newReaction;
     }
-    this.changeLikeDislikeCount(oldReaction, newReaction);
+    // this.changeLikeDislikeCount(oldReaction, newReaction);
   }
 
-  changeLikeDislikeCount(oldReaction: LikeReaction, newReaction: LikeReaction) {
-    if (oldReaction === newReaction) return;
+  // changeLikeDislikeCount(oldReaction: LikeReaction, newReaction: LikeReaction) {
+  //   if (oldReaction === newReaction) return;
 
-    if (oldReaction === 'None') {
-      if (newReaction === 'Like') this.likesInfo.likesCount += 1;
-      else this.likesInfo.dislikesCount += 1;
-    }
+  //   if (oldReaction === 'None') {
+  //     if (newReaction === 'Like') this.likesInfo.likesCount += 1;
+  //     else this.likesInfo.dislikesCount += 1;
+  //   }
 
-    if (oldReaction === 'Like') {
-      if (newReaction === 'Dislike') {
-        this.likesInfo.likesCount -= 1;
-        this.likesInfo.dislikesCount += 1;
-      } else if (newReaction === 'None') {
-        this.likesInfo.likesCount -= 1;
-      }
-    }
+  //   if (oldReaction === 'Like') {
+  //     if (newReaction === 'Dislike') {
+  //       this.likesInfo.likesCount -= 1;
+  //       this.likesInfo.dislikesCount += 1;
+  //     } else if (newReaction === 'None') {
+  //       this.likesInfo.likesCount -= 1;
+  //     }
+  //   }
 
-    if (oldReaction === 'Dislike') {
-      if (newReaction === 'Like') {
-        this.likesInfo.dislikesCount -= 1;
-        this.likesInfo.likesCount += 1;
-      } else if (newReaction === 'None') {
-        this.likesInfo.dislikesCount -= 1;
-      }
-    }
-  }
+  //   if (oldReaction === 'Dislike') {
+  //     if (newReaction === 'Like') {
+  //       this.likesInfo.dislikesCount -= 1;
+  //       this.likesInfo.likesCount += 1;
+  //     } else if (newReaction === 'None') {
+  //       this.likesInfo.dislikesCount -= 1;
+  //     }
+  //   }
+  // }
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
@@ -114,7 +131,9 @@ CommentSchema.methods = {
   getMyLikeStatus: Comment.prototype.getMyLikeStatus,
   updateContent: Comment.prototype.updateContent,
   makeReaction: Comment.prototype.makeReaction,
-  changeLikeDislikeCount: Comment.prototype.changeLikeDislikeCount,
+  // changeLikeDislikeCount: Comment.prototype.changeLikeDislikeCount,
+  countLikes: Comment.prototype.countLikes,
+  countDislikes: Comment.prototype.countDislikes,
 };
 
 export class CreateCommentDto {

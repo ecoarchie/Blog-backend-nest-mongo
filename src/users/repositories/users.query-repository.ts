@@ -28,12 +28,8 @@ export class UsersQueryRepository {
       paginatorOptions.searchEmailTerm || paginatorOptions.searchLoginTerm
         ? {
             $or: [
-              {
-                login: { $regex: loginRegex },
-              },
-              {
-                email: { $regex: emailRegex },
-              },
+              { login: { $regex: loginRegex } },
+              { email: { $regex: emailRegex } },
             ],
           }
         : {};

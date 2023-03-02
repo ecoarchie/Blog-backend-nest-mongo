@@ -8,28 +8,13 @@ import { IsBlogExists } from '../utils/blog-id.validator';
 
 export type PostDocument = HydratedDocument<BlogPost>;
 
-// @Schema()
-// export class NewestLikesDetails {
-//   @Prop()
-//   addedAt: Date;
-
-//   @Prop()
-//   userId: Types.ObjectId;
-
-//   @Prop()
-//   login: string;
-// }
-
-// export const LikesDetailsSchema =
-//   SchemaFactory.createForClass(NewestLikesDetails);
-
 @Schema()
 export class ExtendedLikesInfo {
-  @Prop({ default: 0 })
-  likesCount: number;
+  // @Prop({ default: 0 })
+  // likesCount: number;
 
-  @Prop({ default: 0 })
-  dislikesCount: number;
+  // @Prop({ default: 0 })
+  // dislikesCount: number;
 
   @Prop({ type: [LikeSchema], default: () => [] as Like[] })
   userLikes: Like[];
@@ -87,35 +72,35 @@ export class BlogPost {
     } else {
       userLikeObj.reaction = newReaction;
     }
-    this.changeLikeDislikeCount(oldReaction, newReaction);
+    // this.changeLikeDislikeCount(oldReaction, newReaction);
   }
 
-  changeLikeDislikeCount(oldReaction: LikeReaction, newReaction: LikeReaction) {
-    if (oldReaction === newReaction) return;
+  // changeLikeDislikeCount(oldReaction: LikeReaction, newReaction: LikeReaction) {
+  //   if (oldReaction === newReaction) return;
 
-    if (oldReaction === 'None') {
-      if (newReaction === 'Like') this.extendedLikesInfo.likesCount += 1;
-      else this.extendedLikesInfo.dislikesCount += 1;
-    }
+  //   if (oldReaction === 'None') {
+  //     if (newReaction === 'Like') this.extendedLikesInfo.likesCount += 1;
+  //     else this.extendedLikesInfo.dislikesCount += 1;
+  //   }
 
-    if (oldReaction === 'Like') {
-      if (newReaction === 'Dislike') {
-        this.extendedLikesInfo.likesCount -= 1;
-        this.extendedLikesInfo.dislikesCount += 1;
-      } else if (newReaction === 'None') {
-        this.extendedLikesInfo.likesCount -= 1;
-      }
-    }
+  //   if (oldReaction === 'Like') {
+  //     if (newReaction === 'Dislike') {
+  //       this.extendedLikesInfo.likesCount -= 1;
+  //       this.extendedLikesInfo.dislikesCount += 1;
+  //     } else if (newReaction === 'None') {
+  //       this.extendedLikesInfo.likesCount -= 1;
+  //     }
+  //   }
 
-    if (oldReaction === 'Dislike') {
-      if (newReaction === 'Like') {
-        this.extendedLikesInfo.dislikesCount -= 1;
-        this.extendedLikesInfo.likesCount += 1;
-      } else if (newReaction === 'None') {
-        this.extendedLikesInfo.dislikesCount -= 1;
-      }
-    }
-  }
+  //   if (oldReaction === 'Dislike') {
+  //     if (newReaction === 'Like') {
+  //       this.extendedLikesInfo.dislikesCount -= 1;
+  //       this.extendedLikesInfo.likesCount += 1;
+  //     } else if (newReaction === 'None') {
+  //       this.extendedLikesInfo.dislikesCount -= 1;
+  //     }
+  //   }
+  // }
 }
 
 export const PostSchema = SchemaFactory.createForClass(BlogPost);
@@ -124,7 +109,7 @@ PostSchema.methods = {
   setDescription: BlogPost.prototype.setDescription,
   setContent: BlogPost.prototype.setContent,
   makeReaction: BlogPost.prototype.makeReaction,
-  changeLikeDislikeCount: BlogPost.prototype.changeLikeDislikeCount,
+  // changeLikeDislikeCount: BlogPost.prototype.changeLikeDislikeCount,
 };
 
 export class CreatePostDto {

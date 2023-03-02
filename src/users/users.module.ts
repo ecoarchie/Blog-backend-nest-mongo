@@ -2,6 +2,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
 import { CommentsModule } from '../comments/comments.module';
+import { PostsModule } from '../posts/posts.module';
 import { EmailService } from '../utils/email.service';
 import { UserController } from './controllers/users.controller';
 import { UsersQueryRepository } from './repositories/users.query-repository';
@@ -26,6 +27,8 @@ import { UsersService } from './users.service';
     ]),
     // AuthModule,
     CommentsModule,
+    PostsModule,
+    // forwardRef(() => PostsModule),
     forwardRef(() => AuthModule),
     // forwardRef(() => CommentsModule),
   ],
