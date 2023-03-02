@@ -121,9 +121,14 @@ export class User {
     this.passwordRecovery.isUsed = true;
   }
 
-  updateBanInfo(banInfo: BanUserDto) {
-    this.banInfo.isBanned = banInfo.isBanned;
-    this.banInfo.banReason = banInfo.banReason;
+  updateBanInfo(banUserDto: BanUserDto) {
+    this.banInfo.isBanned = banUserDto.isBanned;
+    if (!banUserDto.isBanned) {
+      this.banInfo.banReason = null;
+      this.banInfo.banDate = null;
+      return;
+    }
+    this.banInfo.banReason = banUserDto.banReason;
     this.banInfo.banDate = new Date();
   }
 }
