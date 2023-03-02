@@ -44,6 +44,10 @@ export class UserController {
 
   @Post()
   async create(@Body() dto: CreateUserDto) {
+    console.log(
+      '🚀 ~ file: users.controller.ts:47 ~ UserController ~ create ~ dto:',
+      dto,
+    );
     const newUserId = await this.userService.createNewUser(dto);
     return this.userQueryRepository.findUserById(newUserId);
   }
