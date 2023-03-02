@@ -153,7 +153,7 @@ export class CreateUserDto {
   login: string;
 
   @Matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
-  @IsNotEmpty()
+  // @IsNotEmpty()
   @IsEmail()
   email: string;
 
