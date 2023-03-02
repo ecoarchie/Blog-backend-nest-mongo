@@ -15,7 +15,7 @@ import { UserModule } from './users/users.module';
     MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost/nest'),
     ThrottlerModule.forRoot({
       ttl: 30,
-      limit: 5,
+      limit: 50,
     }),
     AuthModule,
     UserModule,
