@@ -13,7 +13,7 @@ export class AccessTokenValidationMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     const authorization = req.headers.authorization;
     if (!authorization) {
-      req.user.id = null;
+      req.user = null;
       return next();
     }
     const token = authorization.split(' ')[1];
