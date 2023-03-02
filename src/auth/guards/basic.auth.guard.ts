@@ -11,7 +11,7 @@ export class BasicAuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request: Request = context.switchToHttp().getRequest();
-    const authorization = request.headers.authorization;
+    const authorization = request.headers?.authorization || null;
     return this.authService.validateUserBasic(authorization);
   }
 }

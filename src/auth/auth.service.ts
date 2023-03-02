@@ -10,7 +10,7 @@ export class AuthService {
     @InjectModel(Session.name) private sessionModel: Model<SessionDocument>,
   ) {}
 
-  async validateUserBasic(authorization: string): Promise<boolean> {
+  async validateUserBasic(authorization: string | null): Promise<boolean> {
     if (!authorization) {
       throw new UnauthorizedException();
     }

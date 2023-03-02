@@ -16,8 +16,8 @@ import {
 import { BlogsQueryRepository } from '../repositories/blogs.query-repository';
 import { BlogsService } from '../services/blogs.service';
 
-@Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
+@Controller('sa/blogs')
 export class SuperUserBlogsController {
   constructor(
     private blogsService: BlogsService,
