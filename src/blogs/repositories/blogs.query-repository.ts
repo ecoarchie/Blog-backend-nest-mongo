@@ -80,12 +80,15 @@ export class BlogsQueryRepository {
     currentUserId: string,
   ): Promise<BlogsPagination> {
     const nameRegex = new RegExp(paginatorOptions.searchNameTerm, 'i');
+    const nameFilter = paginatorOptions.searchNameTerm
+      ? { name: { $regex: nameRegex } }
+      : {};
+    const ownerFilter = {
+      'ownerInfo.userId': new Types.ObjectId(currentUserId),
+    };
     const result = await this.blogModel
       .find()
-      .and([
-        paginatorOptions.searchNameTerm ? { name: { $regex: nameRegex } } : {},
-        { 'ownerInfo.userId': new Types.ObjectId(currentUserId) },
-      ])
+      .and([nameFilter, ownerFilter])
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
@@ -94,7 +97,9 @@ export class BlogsQueryRepository {
     // const totalCount = paginatorOptions.searchNameTerm
     //   ? result.length
     //   : await this.blogModel.count(); //TODO maybe delete count all blogs since we need always result count
-    const totalCount = result.length;
+    const totalCount = await this.blogModel
+      .count()
+      .and([nameFilter, ownerFilter]);
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
       pagesCount,
