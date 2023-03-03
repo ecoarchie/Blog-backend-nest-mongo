@@ -5,7 +5,9 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { LeanDocument, Model, Types } from 'mongoose';
+import { UserPaginatorOptions, UsersPagination } from '../../users/user-schema';
 import {
+  BannedUser,
   Blog,
   BlogDocument,
   BlogPaginatorOptions,
@@ -94,9 +96,6 @@ export class BlogsQueryRepository {
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
       .lean();
 
-    // const totalCount = paginatorOptions.searchNameTerm
-    //   ? result.length
-    //   : await this.blogModel.count(); //TODO maybe delete count all blogs since we need always result count
     const totalCount = await this.blogModel
       .count()
       .and([nameFilter, ownerFilter]);
@@ -107,6 +106,50 @@ export class BlogsQueryRepository {
       pageSize: paginatorOptions.pageSize,
       totalCount,
       items: result.map(this.toBlogDto),
+    };
+  }
+
+  async findAllBannedUsersForBlog(
+    blogId: string,
+    paginatorOptions: UserPaginatorOptions,
+  ): Promise<UsersPagination> {
+    const blog = await this.blogModel.findById(blogId);
+    const bannedUsers = structuredClone(blog.getBannedUsers());
+    // const loginRegex = new RegExp(paginatorOptions.searchLoginTerm, 'i');
+    // const loginFilter = paginatorOptions.searchLoginTerm
+    //   ? { login: { $regex: loginRegex } }
+    //   : {};
+    // const isBannedFilter = {
+    //   arrayFilters: [{ 'banInfo.isBanned': true }],
+    // };
+    // const result = await this.blogModel
+    //   .find()
+    //   .and([loginFilter, isBannedFilter])
+    //   .limit(paginatorOptions.pageSize)
+    //   .skip(paginatorOptions.skip)
+    //   .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
+    //   .lean();
+
+    // const totalCount = await this.blogModel
+    //   .count()
+    //   .and([loginFilter, isBannedFilter]);
+    function sortBanList(
+      banList: BannedUser[],
+      direction: 'asc' | 'desc',
+      field: string,
+    ) {
+      return;
+    }
+    const totalCount = bannedUsers.length;
+    const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
+    return {
+      pagesCount,
+      page: paginatorOptions.pageNumber,
+      pageSize: paginatorOptions.pageSize,
+      totalCount,
+      items: bannedUsers.sort(
+        (a: any, b: any) => a.banInfo.banDate - b.banInfo.banDate,
+      ),
     };
   }
 

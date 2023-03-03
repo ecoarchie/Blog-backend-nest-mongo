@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform, TransformFnParams } from 'class-transformer';
 import { IsMongoId, IsNotEmpty, Matches, MaxLength } from 'class-validator';
 import { HydratedDocument, Types } from 'mongoose';
-import { Pagination } from '../users/user-schema';
+import { BanInfo, Pagination } from '../users/user-schema';
 
 export type BlogDocument = HydratedDocument<Blog>;
 
@@ -16,6 +16,33 @@ export class BlogOwnerInfo {
 }
 
 export const BlogOwnerInfoSchema = SchemaFactory.createForClass(BlogOwnerInfo);
+
+@Schema({ _id: false })
+export class BanInBlogInfo {
+  @Prop({ default: false })
+  isBanned: boolean;
+
+  @Prop({ default: null })
+  banDate: Date;
+
+  @Prop({ default: null })
+  banReason: string;
+}
+const BanInBlogInfoSchema = SchemaFactory.createForClass(BanInBlogInfo);
+
+@Schema({ _id: false })
+export class BannedUser {
+  @Prop()
+  id: Types.ObjectId;
+
+  @Prop()
+  login: string;
+
+  @Prop({ type: BanInBlogInfoSchema, default: async () => ({}) })
+  banInfo: BanInBlogInfo;
+}
+
+const BannedUsersSchema = SchemaFactory.createForClass(BannedUser);
 
 @Schema()
 export class Blog {
@@ -37,6 +64,9 @@ export class Blog {
   @Prop({ type: BlogOwnerInfoSchema, default: async () => ({}) })
   ownerInfo: BlogOwnerInfo;
 
+  @Prop({ type: [BannedUsersSchema], default: async () => [] as BannedUser[] })
+  bannedUsers: BannedUser[];
+
   setName(newName: string) {
     this.name = newName;
   }
@@ -57,6 +87,19 @@ export class Blog {
     this.ownerInfo.userId = new Types.ObjectId(userId);
     this.ownerInfo.userLogin = userLogin;
   }
+
+  addUserToBanList(userId: string, userLogin: string, banInfo: BanInfo) {
+    const bannedUserObj: BannedUser = {
+      id: new Types.ObjectId(userId),
+      login: userLogin,
+      banInfo,
+    };
+    this.bannedUsers.push(bannedUserObj);
+  }
+
+  getBannedUsers() {
+    return this.bannedUsers.filter((u) => u.banInfo.isBanned);
+  }
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);
@@ -66,6 +109,8 @@ BlogSchema.methods = {
   setWebsiteUrl: Blog.prototype.setWebsiteUrl,
   setMembership: Blog.prototype.setMembership,
   bindToUser: Blog.prototype.bindToUser,
+  addUserToBanList: Blog.prototype.addUserToBanList,
+  getBannedUsers: Blog.prototype.getBannedUsers,
 };
 
 export class CreateBlogDto {

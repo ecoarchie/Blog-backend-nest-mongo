@@ -4,7 +4,7 @@ import { AuthModule } from '../auth/auth.module';
 import { CommentsModule } from '../comments/comments.module';
 import { PostsModule } from '../posts/posts.module';
 import { EmailService } from '../utils/email.service';
-import { UserController } from './controllers/users.controller';
+import { UserController } from './controllers/users-sa.controller';
 import { UsersQueryRepository } from './repositories/users.query-repository';
 import { UsersRepository } from './repositories/users.repository';
 import { SessionController } from './sessions/session.controller';

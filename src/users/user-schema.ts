@@ -4,6 +4,7 @@ import { Transform, TransformFnParams } from 'class-transformer';
 import {
   IsBoolean,
   IsEmail,
+  IsMongoId,
   IsNotEmpty,
   IsString,
   Length,
@@ -184,6 +185,22 @@ export class BanUserDto {
   banReason: string;
 }
 
+export class BanUserByBloggerDto {
+  @IsBoolean()
+  @IsNotEmpty()
+  isBanned: boolean;
+
+  @IsString()
+  @MinLength(20)
+  @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
+  banReason: string;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  blogId: string;
+}
+
 export interface ILeanUser {
   login: string;
   email: string;
@@ -227,4 +244,22 @@ export interface Pagination {
 
 export interface UsersPagination extends Pagination {
   items: Partial<User>[];
+}
+
+export class BannedUserPaginatorOptions {
+  public sortBy: string;
+  public sortDirection: SortDirection;
+  public pageNumber: number;
+  public pageSize: number;
+  public searchLoginTerm: string;
+  public skip: number;
+
+  constructor(data: Partial<UserPaginatorOptions> = {}) {
+    this.sortBy = data.sortBy || 'createdAt';
+    this.sortDirection = data.sortDirection || 'desc';
+    this.pageNumber = Number(data.pageNumber) || 1;
+    this.pageSize = Number(data.pageSize) || 10;
+    this.searchLoginTerm = data.searchLoginTerm || null;
+    this.skip = (this.pageNumber - 1) * this.pageSize;
+  }
 }

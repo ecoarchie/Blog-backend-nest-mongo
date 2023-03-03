@@ -10,6 +10,10 @@ import { BlogPost, CreatePostDto, PostDocument } from '../../posts/post-schema';
 import { PostsRepository } from '../../posts/repositories/posts.repository';
 import { UsersQueryRepository } from '../../users/repositories/users.query-repository';
 import {
+  BannedUserPaginatorOptions,
+  BanUserByBloggerDto,
+} from '../../users/user-schema';
+import {
   Blog,
   BlogDocument,
   BlogOwnerInfo,
@@ -88,5 +92,33 @@ export class BlogsService {
     const userLogin = await this.usersQueryRepo.getUserLoginById(userId);
     blog.bindToUser(userId, userLogin);
     await this.blogsRepository.saveBlog(blog);
+  }
+
+  async banUserByBlogger(
+    userId: string,
+    banUserByBloggerDto: BanUserByBloggerDto,
+  ) {
+    const blog = await this.blogModel.findById(banUserByBloggerDto.blogId);
+    if (!blog)
+      throw new BadRequestException({
+        field: 'blogId',
+        message: 'blog with this ID not found',
+      });
+
+    const user = await this.usersQueryRepo.findUserById(userId);
+    blog.addUserToBanList(userId, user.login, {
+      isBanned: banUserByBloggerDto.isBanned,
+      banReason: banUserByBloggerDto.banReason,
+      banDate: new Date(),
+    });
+    await this.blogsRepository.saveBlog(blog);
+  }
+
+  async findAllBannedUsersForBlog(
+    blogId: string,
+    paginationOptions: BannedUserPaginatorOptions,
+  ) {
+    const blog = await this.blogModel.findById(blogId);
+    return blog.getBannedUsers();
   }
 }
