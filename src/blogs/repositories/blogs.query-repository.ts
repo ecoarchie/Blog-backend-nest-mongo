@@ -37,9 +37,11 @@ export class BlogsQueryRepository {
   ): Promise<BlogsPagination> {
     const nameRegex = new RegExp(paginatorOptions.searchNameTerm, 'i');
     const result = await this.blogModel
-      .find(
+      .find()
+      .and([
         paginatorOptions.searchNameTerm ? { name: { $regex: nameRegex } } : {},
-      )
+        { isBannedByAdmin: false },
+      ])
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
       .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
