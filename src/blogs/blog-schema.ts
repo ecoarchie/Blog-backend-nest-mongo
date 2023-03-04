@@ -19,13 +19,13 @@ export const BlogOwnerInfoSchema = SchemaFactory.createForClass(BlogOwnerInfo);
 
 @Schema({ _id: false })
 export class BanInBlogInfo {
-  @Prop({ default: false })
+  @Prop()
   isBanned: boolean;
 
-  @Prop({ default: null })
+  @Prop()
   banDate: Date;
 
-  @Prop({ default: null })
+  @Prop()
   banReason: string;
 }
 const BanInBlogInfoSchema = SchemaFactory.createForClass(BanInBlogInfo);
@@ -38,7 +38,7 @@ export class BannedUser {
   @Prop()
   login: string;
 
-  @Prop({ type: BanInBlogInfoSchema, default: async () => ({}) })
+  @Prop({ type: BanInBlogInfoSchema })
   banInfo: BanInBlogInfo;
 }
 
@@ -64,7 +64,7 @@ export class Blog {
   @Prop({ type: BlogOwnerInfoSchema, default: async () => ({}) })
   ownerInfo: BlogOwnerInfo;
 
-  @Prop({ type: [BannedUsersSchema], default: async () => [] as BannedUser[] })
+  @Prop({ type: [BannedUsersSchema] })
   bannedUsers: BannedUser[];
 
   setName(newName: string) {
@@ -89,16 +89,31 @@ export class Blog {
   }
 
   addUserToBanList(userId: string, userLogin: string, banInfo: BanInfo) {
-    const bannedUserObj: BannedUser = {
-      id: new Types.ObjectId(userId),
-      login: userLogin,
-      banInfo,
-    };
-    this.bannedUsers.push(bannedUserObj);
+    const userInBanListIndex = this.bannedUsers.findIndex(
+      (u) => u.id.toString() === userId,
+    );
+    if (!banInfo.isBanned) {
+      if (userInBanListIndex === -1) return;
+      this.bannedUsers[userInBanListIndex].banInfo.isBanned = false;
+      this.bannedUsers[userInBanListIndex].banInfo.banDate = null;
+      this.bannedUsers[userInBanListIndex].banInfo.banReason = null;
+      return;
+    }
+    if (userInBanListIndex === -1) {
+      const bannedUserObj: BannedUser = {
+        id: new Types.ObjectId(userId),
+        login: userLogin,
+        banInfo,
+      };
+      this.bannedUsers.push(bannedUserObj);
+    } else {
+      this.bannedUsers[userInBanListIndex].banInfo = { ...banInfo };
+    }
   }
 
   getBannedUsers() {
-    return this.bannedUsers.filter((u) => u.banInfo.isBanned);
+    const bannedUsers = this.bannedUsers.filter((u) => u.banInfo.isBanned);
+    return bannedUsers;
   }
 }
 

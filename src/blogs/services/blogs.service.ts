@@ -94,6 +94,25 @@ export class BlogsService {
     await this.blogsRepository.saveBlog(blog);
   }
 
+  async isUserBannedForCurrentBlog(
+    blogId: string,
+    userId: string,
+  ): Promise<boolean> {
+    const blog = await this.blogModel.findById(blogId);
+    const bannedUser = blog
+      .getBannedUsers()
+      // .map((u) => {
+      //   return {
+      //     id: u.id.toString(),
+      //     isBanned: u.banInfo.isBanned,
+      //   };
+      // })
+      .find((u) => {
+        return u.id.toString() === userId && u.banInfo.isBanned;
+      });
+    return bannedUser ? true : false;
+  }
+
   async banUserByBlogger(
     userId: string,
     banUserByBloggerDto: BanUserByBloggerDto,
@@ -119,6 +138,13 @@ export class BlogsService {
     paginationOptions: BannedUserPaginatorOptions,
   ) {
     const blog = await this.blogModel.findById(blogId);
+    //TODO check 500 error than blog id is invalid
+    if (!blog)
+      throw new BadRequestException({
+        field: 'blogId',
+        message: 'blog with this ID not found',
+      });
+
     return blog.getBannedUsers();
   }
 }

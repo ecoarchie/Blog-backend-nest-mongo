@@ -5,7 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { LeanDocument, Model, Types } from 'mongoose';
-import { UserPaginatorOptions, UsersPagination } from '../../users/user-schema';
+import {
+  BannedUserPaginatorOptions,
+  UsersPagination,
+} from '../../users/user-schema';
 import {
   BannedUser,
   Blog,
@@ -111,10 +114,10 @@ export class BlogsQueryRepository {
 
   async findAllBannedUsersForBlog(
     blogId: string,
-    paginatorOptions: UserPaginatorOptions,
+    paginatorOptions: BannedUserPaginatorOptions,
   ): Promise<UsersPagination> {
     const blog = await this.blogModel.findById(blogId);
-    const bannedUsers = structuredClone(blog.getBannedUsers());
+    const bannedUsers = blog.getBannedUsers();
     // const loginRegex = new RegExp(paginatorOptions.searchLoginTerm, 'i');
     // const loginFilter = paginatorOptions.searchLoginTerm
     //   ? { login: { $regex: loginRegex } }
@@ -138,7 +141,10 @@ export class BlogsQueryRepository {
       direction: 'asc' | 'desc',
       field: string,
     ) {
-      return;
+      return banList.sort((a: any, b: any) => {
+        if (direction === 'asc') return a.banInfo[field] - b.banInfo[field];
+        else return b.banInfo[field] - a.banInfo[field];
+      });
     }
     const totalCount = bannedUsers.length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
@@ -147,8 +153,10 @@ export class BlogsQueryRepository {
       page: paginatorOptions.pageNumber,
       pageSize: paginatorOptions.pageSize,
       totalCount,
-      items: bannedUsers.sort(
-        (a: any, b: any) => a.banInfo.banDate - b.banInfo.banDate,
+      items: sortBanList(
+        bannedUsers,
+        paginatorOptions.sortDirection,
+        paginatorOptions.sortBy,
       ),
     };
   }

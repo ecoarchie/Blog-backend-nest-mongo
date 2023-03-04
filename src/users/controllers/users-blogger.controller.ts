@@ -15,7 +15,6 @@ import { UsersQueryRepository } from '../repositories/users.query-repository';
 import {
   BannedUserPaginatorOptions,
   BanUserByBloggerDto,
-  UserPaginatorOptions,
   UsersPagination,
 } from '../user-schema';
 import { UsersService } from '../users.service';
@@ -35,7 +34,13 @@ export class BloggerUserController {
     @Param('id') blogId: string,
     @Query() userPaginatorQuery: BannedUserPaginatorOptions,
   ): Promise<UsersPagination> {
-    const userPaginatorOptions = new UserPaginatorOptions(userPaginatorQuery);
+    const userPaginatorOptions = new BannedUserPaginatorOptions(
+      userPaginatorQuery,
+    );
+    console.log(
+      '🚀 ~ file: users-blogger.controller.ts:40 ~ BloggerUserController ~ userPaginatorOptions:',
+      userPaginatorOptions,
+    );
     const users = await this.blogsQueryRepo.findAllBannedUsersForBlog(
       blogId,
       userPaginatorOptions,

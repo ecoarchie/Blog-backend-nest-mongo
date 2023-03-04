@@ -9,6 +9,7 @@ import { AuthModule } from '../auth/auth.module';
 import { AccessTokenValidationMiddleware } from '../middlewares/accessTokenCkeck.middleware';
 import { BlogPost, PostSchema } from '../posts/post-schema';
 import { PostsModule } from '../posts/posts.module';
+import { BloggerUserController } from '../users/controllers/users-blogger.controller';
 import { UserModule } from '../users/users.module';
 import { IsBlogExistsConstraint } from '../utils/blog-id.validator';
 import { Blog, BlogSchema } from './blog-schema';
@@ -35,10 +36,11 @@ import { BlogsService } from './services/blogs.service';
     forwardRef(() => AuthModule),
     forwardRef(() => UserModule),
   ],
-  exports: [BlogsRepository],
+  exports: [BlogsRepository, BlogsService],
   controllers: [
     BlogsController,
     BloggerBlogsController,
+    BloggerUserController,
     SuperUserBlogsController,
   ],
   providers: [

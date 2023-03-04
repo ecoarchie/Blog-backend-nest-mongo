@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   NotFoundException,
@@ -15,6 +16,7 @@ import {
 import { Response } from 'express';
 import { BasicAuthGuard } from '../auth/guards/basic.auth.guard';
 import { BearerAuthGuard } from '../auth/guards/bearer.auth.guard';
+import { BlogsService } from '../blogs/services/blogs.service';
 import {
   CommentsPaginationOptions,
   CreateCommentDto,
@@ -35,6 +37,7 @@ export class PostsController {
     private readonly postService: PostsService,
     private readonly commentsService: CommentsService,
     private readonly commentsQueryRepo: CommentsQueryRepository,
+    private readonly blogsService: BlogsService,
   ) {}
 
   @Get()
@@ -105,7 +108,14 @@ export class PostsController {
       postId,
       currentUser.id,
     );
-    if (!isPostExist) return res.sendStatus(404);
+    if (!isPostExist) throw new NotFoundException();
+
+    const isUserBanned = await this.blogsService.isUserBannedForCurrentBlog(
+      isPostExist.blogId.toString(),
+      currentUser.id,
+    );
+
+    if (isUserBanned) throw new ForbiddenException();
 
     const newCommentId = await this.commentsService.createComment(
       createCommentDto.content,
@@ -113,7 +123,6 @@ export class PostsController {
       currentUser.id,
       currentUser.login,
     );
-    console.log(currentUser);
     res.send(await this.commentsQueryRepo.findCommentById(newCommentId, null));
   }
 

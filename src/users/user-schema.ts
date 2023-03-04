@@ -255,7 +255,7 @@ export class BannedUserPaginatorOptions {
   public skip: number;
 
   constructor(data: Partial<UserPaginatorOptions> = {}) {
-    this.sortBy = data.sortBy || 'createdAt';
+    this.sortBy = data.sortBy || 'banDate';
     this.sortDirection = data.sortDirection || 'desc';
     this.pageNumber = Number(data.pageNumber) || 1;
     this.pageSize = Number(data.pageSize) || 10;
