@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -9,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { BasicAuthGuard } from '../../auth/guards/basic.auth.guard';
 import {
+  BanBlogDto,
   BindToBlogDto,
   BlogPaginatorOptions,
   BlogsPagination,
@@ -39,5 +41,10 @@ export class SuperUserBlogsController {
       blogsPaginatorOptions,
     );
     return blogs;
+  }
+  @HttpCode(204)
+  @Put(':id/ban')
+  async banBlog(@Param('id') blogId: string, @Body() banBlogDto: BanBlogDto) {
+    await this.blogsService.banBlog(blogId, banBlogDto);
   }
 }

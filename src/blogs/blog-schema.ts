@@ -1,6 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsMongoId, IsNotEmpty, Matches, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsMongoId,
+  IsNotEmpty,
+  Matches,
+  MaxLength,
+} from 'class-validator';
 import { HydratedDocument, Types } from 'mongoose';
 import { BanInfo, Pagination } from '../users/user-schema';
 
@@ -67,6 +73,9 @@ export class Blog {
   @Prop({ type: [BannedUsersSchema] })
   bannedUsers: BannedUser[];
 
+  @Prop()
+  isBannedByAdmin: boolean;
+
   setName(newName: string) {
     this.name = newName;
   }
@@ -115,6 +124,10 @@ export class Blog {
     const bannedUsers = this.bannedUsers.filter((u) => u.banInfo.isBanned);
     return bannedUsers;
   }
+
+  banOrUnban(banBlogDto: BanBlogDto) {
+    this.isBannedByAdmin = banBlogDto.isBanned;
+  }
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);
@@ -126,6 +139,7 @@ BlogSchema.methods = {
   bindToUser: Blog.prototype.bindToUser,
   addUserToBanList: Blog.prototype.addUserToBanList,
   getBannedUsers: Blog.prototype.getBannedUsers,
+  banOrUnban: Blog.prototype.banOrUnban,
 };
 
 export class CreateBlogDto {
@@ -159,6 +173,11 @@ export class BindToBlogDto {
 }
 
 export class UpdateBlogDto extends CreateBlogDto {}
+
+export class BanBlogDto {
+  @IsBoolean()
+  isBanned: boolean;
+}
 
 export interface BlogsPagination extends Pagination {
   items: Partial<Blog>[];

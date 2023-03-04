@@ -37,10 +37,6 @@ export class BloggerUserController {
     const userPaginatorOptions = new BannedUserPaginatorOptions(
       userPaginatorQuery,
     );
-    console.log(
-      '🚀 ~ file: users-blogger.controller.ts:40 ~ BloggerUserController ~ userPaginatorOptions:',
-      userPaginatorOptions,
-    );
     const users = await this.blogsQueryRepo.findAllBannedUsersForBlog(
       blogId,
       userPaginatorOptions,

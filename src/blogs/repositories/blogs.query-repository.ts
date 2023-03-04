@@ -131,10 +131,6 @@ export class BlogsQueryRepository {
       .in(blogsIds)
       .lean();
     const postIds = posts.map((p) => p._id);
-    console.log(
-      '🚀 ~ file: blogs.query-repository.ts:134 ~ BlogsQueryRepository ~ findAllPostsIdsForAllBlogsOfCurrentUser ~ postIds:',
-      postIds,
-    );
     return posts;
   }
 
@@ -162,16 +158,6 @@ export class BlogsQueryRepository {
     // const totalCount = await this.blogModel
     //   .count()
     //   .and([loginFilter, isBannedFilter]);
-    function sortBanList(
-      banList: BannedUser[],
-      direction: 'asc' | 'desc',
-      field: string,
-    ) {
-      return banList.sort((a: any, b: any) => {
-        if (direction === 'asc') return a.banInfo[field] - b.banInfo[field];
-        else return b.banInfo[field] - a.banInfo[field];
-      });
-    }
     const totalCount = bannedUsers.length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
@@ -179,12 +165,23 @@ export class BlogsQueryRepository {
       page: paginatorOptions.pageNumber,
       pageSize: paginatorOptions.pageSize,
       totalCount,
-      items: sortBanList(
+      items: this.sortBanList(
         bannedUsers,
         paginatorOptions.sortDirection,
         paginatorOptions.sortBy,
       ),
     };
+  }
+
+  private sortBanList(
+    banList: BannedUser[],
+    direction: 'asc' | 'desc',
+    field: string,
+  ) {
+    return banList.sort((a: any, b: any) => {
+      if (direction === 'asc') return a.banInfo[field] - b.banInfo[field];
+      else return b.banInfo[field] - a.banInfo[field];
+    });
   }
 
   async deleteBlogById(currentUserId: string, blogId: string): Promise<void> {

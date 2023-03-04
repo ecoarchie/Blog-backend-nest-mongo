@@ -9,11 +9,9 @@ import { Model, Types } from 'mongoose';
 import { BlogPost, CreatePostDto, PostDocument } from '../../posts/post-schema';
 import { PostsRepository } from '../../posts/repositories/posts.repository';
 import { UsersQueryRepository } from '../../users/repositories/users.query-repository';
+import { BanUserByBloggerDto } from '../../users/user-schema';
 import {
-  BannedUserPaginatorOptions,
-  BanUserByBloggerDto,
-} from '../../users/user-schema';
-import {
+  BanBlogDto,
   Blog,
   BlogDocument,
   BlogOwnerInfo,
@@ -133,18 +131,28 @@ export class BlogsService {
     await this.blogsRepository.saveBlog(blog);
   }
 
-  async findAllBannedUsersForBlog(
-    blogId: string,
-    paginationOptions: BannedUserPaginatorOptions,
-  ) {
+  async banBlog(blogId: string, banBlogDto: BanBlogDto) {
     const blog = await this.blogModel.findById(blogId);
-    //TODO check 500 error than blog id is invalid
     if (!blog)
       throw new BadRequestException({
         field: 'blogId',
-        message: 'blog with this ID not found',
+        message: 'blog with such id does not exist',
       });
-
-    return blog.getBannedUsers();
+    blog.banOrUnban(banBlogDto);
+    await this.blogsRepository.saveBlog(blog);
   }
+  // async findAllBannedUsersForBlog(
+  //   blogId: string,
+  //   paginationOptions: BannedUserPaginatorOptions,
+  // ) {
+  //   const blog = await this.blogModel.findById(blogId);
+  //   //TODO check 500 error than blog id is invalid
+  //   if (!blog)
+  //     throw new BadRequestException({
+  //       field: 'blogId',
+  //       message: 'blog with this ID not found',
+  //     });
+
+  //   return blog.getBannedUsers();
+  // }
 }

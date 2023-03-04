@@ -91,10 +91,6 @@ export class CommentsQueryRepository {
     posts: LeanDocument<PostDocument[]>,
     paginator: CommentsPaginationOptions,
   ) {
-    console.log(
-      '🚀 ~ file: comments.query-repository.ts:94 ~ CommentsQueryRepository ~ posts:',
-      posts,
-    );
     const postsIds = posts.map((p) => p._id);
     const comments = await this.commentModel
       .find()
