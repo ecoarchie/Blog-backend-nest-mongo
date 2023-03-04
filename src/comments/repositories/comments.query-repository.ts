@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { LeanDocument, Model, Types } from 'mongoose';
+import { PostDocument } from '../../posts/post-schema';
 import {
   Comment,
   CommentDocument,
@@ -83,6 +84,54 @@ export class CommentsQueryRepository {
             (u) => u.userId.toString() === userId,
           )?.reaction || 'None',
       },
+    };
+  }
+
+  async findAllCommentsForPosts(
+    posts: LeanDocument<PostDocument[]>,
+    paginator: CommentsPaginationOptions,
+  ) {
+    console.log(
+      '🚀 ~ file: comments.query-repository.ts:94 ~ CommentsQueryRepository ~ posts:',
+      posts,
+    );
+    const postsIds = posts.map((p) => p._id);
+    const comments = await this.commentModel
+      .find()
+      .where('postId')
+      .in(postsIds)
+      .limit(paginator.pageSize)
+      .skip(paginator.skip)
+      .sort([[paginator.sortBy, paginator.sortDirection]])
+      .lean();
+
+    const totalCount = comments.length;
+    const pagesCount = Math.ceil(totalCount / paginator.pageSize);
+    const items = comments.map((c) => {
+      const cPost = posts.find((p) => p._id.toString() === c.postId.toString());
+      return {
+        id: c.id,
+        content: c.content,
+        commentatorInfo: {
+          userId: c.commentatorInfo.userId,
+          userLogin: c.commentatorInfo.userLogin,
+        },
+        createdAt: c.createdAt,
+        postInfo: {
+          id: c.postId,
+          title: cPost.title,
+          blogId: cPost.blogId,
+          blogName: cPost.blogName,
+        },
+      };
+    });
+
+    return {
+      pagesCount,
+      page: paginator.pageNumber,
+      pageSize: paginator.pageSize,
+      totalCount,
+      items: items,
     };
   }
 }

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
+import { CommentsModule } from '../comments/comments.module';
 import { AccessTokenValidationMiddleware } from '../middlewares/accessTokenCkeck.middleware';
 import { BlogPost, PostSchema } from '../posts/post-schema';
 import { PostsModule } from '../posts/posts.module';
@@ -35,6 +36,7 @@ import { BlogsService } from './services/blogs.service';
     forwardRef(() => PostsModule),
     forwardRef(() => AuthModule),
     forwardRef(() => UserModule),
+    forwardRef(() => CommentsModule),
   ],
   exports: [BlogsRepository, BlogsService],
   controllers: [

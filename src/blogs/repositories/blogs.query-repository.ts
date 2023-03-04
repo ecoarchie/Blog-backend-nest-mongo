@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { LeanDocument, Model, Types } from 'mongoose';
+import { BlogPost, PostDocument } from '../../posts/post-schema';
 import {
   BannedUserPaginatorOptions,
   UsersPagination,
@@ -19,7 +20,10 @@ import {
 
 @Injectable()
 export class BlogsQueryRepository {
-  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
+  constructor(
+    @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
+    @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
+  ) {}
 
   async findBlogById(blogId: string): Promise<Partial<Blog>> {
     if (!Types.ObjectId.isValid(blogId)) return null;
@@ -110,6 +114,28 @@ export class BlogsQueryRepository {
       totalCount,
       items: result.map(this.toBlogDto),
     };
+  }
+
+  async findAllPostsForAllBlogsOfCurrentUser(userId: string) {
+    const blogs = await this.blogModel
+      .find({
+        'ownerInfo.userId': new Types.ObjectId(userId),
+      })
+      .lean();
+    const blogsIds = blogs.map((b) => {
+      return b._id;
+    });
+    const posts = await this.postModel
+      .find()
+      .where('blogId')
+      .in(blogsIds)
+      .lean();
+    const postIds = posts.map((p) => p._id);
+    console.log(
+      '🚀 ~ file: blogs.query-repository.ts:134 ~ BlogsQueryRepository ~ findAllPostsIdsForAllBlogsOfCurrentUser ~ postIds:',
+      postIds,
+    );
+    return posts;
   }
 
   async findAllBannedUsersForBlog(

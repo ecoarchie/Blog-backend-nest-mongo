@@ -12,6 +12,8 @@ import {
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { BearerAuthGuard } from '../../auth/guards/bearer.auth.guard';
+import { CommentsPaginationOptions } from '../../comments/comment-schema';
+import { CommentsQueryRepository } from '../../comments/repositories/comments.query-repository';
 import {
   CreatePostDto,
   UpdatePostWithoutBlogIdDto,
@@ -41,6 +43,7 @@ export class BloggerBlogsController {
     private readonly blogsService: BlogsService,
     private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly commentsQueryRepo: CommentsQueryRepository,
   ) {}
 
   @Post()
@@ -86,10 +89,6 @@ export class BloggerBlogsController {
     @CurrentUser('id') currentUserId: string,
     @Body() createPostDto: CreatePostDto,
   ) {
-    console.log(
-      '🚀 ~ file: blogs-blogger.controller.ts:89 ~ BloggerBlogsController ~ createPostDto:',
-      createPostDto,
-    );
     const postId = await this.blogsService.createBlogPost(
       blogId,
       createPostDto,
@@ -137,5 +136,25 @@ export class BloggerBlogsController {
     @Param('postId') postId: string,
   ) {
     await this.postsService.deletePostById(blogId, postId, currentUserId);
+  }
+
+  @Get('comments')
+  async getAllCommentsForAllPostsOfCurrentUser(
+    @Query() commentPaginationQuery: CommentsPaginationOptions,
+    @CurrentUser('id') currentUserId: string,
+  ) {
+    const allUsersPosts =
+      await this.blogsQueryRepository.findAllPostsForAllBlogsOfCurrentUser(
+        currentUserId,
+      );
+
+    const comments = await this.commentsQueryRepo.findAllCommentsForPosts(
+      allUsersPosts,
+      commentPaginationQuery,
+    );
+    return comments;
+    // await this.commentsQueryRepo.findAllCommentsForAllPostsOfCurrentUser(
+    //   currentUserId,
+    // );
   }
 }
