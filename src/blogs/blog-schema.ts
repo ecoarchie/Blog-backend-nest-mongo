@@ -8,7 +8,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { HydratedDocument, Types } from 'mongoose';
-import { BanInfo, Pagination } from '../users/user-schema';
+import { Pagination } from '../users/user-schema';
 
 export type BlogDocument = HydratedDocument<Blog>;
 
@@ -24,7 +24,7 @@ export class BlogOwnerInfo {
 export const BlogOwnerInfoSchema = SchemaFactory.createForClass(BlogOwnerInfo);
 
 @Schema({ _id: false })
-export class BanInBlogInfo {
+export class UserBanInBlogInfo {
   @Prop()
   isBanned: boolean;
 
@@ -34,7 +34,7 @@ export class BanInBlogInfo {
   @Prop()
   banReason: string;
 }
-const BanInBlogInfoSchema = SchemaFactory.createForClass(BanInBlogInfo);
+const UserBanInBlogInfoSchema = SchemaFactory.createForClass(UserBanInBlogInfo);
 
 @Schema({ _id: false })
 export class BannedUser {
@@ -44,11 +44,22 @@ export class BannedUser {
   @Prop()
   login: string;
 
-  @Prop({ type: BanInBlogInfoSchema })
-  banInfo: BanInBlogInfo;
+  @Prop({ type: UserBanInBlogInfoSchema })
+  banInfo: UserBanInBlogInfo;
 }
 
 const BannedUsersSchema = SchemaFactory.createForClass(BannedUser);
+
+@Schema({ _id: false })
+class BannedBlogInfo {
+  @Prop()
+  isBanned: boolean;
+
+  @Prop()
+  banDate: Date;
+}
+
+const BannedBlogInfoSchema = SchemaFactory.createForClass(BannedBlogInfo);
 
 @Schema()
 export class Blog {
@@ -73,8 +84,8 @@ export class Blog {
   @Prop({ type: [BannedUsersSchema] })
   bannedUsers: BannedUser[];
 
-  @Prop()
-  isBannedByAdmin: boolean;
+  @Prop({ type: BannedBlogInfoSchema, default: async () => ({}) })
+  banInfo: BannedBlogInfo;
 
   setName(newName: string) {
     this.name = newName;
@@ -97,7 +108,11 @@ export class Blog {
     this.ownerInfo.userLogin = userLogin;
   }
 
-  addUserToBanList(userId: string, userLogin: string, banInfo: BanInfo) {
+  addUserToBanList(
+    userId: string,
+    userLogin: string,
+    banInfo: UserBanInBlogInfo,
+  ) {
     const userInBanListIndex = this.bannedUsers.findIndex(
       (u) => u.id.toString() === userId,
     );
@@ -126,7 +141,9 @@ export class Blog {
   }
 
   banOrUnban(banBlogDto: BanBlogDto) {
-    this.isBannedByAdmin = banBlogDto.isBanned;
+    this.banInfo.isBanned = banBlogDto.isBanned;
+    if (banBlogDto.isBanned) this.banInfo.banDate = new Date();
+    else this.banInfo.banDate = null;
   }
 }
 

@@ -79,7 +79,7 @@ export class BlogsController {
     @Req() req: Request,
   ) {
     const blogFound = await this.blogsQueryRepository.findBlogById(blogId);
-    if (!blogFound || blogFound.isBannedByAdmin) return res.sendStatus(404);
+    if (!blogFound || blogFound.banInfo.isBanned) return res.sendStatus(404);
 
     const postsPaginatorOptions = new PostPaginatorOptions(postsPaginatorQuery);
     const posts = await this.postsQueryRepository.findAllPostsForBlog(

@@ -217,6 +217,7 @@ export class BlogsQueryRepository {
       createdAt: blog.createdAt,
       isMembership: blog.isMembership,
       blogOwnerInfo: blog.ownerInfo,
+      banInfo: blog.banInfo,
     };
   }
 }
