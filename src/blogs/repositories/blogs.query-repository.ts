@@ -32,6 +32,18 @@ export class BlogsQueryRepository {
     return this.toBlogDto(blogDocument);
   }
 
+  async findNotBannedBlogById(blogId: string): Promise<Partial<Blog>> {
+    if (!Types.ObjectId.isValid(blogId)) return null;
+    const blogDocument = await this.blogModel.findOne()
+    .and([
+      {_id: new Types.ObjectId(blogId)},
+        { 'banInfo.isBanned': false },
+    ])
+    .lean();
+    if (!blogDocument) return null;
+    return this.toBlogDto(blogDocument);
+  }
+
   async findAllBlogs(
     paginatorOptions: BlogPaginatorOptions,
   ): Promise<BlogsPagination> {

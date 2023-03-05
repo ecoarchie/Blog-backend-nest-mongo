@@ -34,7 +34,8 @@ export class BlogsController {
 
   @Get(':id')
   async findBlogById(@Param('id') id: string, @Res() res: Response) {
-    const blogFound = await this.blogsQueryRepository.findBlogById(id);
+    const blogFound = await this.blogsQueryRepository.findNotBannedBlogById(id);
+    console.log(blogFound);
     if (!blogFound) return res.sendStatus(404);
     return res.status(200).send(blogFound);
   }
