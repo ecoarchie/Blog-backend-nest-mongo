@@ -61,7 +61,7 @@ export class BlogsQueryRepository {
 
     const totalCount = paginatorOptions.searchNameTerm
       ? result.length
-      : await this.blogModel.count();
+      : await this.blogModel.count({ 'banInfo.isBanned': false});
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
       pagesCount,
