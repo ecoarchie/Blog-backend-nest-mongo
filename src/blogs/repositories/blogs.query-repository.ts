@@ -179,23 +179,21 @@ export class BlogsQueryRepository {
       page: paginatorOptions.pageNumber,
       pageSize: paginatorOptions.pageSize,
       totalCount,
-      items: this.sortBanList(
+      items: this.filterBanList(
         bannedUsers,
-        paginatorOptions.sortDirection,
-        paginatorOptions.sortBy,
+        paginatorOptions
       ),
     };
   }
 
-  private sortBanList(
+  private filterBanList(
     banList: BannedUser[],
-    direction: 'asc' | 'desc',
-    field: string,
+    paginator: BannedUserPaginatorOptions
   ) {
     return banList.sort((a: any, b: any) => {
-      if (direction === 'asc') return a.banInfo[field] - b.banInfo[field];
-      else return b.banInfo[field] - a.banInfo[field];
-    });
+      if (paginator.sortDirection === 'asc') return a.banInfo[paginator.sortBy] - b.banInfo[paginator.sortBy];
+      else return b.banInfo[paginator.sortBy] - a.banInfo[paginator.sortBy];
+    }).slice(paginator.pageNumber * paginator.pageSize + 1, paginator.pageNumber * paginator.pageSize + 1 + paginator.pageSize);
   }
 
   async deleteBlogById(currentUserId: string, blogId: string): Promise<void> {

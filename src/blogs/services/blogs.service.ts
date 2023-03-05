@@ -111,6 +111,11 @@ export class BlogsService {
     return bannedUser ? true : false;
   }
 
+  async isBlogBanned (blogId: string): Promise<boolean> {
+    const blog = await this.blogModel.findById(blogId).lean();
+    return blog.banInfo.isBanned;
+  }
+
   async banUserByBlogger(
     userId: string,
     banUserByBloggerDto: BanUserByBloggerDto,
