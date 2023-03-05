@@ -52,10 +52,10 @@ const BannedUsersSchema = SchemaFactory.createForClass(BannedUser);
 
 @Schema({ _id: false })
 class BannedBlogInfo {
-  @Prop()
+  @Prop({default: false})
   isBanned: boolean;
 
-  @Prop()
+  @Prop({default: null})
   banDate: Date;
 }
 
