@@ -73,7 +73,7 @@ export class PostsController {
     );
     if (!postFound) return res.sendStatus(404);
     const isBlogBanned = await this.blogsService.isBlogBanned(postFound.blogId.toString())
-    if(isBlogBanned) return res.status(404);
+    if(isBlogBanned) return res.sendStatus(404);
     res.status(200).send(postFound);
   }
 
