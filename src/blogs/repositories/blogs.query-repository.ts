@@ -40,7 +40,7 @@ export class BlogsQueryRepository {
       .find()
       .and([
         paginatorOptions.searchNameTerm ? { name: { $regex: nameRegex } } : {},
-        { isBannedByAdmin: false },
+        { 'banInfo.isBanned': false },
       ])
       .limit(paginatorOptions.pageSize)
       .skip(paginatorOptions.skip)
