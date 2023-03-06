@@ -123,10 +123,10 @@ export class CommentsQueryRepository {
         myStatus: 'None',
       },
         postInfo: {
-          id: c.postId,
-          title: cPost.title,
           blogId: cPost.blogId,
           blogName: cPost.blogName,
+          title: cPost.title,
+          id: c.postId,
         },
       };
     });
