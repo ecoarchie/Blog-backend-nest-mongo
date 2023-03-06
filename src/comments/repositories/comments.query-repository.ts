@@ -101,7 +101,7 @@ export class CommentsQueryRepository {
       .sort([[paginator.sortBy, paginator.sortDirection]])
       .lean();
 
-    const totalCount = comments.length;
+    const totalCount = await this.commentModel.count().where('postId').in(postsIds);
     const pagesCount = Math.ceil(totalCount / paginator.pageSize);
     const items = comments.map((c) => {
       const cPost = posts.find((p) => p._id.toString() === c.postId.toString());
