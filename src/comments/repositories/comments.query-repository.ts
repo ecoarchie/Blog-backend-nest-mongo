@@ -12,7 +12,7 @@ import {
 export class CommentsQueryRepository {
   constructor(
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
-  ) {}
+  ) { }
 
   async findCommentById(commentId: string, userId: string) {
     if (!Types.ObjectId.isValid(commentId)) return null;
@@ -96,8 +96,8 @@ export class CommentsQueryRepository {
       .find()
       .where('postId')
       .in(postsIds)
-      .where('commentatorInfo.isBanned')
-      .equals(false)
+      // .where('commentatorInfo.isBanned')
+      // .equals(false)
       .limit(paginator.pageSize)
       .skip(paginator.skip)
       .sort([[paginator.sortBy, paginator.sortDirection]])
@@ -115,15 +115,15 @@ export class CommentsQueryRepository {
           userId: c.commentatorInfo.userId,
           userLogin: c.commentatorInfo.userLogin,
         },
-      likesInfo: {
-        likesCount: c.likesInfo.userLikes.filter(
-          (l) => l.reaction === 'Like' && !l.isBanned,
-        ).length,
-        dislikesCount: c.likesInfo.userLikes.filter(
-          (l) => l.reaction === 'Dislike' && !l.isBanned,
-        ).length,
-        myStatus: 'None',
-      },
+        likesInfo: {
+          likesCount: c.likesInfo.userLikes.filter(
+            (l) => l.reaction === 'Like' && !l.isBanned,
+          ).length,
+          dislikesCount: c.likesInfo.userLikes.filter(
+            (l) => l.reaction === 'Dislike' && !l.isBanned,
+          ).length,
+          myStatus: 'None',
+        },
         postInfo: {
           blogId: cPost.blogId,
           blogName: cPost.blogName,
