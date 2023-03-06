@@ -128,6 +128,7 @@ export class BlogsService {
       });
 
     const user = await this.usersQueryRepo.findUserById(userId);
+    if (!user) throw new NotFoundException();
     blog.addUserToBanList(userId, user.login, {
       isBanned: banUserByBloggerDto.isBanned,
       banReason: banUserByBloggerDto.banReason,
