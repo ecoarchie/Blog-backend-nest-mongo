@@ -34,11 +34,13 @@ export class BloggerUserController {
   async findAllBannedUsers(
     @Param('id') blogId: string,
     @Query() userPaginatorQuery: BannedUserPaginatorOptions,
+    @CurrentUser('id') currentUserId: string,
   ): Promise<UsersPagination> {
     const userPaginatorOptions = new BannedUserPaginatorOptions(
       userPaginatorQuery,
     );
     const users = await this.blogsQueryRepo.findAllBannedUsersForBlog(
+      currentUserId,
       blogId,
       userPaginatorOptions,
     );

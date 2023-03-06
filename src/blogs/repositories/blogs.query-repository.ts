@@ -148,11 +148,13 @@ export class BlogsQueryRepository {
   }
 
   async findAllBannedUsersForBlog(
+    currentUserId: string,
     blogId: string,
     paginatorOptions: BannedUserPaginatorOptions,
   ): Promise<UsersPagination> {
     const blog = await this.blogModel.findById(blogId);
     if (!blog) throw new NotFoundException();
+    if (blog.ownerInfo.userId.toString() !== currentUserId) throw new ForbiddenException();
 
     const sort: any = {};
     sort[`bannedUsers.${paginatorOptions.sortBy}`] = paginatorOptions.sortDirection === 'asc' ? 1 : -1;
