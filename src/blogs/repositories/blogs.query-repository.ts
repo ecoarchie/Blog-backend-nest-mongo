@@ -190,10 +190,11 @@ export class BlogsQueryRepository {
     banList: BannedUser[],
     paginator: BannedUserPaginatorOptions
   ) {
+    const skip = (paginator.pageNumber - 1) * paginator.pageSize
     return banList.sort((a: any, b: any) => {
       if (paginator.sortDirection === 'asc') return a.banInfo[paginator.sortBy] - b.banInfo[paginator.sortBy];
       else return b.banInfo[paginator.sortBy] - a.banInfo[paginator.sortBy];
-    }).slice(paginator.pageNumber * paginator.pageSize + 1, paginator.pageNumber * paginator.pageSize + 1 + paginator.pageSize);
+    }).slice(skip + 1, skip + 1 + paginator.pageSize);
   }
 
   async deleteBlogById(currentUserId: string, blogId: string): Promise<void> {
