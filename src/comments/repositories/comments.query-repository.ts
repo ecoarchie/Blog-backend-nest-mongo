@@ -101,6 +101,7 @@ export class CommentsQueryRepository {
       .sort([[paginator.sortBy, paginator.sortDirection]])
       .lean();
     console.log("🚀 ~ file: comments.query-repository.ts:103 ~ CommentsQueryRepository ~ commentsAll:", commentsAll)
+    console.log(commentsAll.length)
 
     const comments = await this.commentModel
       .find()
