@@ -44,7 +44,7 @@ export class BloggerBlogsController {
     private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commentsQueryRepo: CommentsQueryRepository,
-  ) {}
+  ) { }
 
   @Post()
   async createBlog(
@@ -148,9 +148,10 @@ export class BloggerBlogsController {
         currentUserId,
       );
 
+    const paginator = new CommentsPaginationOptions(commentPaginationQuery);
     const comments = await this.commentsQueryRepo.findAllCommentsForPosts(
       allUsersPosts,
-      commentPaginationQuery,
+      paginator,
     );
     return comments;
     // await this.commentsQueryRepo.findAllCommentsForAllPostsOfCurrentUser(
