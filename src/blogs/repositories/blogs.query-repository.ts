@@ -163,9 +163,9 @@ export class BlogsQueryRepository {
     const bannedUsers = await this.blogModel.aggregate([
       { $match: { _id: new Types.ObjectId(blogId) } },
       { $unwind: '$bannedUsers' },
-      { $sort: sort },
-      { $skip: paginatorOptions.skip },
       { $limit: paginatorOptions.pageSize },
+      { $skip: paginatorOptions.skip },
+      { $sort: sort },
       { $project: { _id: 0, bannedUsers: 1 } },
     ])
     const totalCount = blog.getBannedUsers().length;
