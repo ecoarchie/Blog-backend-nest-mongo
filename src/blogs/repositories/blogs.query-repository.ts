@@ -194,7 +194,7 @@ export class BlogsQueryRepository {
     return banList.sort((a: any, b: any) => {
       if (paginator.sortDirection === 'asc') return a.banInfo[paginator.sortBy] - b.banInfo[paginator.sortBy];
       else return b.banInfo[paginator.sortBy] - a.banInfo[paginator.sortBy];
-    }).slice(skip + 1, skip + 1 + paginator.pageSize);
+    }).slice(skip, skip + paginator.pageSize);
   }
 
   async deleteBlogById(currentUserId: string, blogId: string): Promise<void> {
