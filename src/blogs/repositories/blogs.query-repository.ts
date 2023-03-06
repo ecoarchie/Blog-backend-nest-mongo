@@ -144,7 +144,6 @@ export class BlogsQueryRepository {
       .where('blogId')
       .in(blogsIds)
       .lean();
-    const postIds = posts.map((p) => p._id);
     return posts;
   }
 
@@ -154,7 +153,6 @@ export class BlogsQueryRepository {
   ): Promise<UsersPagination> {
     const blog = await this.blogModel.findById(blogId);
     if (!blog) throw new NotFoundException();
-    // const bannedUsers = blog.getBannedUsers();
 
     const sort: any = {};
     sort[`bannedUsers.${paginatorOptions.sortBy}`] = paginatorOptions.sortDirection === 'asc' ? 1 : -1;
@@ -166,24 +164,6 @@ export class BlogsQueryRepository {
       { $limit: paginatorOptions.pageSize },
       { $project: { _id: 0, bannedUsers: 1}},
     ])
-    // const loginRegex = new RegExp(paginatorOptions.searchLoginTerm, 'i');
-    // const loginFilter = paginatorOptions.searchLoginTerm
-    //   ? { login: { $regex: loginRegex } }
-    //   : {};
-    // const isBannedFilter = {
-    //   arrayFilters: [{ 'banInfo.isBanned': true }],
-    // };
-    // const result = await this.blogModel
-    //   .find()
-    //   .and([loginFilter, isBannedFilter])
-    //   .limit(paginatorOptions.pageSize)
-    //   .skip(paginatorOptions.skip)
-    //   .sort([[paginatorOptions.sortBy, paginatorOptions.sortDirection]])
-    //   .lean();
-
-    // const totalCount = await this.blogModel
-    //   .count()
-    //   .and([loginFilter, isBannedFilter]);
     const totalCount = blog.getBannedUsers().length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
@@ -191,23 +171,8 @@ export class BlogsQueryRepository {
       page: paginatorOptions.pageNumber,
       pageSize: paginatorOptions.pageSize,
       totalCount,
-      // items: this.filterBanList(
-      //   bannedUsers,
-      //   paginatorOptions
-      // ),
       items: bannedUsers.map(u => u.bannedUsers),
     };
-  }
-
-  private filterBanList(
-    banList: BannedUser[],
-    paginator: BannedUserPaginatorOptions
-  ) {
-    const skip = (paginator.pageNumber - 1) * paginator.pageSize
-    return banList.slice(skip, skip + paginator.pageSize).sort((a: any, b: any) => {
-      if (paginator.sortDirection === 'asc') return a.banInfo[paginator.sortBy] - b.banInfo[paginator.sortBy];
-      else return b.banInfo[paginator.sortBy] - a.banInfo[paginator.sortBy];
-    });
   }
 
   async deleteBlogById(currentUserId: string, blogId: string): Promise<void> {

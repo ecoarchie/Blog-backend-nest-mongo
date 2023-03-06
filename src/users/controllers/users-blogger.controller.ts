@@ -11,6 +11,7 @@ import {
 import { BearerAuthGuard } from '../../auth/guards/bearer.auth.guard';
 import { BlogsQueryRepository } from '../../blogs/repositories/blogs.query-repository';
 import { BlogsService } from '../../blogs/services/blogs.service';
+import { CurrentUser } from '../../utils/current-user.param.decorator';
 import { UsersQueryRepository } from '../repositories/users.query-repository';
 import {
   BannedUserPaginatorOptions,
@@ -49,7 +50,8 @@ export class BloggerUserController {
   async banUnbanUserByBlogger(
     @Param('id') userId: string,
     @Body() banUserByBloggerDto: BanUserByBloggerDto,
+    @CurrentUser('id') bloggerId: string,
   ) {
-    await this.blogsService.banUserByBlogger(userId, banUserByBloggerDto);
+    await this.blogsService.banUserByBlogger(bloggerId, userId, banUserByBloggerDto);
   }
 }

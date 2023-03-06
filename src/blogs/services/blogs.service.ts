@@ -117,6 +117,7 @@ export class BlogsService {
   }
 
   async banUserByBlogger(
+    ownerId: string,
     userId: string,
     banUserByBloggerDto: BanUserByBloggerDto,
   ) {
@@ -126,6 +127,8 @@ export class BlogsService {
         field: 'blogId',
         message: 'blog with this ID not found',
       });
+
+    if (blog.ownerInfo.userId.toString() !== ownerId) throw new ForbiddenException();
 
     const user = await this.usersQueryRepo.findUserById(userId);
     blog.addUserToBanList(userId, user.login, {
