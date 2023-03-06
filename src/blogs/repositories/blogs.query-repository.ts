@@ -132,12 +132,12 @@ export class BlogsQueryRepository {
 
   async findAllPostsForAllBlogsOfCurrentUser(userId: string) {
     const blogs = await this.blogModel
-      .find()
-      .and([
-        { 'ownerInfo.userId': new Types.ObjectId(userId) },
-        { 'banInfo.isBanned': false }
-      ])
+      .find({ 'ownerInfo.userId': new Types.ObjectId(userId) })
       .lean();
+    // .and([
+    //   { 'ownerInfo.userId': new Types.ObjectId(userId) },
+    //   { 'banInfo.isBanned': false }
+    // ])
     const blogsIds = blogs.map((b) => {
       return b._id;
     });
