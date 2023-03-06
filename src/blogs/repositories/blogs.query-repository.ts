@@ -157,7 +157,7 @@ export class BlogsQueryRepository {
     // const bannedUsers = blog.getBannedUsers();
 
     const sort: any = {};
-    sort[paginatorOptions.sortBy!] = paginatorOptions.sortDirection === 'asc' ? 1 : -1;
+    sort[`bannedUsers.${paginatorOptions.sortBy}`] = paginatorOptions.sortDirection === 'asc' ? 1 : -1;
     const bannedUsers = await this.blogModel.aggregate([
       { $match: { _id: new Types.ObjectId(blogId)}},
       { $unwind: '$bannedUsers' },
@@ -184,7 +184,7 @@ export class BlogsQueryRepository {
     // const totalCount = await this.blogModel
     //   .count()
     //   .and([loginFilter, isBannedFilter]);
-    const totalCount = bannedUsers.length;
+    const totalCount = blog.getBannedUsers().length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
       pagesCount,
