@@ -156,11 +156,15 @@ export class BlogsQueryRepository {
     if (!blog) throw new NotFoundException();
     // const bannedUsers = blog.getBannedUsers();
 
+    const sort: any = {};
+    sort[paginatorOptions.sortBy!] = paginatorOptions.sortDirection === 'asc' ? 1 : -1;
     const bannedUsers = await this.blogModel.aggregate([
       { $match: { _id: new Types.ObjectId(blogId)}},
       { $unwind: '$bannedUsers' },
-      { $project: { _id: 0, bannedUsers: 1}}
-
+      { $sort: sort},
+      { $skip: paginatorOptions.skip },
+      { $limit: paginatorOptions.pageSize },
+      { $project: { _id: 0, bannedUsers: 1}},
     ])
     // const loginRegex = new RegExp(paginatorOptions.searchLoginTerm, 'i');
     // const loginFilter = paginatorOptions.searchLoginTerm
