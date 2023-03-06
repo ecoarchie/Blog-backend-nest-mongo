@@ -106,13 +106,22 @@ export class CommentsQueryRepository {
     const items = comments.map((c) => {
       const cPost = posts.find((p) => p._id.toString() === c.postId.toString());
       return {
-        id: c.id,
+        id: c._id,
         content: c.content,
+        createdAt: c.createdAt,
         commentatorInfo: {
           userId: c.commentatorInfo.userId,
           userLogin: c.commentatorInfo.userLogin,
         },
-        createdAt: c.createdAt,
+      likesInfo: {
+        likesCount: c.likesInfo.userLikes.filter(
+          (l) => l.reaction === 'Like' && !l.isBanned,
+        ).length,
+        dislikesCount: c.likesInfo.userLikes.filter(
+          (l) => l.reaction === 'Dislike' && !l.isBanned,
+        ).length,
+        myStatus: 'None',
+      },
         postInfo: {
           id: c.postId,
           title: cPost.title,
