@@ -23,7 +23,7 @@ export class BlogsQueryRepository {
   constructor(
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
     @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
-  ) {}
+  ) { }
 
   async findBlogById(blogId: string): Promise<Partial<Blog>> {
     if (!Types.ObjectId.isValid(blogId)) return null;
@@ -35,11 +35,11 @@ export class BlogsQueryRepository {
   async findNotBannedBlogById(blogId: string): Promise<Partial<Blog>> {
     if (!Types.ObjectId.isValid(blogId)) return null;
     const blogDocument = await this.blogModel.findOne()
-    .and([
-      {_id: new Types.ObjectId(blogId)},
+      .and([
+        { _id: new Types.ObjectId(blogId) },
         { 'banInfo.isBanned': false },
-    ])
-    .lean();
+      ])
+      .lean();
     if (!blogDocument) return null;
     return this.toBlogDto(blogDocument);
   }
@@ -61,7 +61,7 @@ export class BlogsQueryRepository {
 
     const totalCount = paginatorOptions.searchNameTerm
       ? result.length
-      : await this.blogModel.count({ 'banInfo.isBanned': false});
+      : await this.blogModel.count({ 'banInfo.isBanned': false });
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
     return {
       pagesCount,
@@ -132,9 +132,11 @@ export class BlogsQueryRepository {
 
   async findAllPostsForAllBlogsOfCurrentUser(userId: string) {
     const blogs = await this.blogModel
-      .find({
-        'ownerInfo.userId': new Types.ObjectId(userId),
-      })
+      .find()
+      .and([
+        { 'ownerInfo.userId': new Types.ObjectId(userId) },
+        { 'banInfo.isBanned': false }
+      ])
       .lean();
     const blogsIds = blogs.map((b) => {
       return b._id;
@@ -159,12 +161,12 @@ export class BlogsQueryRepository {
     const sort: any = {};
     sort[`bannedUsers.${paginatorOptions.sortBy}`] = paginatorOptions.sortDirection === 'asc' ? 1 : -1;
     const bannedUsers = await this.blogModel.aggregate([
-      { $match: { _id: new Types.ObjectId(blogId)}},
+      { $match: { _id: new Types.ObjectId(blogId) } },
       { $unwind: '$bannedUsers' },
-      { $sort: sort},
+      { $sort: sort },
       { $skip: paginatorOptions.skip },
       { $limit: paginatorOptions.pageSize },
-      { $project: { _id: 0, bannedUsers: 1}},
+      { $project: { _id: 0, bannedUsers: 1 } },
     ])
     const totalCount = blog.getBannedUsers().length;
     const pagesCount = Math.ceil(totalCount / paginatorOptions.pageSize);
