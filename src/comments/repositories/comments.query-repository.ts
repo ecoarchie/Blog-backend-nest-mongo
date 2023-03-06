@@ -91,7 +91,7 @@ export class CommentsQueryRepository {
     posts: LeanDocument<PostDocument[]>,
     paginator: CommentsPaginationOptions,
   ) {
-    const postsIds = posts.map((p) => p._id);
+    const postsIds = posts.map((p) => p._id.toString());
     const comments = await this.commentModel
       .find()
       .where('postId')
