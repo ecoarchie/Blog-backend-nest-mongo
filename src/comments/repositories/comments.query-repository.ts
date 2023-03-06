@@ -92,17 +92,6 @@ export class CommentsQueryRepository {
     paginator: CommentsPaginationOptions,
   ) {
     const postsIds = posts.map((p) => p._id);
-    const commentsAll = await this.commentModel
-      .find()
-      .where('postId')
-      .in(postsIds)
-      .where('commentatorInfo.isBanned')
-      .equals(false)
-      .sort([[paginator.sortBy, paginator.sortDirection]])
-      .lean();
-    console.log("🚀 ~ file: comments.query-repository.ts:103 ~ CommentsQueryRepository ~ commentsAll:", commentsAll)
-    console.log('skip = ', paginator.skip)
-
     const comments = await this.commentModel
       .find()
       .where('postId')
