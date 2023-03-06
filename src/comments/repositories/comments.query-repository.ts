@@ -133,8 +133,8 @@ export class CommentsQueryRepository {
 
     return {
       pagesCount,
-      page: paginator.pageNumber,
-      pageSize: paginator.pageSize,
+      page: Number(paginator.pageNumber),
+      pageSize: Number(paginator.pageSize),
       totalCount,
       items: items,
     };
