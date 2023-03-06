@@ -153,6 +153,7 @@ export class BlogsQueryRepository {
     paginatorOptions: BannedUserPaginatorOptions,
   ): Promise<UsersPagination> {
     const blog = await this.blogModel.findById(blogId);
+    if (!blog) throw new NotFoundException();
     const bannedUsers = blog.getBannedUsers();
     // const loginRegex = new RegExp(paginatorOptions.searchLoginTerm, 'i');
     // const loginFilter = paginatorOptions.searchLoginTerm
