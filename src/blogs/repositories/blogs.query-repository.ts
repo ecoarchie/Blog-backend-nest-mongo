@@ -133,11 +133,11 @@ export class BlogsQueryRepository {
   async findAllPostsForAllBlogsOfCurrentUser(userId: string) {
     const blogs = await this.blogModel
       .find({ 'ownerInfo.userId': new Types.ObjectId(userId) })
+      .and([
+        { 'ownerInfo.userId': new Types.ObjectId(userId) },
+        { 'banInfo.isBanned': false }
+      ])
       .lean();
-    // .and([
-    //   { 'ownerInfo.userId': new Types.ObjectId(userId) },
-    //   { 'banInfo.isBanned': false }
-    // ])
     const blogsIds = blogs.map((b) => {
       return b._id;
     });
@@ -163,9 +163,9 @@ export class BlogsQueryRepository {
     const bannedUsers = await this.blogModel.aggregate([
       { $match: { _id: new Types.ObjectId(blogId) } },
       { $unwind: '$bannedUsers' },
-      { $limit: paginatorOptions.pageSize },
-      { $skip: paginatorOptions.skip },
       { $sort: sort },
+      { $skip: paginatorOptions.skip },
+      { $limit: paginatorOptions.pageSize },
       { $project: { _id: 0, bannedUsers: 1 } },
     ])
     const totalCount = blog.getBannedUsers().length;
