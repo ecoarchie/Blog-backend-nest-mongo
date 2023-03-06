@@ -195,7 +195,7 @@ export class BlogsQueryRepository {
       //   bannedUsers,
       //   paginatorOptions
       // ),
-      items: bannedUsers,
+      items: bannedUsers.map(u => u.bannedUsers),
     };
   }
 
