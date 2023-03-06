@@ -155,6 +155,11 @@ export class BlogsQueryRepository {
     const blog = await this.blogModel.findById(blogId);
     if (!blog) throw new NotFoundException();
     const bannedUsers = blog.getBannedUsers();
+
+    // const bannedUsers = await this.blogModel.aggregate([
+    //   { $match: { _id: new Types.ObjectId(blogId)}},
+
+    // ])
     // const loginRegex = new RegExp(paginatorOptions.searchLoginTerm, 'i');
     // const loginFilter = paginatorOptions.searchLoginTerm
     //   ? { login: { $regex: loginRegex } }
@@ -192,10 +197,10 @@ export class BlogsQueryRepository {
     paginator: BannedUserPaginatorOptions
   ) {
     const skip = (paginator.pageNumber - 1) * paginator.pageSize
-    return banList.sort((a: any, b: any) => {
+    return banList.slice(skip, skip + paginator.pageSize).sort((a: any, b: any) => {
       if (paginator.sortDirection === 'asc') return a.banInfo[paginator.sortBy] - b.banInfo[paginator.sortBy];
       else return b.banInfo[paginator.sortBy] - a.banInfo[paginator.sortBy];
-    }).slice(skip, skip + paginator.pageSize);
+    });
   }
 
   async deleteBlogById(currentUserId: string, blogId: string): Promise<void> {

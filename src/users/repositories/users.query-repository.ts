@@ -58,7 +58,6 @@ export class UsersQueryRepository {
 
   async findUserById(id: string) {
     const user = await this.userModel.findById(id).lean();
-    console.log("🚀 ~ file: users.query-repository.ts:61 ~ UsersQueryRepository ~ findUserById ~ user:", user)
     if (!user) throw new NotFoundException();
 
     return this.toUserDto(user);
