@@ -154,12 +154,14 @@ export class BlogsQueryRepository {
   ): Promise<UsersPagination> {
     const blog = await this.blogModel.findById(blogId);
     if (!blog) throw new NotFoundException();
-    const bannedUsers = blog.getBannedUsers();
+    // const bannedUsers = blog.getBannedUsers();
 
-    // const bannedUsers = await this.blogModel.aggregate([
-    //   { $match: { _id: new Types.ObjectId(blogId)}},
+    const bannedUsers = await this.blogModel.aggregate([
+      { $match: { _id: new Types.ObjectId(blogId)}},
+      { $unwind: '$bannedUsers' },
+      { $project: { _id: 0, bannedUsers: 1}}
 
-    // ])
+    ])
     // const loginRegex = new RegExp(paginatorOptions.searchLoginTerm, 'i');
     // const loginFilter = paginatorOptions.searchLoginTerm
     //   ? { login: { $regex: loginRegex } }
@@ -185,10 +187,11 @@ export class BlogsQueryRepository {
       page: paginatorOptions.pageNumber,
       pageSize: paginatorOptions.pageSize,
       totalCount,
-      items: this.filterBanList(
-        bannedUsers,
-        paginatorOptions
-      ),
+      // items: this.filterBanList(
+      //   bannedUsers,
+      //   paginatorOptions
+      // ),
+      items: bannedUsers,
     };
   }
 
