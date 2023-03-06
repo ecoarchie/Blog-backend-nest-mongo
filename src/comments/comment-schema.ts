@@ -69,7 +69,6 @@ export class Comment {
     const likes = this.likesInfo.userLikes.filter(
       (l) => l.reaction === 'Like' && !l.isBanned,
     );
-    console.log('get likes count method');
     return likes.length;
   }
 
@@ -77,7 +76,6 @@ export class Comment {
     const dislikes = this.likesInfo.userLikes.filter(
       (l) => l.reaction === 'Dislike' && !l.isBanned,
     );
-    console.log('get dislikes count method');
     return dislikes.length;
   }
 
@@ -143,7 +141,7 @@ export class CreateCommentDto {
   content: string;
 }
 
-export class UpdateCommentDto extends CreateCommentDto {}
+export class UpdateCommentDto extends CreateCommentDto { }
 
 type SortDirection = 'asc' | 'desc';
 
