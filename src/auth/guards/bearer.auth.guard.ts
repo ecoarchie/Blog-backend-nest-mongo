@@ -8,7 +8,7 @@ export class BearerAuthGuard implements CanActivate {
   constructor(
     protected authService: AuthService,
     protected usersQueryRepo: UsersQueryRepository,
-  ) {}
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();

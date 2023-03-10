@@ -4,6 +4,7 @@ import {
   IsBoolean,
   IsMongoId,
   IsNotEmpty,
+  IsString,
   Matches,
   MaxLength,
 } from 'class-validator';
@@ -52,10 +53,10 @@ const BannedUsersSchema = SchemaFactory.createForClass(BannedUser);
 
 @Schema({ _id: false })
 class BannedBlogInfo {
-  @Prop({default: false})
+  @Prop({ default: false })
   isBanned: boolean;
 
-  @Prop({default: null})
+  @Prop({ default: null })
   banDate: Date;
 }
 
@@ -162,7 +163,8 @@ BlogSchema.methods = {
 export class CreateBlogDto {
   @MaxLength(15)
   @IsNotEmpty()
-  @Transform(({ value }: TransformFnParams) => value?.trim())
+  @Transform(({ value }: TransformFnParams) => typeof value === 'string' ? value?.trim() : value)
+  @IsString()
   name: string;
 
   @MaxLength(500)
@@ -189,7 +191,7 @@ export class BindToBlogDto {
   userId: string;
 }
 
-export class UpdateBlogDto extends CreateBlogDto {}
+export class UpdateBlogDto extends CreateBlogDto { }
 
 export class BanBlogDto {
   @IsBoolean()

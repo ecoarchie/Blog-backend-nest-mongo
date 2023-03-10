@@ -11,7 +11,7 @@ export class AppController {
     private readonly postsRepository: PostsRepository,
     private readonly commentsRepository: CommentsRepository,
     private readonly usersRepository: UsersRepository,
-  ) {}
+  ) { }
 
   @Get()
   async hello() {
@@ -26,5 +26,11 @@ export class AppController {
     await this.commentsRepository.deleteAllComments();
     await this.usersRepository.deleteAllUsers();
     await this.usersRepository.deleteAllSessions();
+  }
+
+  @HttpCode(204)
+  @Delete('testing/all-blogs')
+  async deleteAllBlogs() {
+    await this.blogsRepository.deleteAllBlogs();
   }
 }

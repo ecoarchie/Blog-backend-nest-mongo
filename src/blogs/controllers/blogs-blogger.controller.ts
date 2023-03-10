@@ -154,8 +154,5 @@ export class BloggerBlogsController {
       paginator,
     );
     return comments;
-    // await this.commentsQueryRepo.findAllCommentsForAllPostsOfCurrentUser(
-    //   currentUserId,
-    // );
   }
 }

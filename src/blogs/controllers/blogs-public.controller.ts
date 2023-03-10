@@ -10,16 +10,8 @@ import { BlogsService } from '../services/blogs.service';
 export class BlogsController {
   constructor(
     private readonly blogsQueryRepository: BlogsQueryRepository,
-    private readonly blogsService: BlogsService,
     private readonly postsQueryRepository: PostsQueryRepository,
   ) { }
-
-  // @UseGuards(BasicAuthGuard)
-  // @Post()
-  // async createBlog(@Body() blogDto: CreateBlogDto): Promise<Partial<Blog>> {
-  //   const newBlogId = await this.blogsService.createNewBlog(blogDto);
-  //   return this.blogsQueryRepository.findBlogById(newBlogId);
-  // }
 
   @Get()
   async findAllBlogs(
@@ -39,38 +31,6 @@ export class BlogsController {
     return res.status(200).send(blogFound);
   }
 
-  // @UseGuards(BasicAuthGuard)
-  // @Put(':id')
-  // async updateBlog(
-  //   @Param('id') blogId: string,
-  //   @Body() updateBlogDto: UpdateBlogDto,
-  //   @Res() res: Response,
-  // ) {
-  //   const result = await this.blogsService.updateBlog(blogId, updateBlogDto);
-  //   if (result) return res.sendStatus(204);
-  //   else res.sendStatus(404);
-  // }
-
-  // @UseGuards(BasicAuthGuard)
-  // @Post(':blogId/posts')
-  // async createBlogPost(
-  //   @Param('blogId') blogId: string,
-  //   @Body() createPostDto: CreatePostDto,
-  //   @Res() res: Response,
-  //   @Req() req: Request,
-  // ) {
-  //   const postId = await this.blogsService.createBlogPost(
-  //     blogId,
-  //     createPostDto,
-  //   );
-  //   if (!postId) return res.sendStatus(404);
-  //   const post = await this.postsQueryRepository.findPostById(
-  //     postId,
-  //     req.userId,
-  //   );
-  //   res.send(post);
-  // }
-
   @Get(':blogId/posts')
   async getAllPostForBlog(
     @Param('blogId') blogId: string,
@@ -79,24 +39,14 @@ export class BlogsController {
     @Req() req: Request,
   ) {
     const blogFound = await this.blogsQueryRepository.findBlogById(blogId);
-    if (!blogFound || blogFound.banInfo.isBanned) return res.sendStatus(404);
+    if (!blogFound) return res.sendStatus(404);
 
     const postsPaginatorOptions = new PostPaginatorOptions(postsPaginatorQuery);
     const posts = await this.postsQueryRepository.findAllPostsForBlog(
       blogId,
       postsPaginatorOptions,
-      req.user.id,
+      req.user?.id || null,
     );
     res.send(posts);
   }
-
-  // @UseGuards(BasicAuthGuard)
-  // @Delete(':blogId')
-  // async deletePostById(@Param('blogId') blogId: string, @Res() res: Response) {
-  //   const isBlogDeleted = await this.blogsQueryRepository.deleteBlogById(
-  //     blogId,
-  //   );
-  //   if (!isBlogDeleted) return res.sendStatus(404);
-  //   return res.sendStatus(204);
-  // }
 }

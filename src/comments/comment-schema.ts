@@ -64,7 +64,6 @@ export class Comment {
     this.content = content;
   }
 
-  // IMPORTANT remake makeReaction function
   countLikes() {
     const likes = this.likesInfo.userLikes.filter(
       (l) => l.reaction === 'Like' && !l.isBanned,
@@ -129,7 +128,6 @@ CommentSchema.methods = {
   getMyLikeStatus: Comment.prototype.getMyLikeStatus,
   updateContent: Comment.prototype.updateContent,
   makeReaction: Comment.prototype.makeReaction,
-  // changeLikeDislikeCount: Comment.prototype.changeLikeDislikeCount,
   countLikes: Comment.prototype.countLikes,
   countDislikes: Comment.prototype.countDislikes,
 };

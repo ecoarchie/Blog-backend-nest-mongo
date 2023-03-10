@@ -28,7 +28,7 @@ export class BlogsService {
     private usersQueryRepo: UsersQueryRepository,
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
     @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
-  ) {}
+  ) { }
 
   async createNewBlog(dto: CreateBlogDto, ownerInfo: BlogOwnerInfo) {
     const newBlog = new this.blogModel({
@@ -53,6 +53,7 @@ export class BlogsService {
     blog.setDescription(updateBlogDto.description);
     blog.setWebsiteUrl(updateBlogDto.websiteUrl);
     await this.blogsRepository.saveBlog(blog);
+    //TODO update all related posts - update blog name
   }
 
   async createBlogPost(
@@ -111,7 +112,7 @@ export class BlogsService {
     return bannedUser ? true : false;
   }
 
-  async isBlogBanned (blogId: string): Promise<boolean> {
+  async isBlogBanned(blogId: string): Promise<boolean> {
     const blog = await this.blogModel.findById(blogId).lean();
     return blog.banInfo.isBanned;
   }
