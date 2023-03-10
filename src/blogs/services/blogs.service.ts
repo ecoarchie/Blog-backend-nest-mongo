@@ -53,7 +53,7 @@ export class BlogsService {
     blog.setDescription(updateBlogDto.description);
     blog.setWebsiteUrl(updateBlogDto.websiteUrl);
     await this.blogsRepository.saveBlog(blog);
-    //TODO update all related posts - update blog name
+    await this.postModel.updateMany({ blogId: new Types.ObjectId(blogId) }, { blogName: updateBlogDto.name })
   }
 
   async createBlogPost(
