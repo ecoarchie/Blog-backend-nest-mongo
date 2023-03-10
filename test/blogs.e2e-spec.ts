@@ -1,14 +1,8 @@
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
-import { BlogsModule } from '../src/blogs/blogs.module';
-import { BlogsService } from '../src/blogs/services/blogs.service';
 import { Types } from 'mongoose';
 import { AppModule } from '../src/app.module';
-import { UserModule } from '../src/users/users.module';
-import { AuthModule } from '../src/auth/auth.module';
-import { PostsModule } from '../src/posts/posts.module';
-import { CommentsModule } from '../src/comments/comments.module';
 import { HttpExceptionFilter } from '../src/utils/httpexception.filter';
 
 const arturUser = {
@@ -17,14 +11,7 @@ const arturUser = {
   email: "artur@rambler.ru"
 }
 
-const maksimUser = {
-  login: "maksim",
-  password: "123456",
-  email: "maksim@mail.ru"
-}
-
 let accessTokenArtur: string;
-let accessTokenMaksim;
 
 describe('blogs routes', () => {
   let app: INestApplication;
@@ -68,12 +55,8 @@ describe('blogs routes', () => {
     accessTokenArtur = loginArtur.body.accessToken;
   });
 
-  // afterEach(async () => {
-  //   await request(app.getHttpServer()).delete('/testing/all-data');
-  // });
-
   afterAll(async () => {
-    // await request(app.getHttpServer()).delete('/testing/all-data');
+    await request(app.getHttpServer()).delete('/testing/all-data');
     await app.close()
   });
 
@@ -174,7 +157,7 @@ describe('blogs routes', () => {
     });
   });
 
-  describe('GET "/blogs/{id}"  - find blog by ID', () => {
+  describe('GET /blogs/{id}  - find blog by ID', () => {
     const blogToCreate = {
       name: 'new blog2',
       description: 'desc2',
@@ -311,10 +294,8 @@ describe('blogs routes', () => {
             .expect(201);
         })
       )
-      // .then(async () => {
       const result = await request(app.getHttpServer())
         .get(`/blogs/${newBlog.body.id}/posts`)
-        // .set('Authorization', `Bearer ${accessTokenArtur}`)
         .expect(200)
 
       expect(result.body).toStrictEqual({
@@ -325,7 +306,6 @@ describe('blogs routes', () => {
         items: expect.any(Array),
       });
       expect(result.body.items).toHaveLength(10);
-      // });
     });
 
     it('should return 404 code if blog ID doesnt exist', async () => {
@@ -412,33 +392,33 @@ describe('blogs routes', () => {
     });
   });
 
-  // describe('DELETE /blogs/{id}  - delete blog by id', () => {
-  //   const blogToCreate = {
-  //     name: 'new blog3',
-  //     description: 'desc3',
-  //     websiteUrl: 'https://yandex.com',
-  //   };
+  describe('DELETE blogger/blogs/{id}  - delete blog by id', () => {
+    const blogToCreate = {
+      name: 'new blog3',
+      description: 'desc3',
+      websiteUrl: 'https://yandex.com',
+    };
 
-  //   it('Should delete blog by ID', async () => {
-  //     const result = await request(app.getHttpServer())
-  //       .post('/blogs')
-  //       .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
-  //       .send(blogToCreate)
-  //       .expect(201);
+    it('Should delete blog by ID', async () => {
+      const result = await request(app.getHttpServer())
+        .post('/blogger/blogs')
+        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .send(blogToCreate)
+        .expect(201);
 
-  //     const delResult = await request(app.getHttpServer())
-  //       .delete(`/blogs/${result.body.id}`)
-  //       .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
-  //       .expect(204);
+      const delResult = await request(app.getHttpServer())
+        .delete(`/blogger/blogs/${result.body.id}`)
+        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .expect(204);
 
-  //     const response = await request(app.getHttpServer()).get(`/blogs/${result.body.id}`).expect(404);
-  //   });
+      const response = await request(app.getHttpServer()).get(`/blogs/${result.body.id}`).expect(404);
+    });
 
-  //   it('Should not delete blog if ID is invalid', async () => {
-  //     await request(app.getHttpServer())
-  //       .delete('/blogs/1233')
-  //       .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
-  //       .expect(404);
-  //   });
-  // });
+    it('Should not delete blog if ID is invalid', async () => {
+      await request(app.getHttpServer())
+        .delete('/blogger/blogs/1233')
+        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .expect(404);
+    });
+  });
 });
