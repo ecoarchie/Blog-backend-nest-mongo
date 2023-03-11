@@ -1,14 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform, TransformFnParams } from 'class-transformer';
 import { IsMongoId, IsNotEmpty, MaxLength } from 'class-validator';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, Model, Types } from 'mongoose';
 import { Like, LikeReaction, LikeSchema } from '../comments/like.schema';
 import { Pagination } from '../users/user-schema';
 import { IsBlogExists } from '../utils/blog-id.validator';
 
 export type PostDocument = HydratedDocument<BlogPost>;
 
-@Schema()
+@Schema({ _id: false })
 export class ExtendedLikesInfo {
   // @Prop({ default: 0 })
   // likesCount: number;
@@ -136,9 +136,9 @@ export class CreatePostWithBlogIdDto extends CreatePostDto {
   blogId: string;
 }
 
-export class UpdatePostDto extends CreatePostWithBlogIdDto {}
+export class UpdatePostDto extends CreatePostWithBlogIdDto { }
 
-export class UpdatePostWithoutBlogIdDto extends CreatePostDto {}
+export class UpdatePostWithoutBlogIdDto extends CreatePostDto { }
 
 export class PostIdParam {
   @IsMongoId()

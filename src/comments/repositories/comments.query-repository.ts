@@ -43,7 +43,8 @@ export class CommentsQueryRepository {
       .sort([[paginator.sortBy, paginator.sortDirection]])
       .lean();
 
-    const totalCount = result.length;
+    // const totalCount = result.length;
+    const totalCount = await this.commentModel.count().where('postId').equals(new Types.ObjectId(postId));
     const pagesCount = Math.ceil(totalCount / paginator.pageSize);
     return {
       pagesCount,

@@ -36,7 +36,6 @@ import { PostsRepository } from './repositories/posts.repository';
     PostsRepository,
     PostsQueryRepository,
     PostsService,
-    // IsBlogExistsConstraint,
   ],
 })
 export class PostsModule implements NestModule {

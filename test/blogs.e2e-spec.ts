@@ -392,6 +392,56 @@ describe('blogs routes', () => {
     });
   });
 
+
+  describe('PUT "blogger/blogs/{blogId}/posts/{id}" - update existing post by ID', () => {
+    it('Should update blog if blog ID is valid', async () => {
+      const blogToCreate = {
+        name: 'new blog',
+        description: 'desc',
+        websiteUrl: 'https://google.com',
+      };
+
+      const createBlogResponse = await request(app.getHttpServer())
+        .post('/blogger/blogs')
+        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .send(blogToCreate)
+        .expect(201);
+      const createdBlog = createBlogResponse.body;
+
+      const postToUpdate = {
+        title: 'new post1',
+        shortDescription: 'blog with created date field',
+        content: 'https://email.com',
+        blogId: `${createdBlog.id}`,
+      };
+
+      const createdPost = await request(app.getHttpServer())
+        .post(`/blogger/blogs/${createdBlog.id}/posts`)
+        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .send(postToUpdate)
+        .expect(201);
+
+      const res = await request(app.getHttpServer())
+        .put(`/blogger/blogs/${createdBlog.id}/posts/${createdPost.body.id}`)
+        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .send({
+          title: 'updated new post1',
+          shortDescription: 'updated desc',
+          content: 'https://email.net',
+          blogId: `${createdBlog.id}`,
+        })
+        .expect(204);
+
+      const updatedPost = await request(app.getHttpServer()).get(`/posts/${createdPost.body.id}`).expect(200);
+
+      expect(updatedPost.body.title).toBe('updated new post1');
+      expect(updatedPost.body.shortDescription).toBe('updated desc');
+      expect(updatedPost.body.content).toBe('https://email.net');
+      expect(updatedPost.body.blogId).toBe(`${createdBlog.id}`);
+    });
+  });
+
+
   describe('DELETE blogger/blogs/{id}  - delete blog by id', () => {
     const blogToCreate = {
       name: 'new blog3',

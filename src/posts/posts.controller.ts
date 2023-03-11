@@ -38,7 +38,7 @@ export class PostsController {
     private readonly commentsService: CommentsService,
     private readonly commentsQueryRepo: CommentsQueryRepository,
     private readonly blogsService: BlogsService,
-  ) {}
+  ) { }
 
   @Get()
   async findAllPosts(
@@ -54,13 +54,6 @@ export class PostsController {
     return res.send(posts);
   }
 
-  @UseGuards(BasicAuthGuard)
-  @Post()
-  async createPost(@Body() postDto: CreatePostWithBlogIdDto) {
-    const newPostId = await this.postService.createNewPost(postDto);
-    return this.postsQueryRepository.findPostById(newPostId, null);
-  }
-
   @Get(':postId')
   async getPostById(
     @Param('postId') postId: string,
@@ -73,29 +66,8 @@ export class PostsController {
     );
     if (!postFound) return res.sendStatus(404);
     const isBlogBanned = await this.blogsService.isBlogBanned(postFound.blogId.toString())
-    if(isBlogBanned) return res.sendStatus(404);
+    if (isBlogBanned) return res.sendStatus(404);
     res.status(200).send(postFound);
-  }
-
-  // @UseGuards(BasicAuthGuard)
-  // @Put(':postId')
-  // async updatePostById(
-  //   @Param('postId') postId: string,
-  //   @Body() updatePostDto: UpdatePostDto,
-  //   @Res() res: Response,
-  // ) {
-  //   await this.postService.updatePostById(postId, updatePostDto);
-  //   res.sendStatus(204);
-  // }
-
-  @UseGuards(BasicAuthGuard)
-  @Delete(':postId')
-  async deletePostById(@Param('postId') postId: string, @Res() res: Response) {
-    const isPostDeleted = await this.postsQueryRepository.deletePostById(
-      postId,
-    );
-    if (!isPostDeleted) return res.sendStatus(404);
-    return res.sendStatus(204);
   }
 
   @UseGuards(BearerAuthGuard)

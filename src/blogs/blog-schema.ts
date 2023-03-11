@@ -15,10 +15,10 @@ export type BlogDocument = HydratedDocument<Blog>;
 
 @Schema({ _id: false })
 export class BlogOwnerInfo {
-  @Prop()
+  @Prop({ required: true })
   userId: Types.ObjectId;
 
-  @Prop()
+  @Prop({ required: true })
   userLogin: string;
 }
 

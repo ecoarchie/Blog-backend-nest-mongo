@@ -100,12 +100,6 @@ export class BlogsService {
     const blog = await this.blogModel.findById(blogId);
     const bannedUser = blog
       .getBannedUsers()
-      // .map((u) => {
-      //   return {
-      //     id: u.id.toString(),
-      //     isBanned: u.banInfo.isBanned,
-      //   };
-      // })
       .find((u) => {
         return u.id.toString() === userId && u.banInfo.isBanned;
       });
