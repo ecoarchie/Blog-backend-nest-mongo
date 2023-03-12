@@ -10,21 +10,21 @@ import { BlogPost, PostDocument, PostSchema } from '../src/posts/post-schema';
 import { Blog, BlogDocument, BlogSchema } from '../src/blogs/blog-schema';
 import { Comment, CommentDocument, CommentSchema } from '../src/comments/comment-schema';
 
-const arturUser = {
+const testUser1 = {
   login: "artur",
   password: "123456",
   email: "artur@rambler.ru"
 }
 
-const maksimUser = {
+const testUser2 = {
   login: "maksim",
   password: "123456",
   email: "maksim@mail.ru"
 }
-let accessTokenArtur: string;
-let accessTokenMaksim: string;
-let arturId: string;
-let maksimId: string;
+let accessTokenUser1: string;
+let accessTokenUser2: string;
+let user1Id: string;
+let user2Id: string;
 
 describe('posts routes', () => {
   let app: INestApplication;
@@ -81,17 +81,17 @@ describe('posts routes', () => {
     await app.init();
 
     await request(app.getHttpServer()).delete('/testing/all-data');
-    await request(app.getHttpServer()).post('/sa/users').set('Authorization', 'Basic YWRtaW46cXdlcnR5').send(arturUser)
-    await request(app.getHttpServer()).post('/sa/users').set('Authorization', 'Basic YWRtaW46cXdlcnR5').send(maksimUser)
-    const loginArtur = await request(app.getHttpServer()).post('/auth/login').set({ 'user-agent': 'Mozilla' }).send(
+    await request(app.getHttpServer()).post('/sa/users').set('Authorization', 'Basic YWRtaW46cXdlcnR5').send(testUser1)
+    await request(app.getHttpServer()).post('/sa/users').set('Authorization', 'Basic YWRtaW46cXdlcnR5').send(testUser2)
+    const loginResultUser1 = await request(app.getHttpServer()).post('/auth/login').set({ 'user-agent': 'Mozilla' }).send(
       {
         loginOrEmail: "artur",
         password: "123456"
       }
     )
-    accessTokenArtur = loginArtur.body.accessToken;
-    const jwtDataArtur: any = jwt.verify(accessTokenArtur, process.env.SECRET);
-    arturId = jwtDataArtur.userId;
+    accessTokenUser1 = loginResultUser1.body.accessToken;
+    const jwtDataUser1: any = jwt.verify(accessTokenUser1, process.env.SECRET);
+    user1Id = jwtDataUser1.userId;
 
     const loginMaksim = await request(app.getHttpServer()).post('/auth/login').set({ 'user-agent': 'Mozilla' }).send(
       {
@@ -99,9 +99,9 @@ describe('posts routes', () => {
         password: "123456"
       }
     )
-    accessTokenMaksim = loginMaksim.body.accessToken;
-    const jwtDataMaksim: any = jwt.verify(accessTokenMaksim, process.env.SECRET);
-    maksimId = jwtDataMaksim.userId;
+    accessTokenUser2 = loginMaksim.body.accessToken;
+    const jwtDataUser2: any = jwt.verify(accessTokenUser2, process.env.SECRET);
+    user2Id = jwtDataUser2.userId;
 
   });
 
@@ -126,7 +126,7 @@ describe('posts routes', () => {
 
       const createBlogResponse = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${accessTokenUser1}`)
         .send(blogToCreate)
         .expect(201);
       const createdBlog = createBlogResponse.body;
@@ -146,7 +146,7 @@ describe('posts routes', () => {
         posts.map(async (post) => {
           await request(app.getHttpServer())
             .post(`/blogger/blogs/${createBlogResponse.body.id}/posts`)
-            .set('Authorization', `Bearer ${accessTokenArtur}`)
+            .set('Authorization', `Bearer ${accessTokenUser1}`)
             .send(post)
             .expect(201);
         })
@@ -171,7 +171,7 @@ describe('posts routes', () => {
 
       const createBlogResponse = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${accessTokenUser1}`)
         .send(blogToCreate)
         .expect(201);
       const createdBlog = createBlogResponse.body;
@@ -185,7 +185,7 @@ describe('posts routes', () => {
 
       const response = await request(app.getHttpServer())
         .post(`/blogger/blogs/${createBlogResponse.body.id}/posts`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${accessTokenUser1}`)
         .send(postToCreate)
         .expect(201);
       const createdPost = response.body;
@@ -227,7 +227,7 @@ describe('posts routes', () => {
 
       const createBlogResponse = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${accessTokenUser1}`)
         .send(blogToCreate)
         .expect(201);
       const createdBlog = createBlogResponse.body;
@@ -241,7 +241,7 @@ describe('posts routes', () => {
 
       const response = await request(app.getHttpServer())
         .post(`/blogger/blogs/${createBlogResponse.body.id}/posts`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${accessTokenUser1}`)
         .send(postToCreate)
         .expect(201);
       createdPost = response.body;
@@ -252,7 +252,7 @@ describe('posts routes', () => {
     it('should return newly created comment', async () => {
       const response = await request(app.getHttpServer())
         .post(`/posts/${createdPost.id}/comments`)
-        .set('Authorization', `Bearer ${accessTokenMaksim}`)
+        .set('Authorization', `Bearer ${accessTokenUser2}`)
         .send(validComment)
         .expect(201)
 
@@ -260,8 +260,8 @@ describe('posts routes', () => {
         id: expect.any(String),
         content: validComment.content,
         commentatorInfo: {
-          userId: maksimId,
-          userLogin: maksimUser.login
+          userId: user2Id,
+          userLogin: testUser2.login
         },
         createdAt: expect.any(String),
         likesInfo: {
@@ -275,7 +275,7 @@ describe('posts routes', () => {
     it('should return 400 and errors array if inputModel has incorrect data', async () => {
       const response = await request(app.getHttpServer())
         .post(`/posts/${createdPost.id}/comments`)
-        .set('Authorization', `Bearer ${accessTokenMaksim}`)
+        .set('Authorization', `Bearer ${accessTokenUser2}`)
         .send(invalidComment)
         .expect(400)
 
@@ -302,7 +302,7 @@ describe('posts routes', () => {
     it('should return 404 if post with specified postId does not exist', async () => {
       const response = await request(app.getHttpServer())
         .post(`/posts/${new Types.ObjectId()}/comments`)
-        .set('Authorization', `Bearer ${accessTokenMaksim}`)
+        .set('Authorization', `Bearer ${accessTokenUser2}`)
         .send(validComment)
         .expect(404)
 
@@ -320,8 +320,8 @@ describe('posts routes', () => {
         description: 'with comments',
         websiteUrl: 'https://google.com',
         ownerInfo: {
-          userId: new Types.ObjectId(arturId),
-          userLogin: arturUser.login
+          userId: new Types.ObjectId(user1Id),
+          userLogin: testUser1.login
         }
       };
       blog = await blogModel.create(blogDto)
@@ -346,7 +346,7 @@ describe('posts routes', () => {
         comments.map(async (comment) => {
           await request(app.getHttpServer())
             .post(`/posts/${post.id}/comments`)
-            .set('Authorization', `Bearer ${accessTokenMaksim}`)
+            .set('Authorization', `Bearer ${accessTokenUser2}`)
             .send(comment)
             .expect(201)
 
@@ -357,7 +357,7 @@ describe('posts routes', () => {
     it('should return 10 comments with pagination for specified post', async () => {
       const result = await request(app.getHttpServer())
         .get(`/posts/${post.id}/comments`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${accessTokenUser1}`)
         .expect(200)
 
       expect(result.body.items).toHaveLength(10)
@@ -370,7 +370,7 @@ describe('posts routes', () => {
     it('should return 5 comments with pagination with query params: pageNumber=2, pageSize=5, sortOrder=asc, sortBy=content', async () => {
       const result = await request(app.getHttpServer())
         .get(`/posts/${post.id}/comments?pageNumber=2&pageSize=5&sortBy=content&sortDirection=asc`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${accessTokenUser1}`)
         .expect(200)
 
       expect(result.body.items).toHaveLength(5)
@@ -389,12 +389,12 @@ describe('posts routes', () => {
     it('should return 404 if post with specified Id does not exist', async () => {
       await request(app.getHttpServer())
         .get(`/posts/${new Types.ObjectId()}/comments`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${accessTokenUser1}`)
         .expect(404)
     })
   });
 
-  describe('PUT - Make like/unlike/dislike/undislike post', () => {
+  describe('PUT posts/{postId}/like-status - Make like/unlike/dislike/undislike post', () => {
     let blog: BlogDocument;
     let post: PostDocument;
     const likeStatusObj = { likeStatus: 'Like' }
@@ -408,8 +408,8 @@ describe('posts routes', () => {
         description: 'with comments',
         websiteUrl: 'https://google.com',
         ownerInfo: {
-          userId: new Types.ObjectId(arturId),
-          userLogin: arturUser.login
+          userId: new Types.ObjectId(user1Id),
+          userLogin: testUser1.login
         }
       };
       blog = await blogModel.create(blogDto)
@@ -425,22 +425,22 @@ describe('posts routes', () => {
     })
 
 
-    it('should return 204 when sent like, dislike or none status to existing post', async () => {
+    it('should return 204 when sent Like, Dislike or None status to existing post', async () => {
       await request(app.getHttpServer())
         .put(`/posts/${post.id}/like-status`)
-        .set('Authorization', `Bearer ${accessTokenMaksim}`)
+        .set('Authorization', `Bearer ${accessTokenUser2}`)
         .send(likeStatusObj)
         .expect(204)
 
       await request(app.getHttpServer())
         .put(`/posts/${post.id}/like-status`)
-        .set('Authorization', `Bearer ${accessTokenMaksim}`)
+        .set('Authorization', `Bearer ${accessTokenUser2}`)
         .send(dislikeStatusObj)
         .expect(204)
 
       await request(app.getHttpServer())
         .put(`/posts/${post.id}/like-status`)
-        .set('Authorization', `Bearer ${accessTokenMaksim}`)
+        .set('Authorization', `Bearer ${accessTokenUser2}`)
         .send(noneStatusObj)
         .expect(204)
     })
@@ -449,23 +449,78 @@ describe('posts routes', () => {
     it('should add like object to posts extendedLikesInfo when sending Like ', async () => {
       await request(app.getHttpServer())
         .put(`/posts/${post.id}/like-status`)
-        .set('Authorization', `Bearer ${accessTokenMaksim}`)
+        .set('Authorization', `Bearer ${accessTokenUser2}`)
         .send(likeStatusObj)
         .expect(204)
 
-      const updatedPostLean = await postModel.findById(post.id).lean();
-      const user = { ...updatedPostLean.extendedLikesInfo.userLikes[0] };
+      await request(app.getHttpServer())
+        .put(`/posts/${post.id}/like-status`)
+        .set('Authorization', `Bearer ${accessTokenUser1}`)
+        .send(dislikeStatusObj)
+        .expect(204)
 
-      expect(updatedPostLean.extendedLikesInfo.userLikes.length).toBe(1)
-      expect(user).toStrictEqual({
-        userId: new Types.ObjectId(maksimId),
-        login: maksimUser.login,
-        reaction: likeStatusObj.likeStatus,
-        isBanned: false,
-        addedAt: expect.any(Date)
+      const updatedPostLean = await postModel.findById(post.id).lean();
+      const user = [...updatedPostLean.extendedLikesInfo.userLikes];
+
+      expect(updatedPostLean.extendedLikesInfo.userLikes.length).toBe(2)
+      expect(user).toStrictEqual([
+        {
+          userId: new Types.ObjectId(user2Id),
+          login: testUser2.login,
+          reaction: likeStatusObj.likeStatus,
+          isBanned: false,
+          addedAt: expect.any(Date)
+        },
+        {
+          userId: new Types.ObjectId(user1Id),
+          login: testUser1.login,
+          reaction: dislikeStatusObj.likeStatus,
+          isBanned: false,
+          addedAt: expect.any(Date)
+        },
+      ])
+    })
+
+    it('should return 400 exception if likeInput model is incorrect', async () => {
+      const invalidFiledResult = await request(app.getHttpServer())
+        .put(`/posts/${post.id}/like-status`)
+        .set('Authorization', `Bearer ${accessTokenUser2}`)
+        .send(invalidLikeStatusObj)
+        .expect(400)
+
+      const missingInputResult = await request(app.getHttpServer())
+        .put(`/posts/${post.id}/like-status`)
+        .set('Authorization', `Bearer ${accessTokenUser2}`)
+        .send(null)
+        .expect(400)
+
+      expect(invalidFiledResult.body).toEqual({
+        errorsMessages: [
+          {
+            message: expect.any(String),
+            field: 'likeStatus'
+          }
+        ]
       })
     })
 
+
+    it('should return 401 if unauthorized', async () => {
+      const result = await request(app.getHttpServer())
+        .put(`/posts/${post.id}/like-status`)
+        .set('Authorization', `Bearer ${new Types.ObjectId()}`)
+        .send(likeStatusObj)
+        .expect(401)
+    })
+
+
+    it('should return 404 if post with specified postId does not exist', async () => {
+      const result = await request(app.getHttpServer())
+        .put(`/posts/${new Types.ObjectId()}/like-status`)
+        .set('Authorization', `Bearer ${accessTokenUser2}`)
+        .send(likeStatusObj)
+        .expect(404)
+    })
 
   });
 });

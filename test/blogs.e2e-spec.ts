@@ -5,13 +5,13 @@ import { Types } from 'mongoose';
 import { AppModule } from '../src/app.module';
 import { HttpExceptionFilter } from '../src/utils/httpexception.filter';
 
-const arturUser = {
+const testUser = {
   login: "artur",
   password: "123456",
   email: "artur@rambler.ru"
 }
 
-let accessTokenArtur: string;
+let testUserAccessToken: string;
 
 describe('blogs routes', () => {
   let app: INestApplication;
@@ -45,14 +45,14 @@ describe('blogs routes', () => {
     await app.init();
 
     await request(app.getHttpServer()).delete('/testing/all-data');
-    await request(app.getHttpServer()).post('/sa/users').set('Authorization', 'Basic YWRtaW46cXdlcnR5').send(arturUser)
-    const loginArtur = await request(app.getHttpServer()).post('/auth/login').set({ 'user-agent': 'Mozilla' }).send(
+    await request(app.getHttpServer()).post('/sa/users').set('Authorization', 'Basic YWRtaW46cXdlcnR5').send(testUser)
+    const testUserLoginResult = await request(app.getHttpServer()).post('/auth/login').set({ 'user-agent': 'Mozilla' }).send(
       {
         loginOrEmail: "artur",
         password: "123456"
       }
     )
-    accessTokenArtur = loginArtur.body.accessToken;
+    testUserAccessToken = testUserLoginResult.body.accessToken;
   });
 
   afterAll(async () => {
@@ -82,7 +82,7 @@ describe('blogs routes', () => {
         blogs.map(async (blog) => {
           const res = await request(app.getHttpServer())
             .post('/blogger/blogs')
-            .set('Authorization', `Bearer ${accessTokenArtur}`)
+            .set('Authorization', `Bearer ${testUserAccessToken}`)
             .send(blog)
             .expect(201);
 
@@ -99,7 +99,7 @@ describe('blogs routes', () => {
     });
   });
 
-  describe('POST / - create blog', () => {
+  describe('POST blogger/blogs - create blog', () => {
     it('given invalid blog params (all empty strings) should recieve error object with 3 errors', async () => {
       const invalidBlogToCreate = {
         name: '',
@@ -109,7 +109,7 @@ describe('blogs routes', () => {
 
       const response = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(invalidBlogToCreate)
         .expect(400);
 
@@ -141,7 +141,7 @@ describe('blogs routes', () => {
 
       const response = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(blogToCreate)
         .expect(201);
       const createdBlog = response.body;
@@ -166,7 +166,7 @@ describe('blogs routes', () => {
     it('should find blog if id is valid', async () => {
       const blog = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(blogToCreate)
         .expect(201);
 
@@ -187,7 +187,7 @@ describe('blogs routes', () => {
     });
   });
 
-  describe('POST "blogger/blogs/{blogId}/posts" - create post for specified blog', () => {
+  describe('POST blogger/blogs/{blogId}/posts - create post for specified blog', () => {
     const blogToCreate = {
       name: 'new blog',
       description: 'blog desc',
@@ -219,7 +219,7 @@ describe('blogs routes', () => {
 
       await request(app.getHttpServer())
         .post(`/blogger/blogs/${fakeObjectId}/posts`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(postToCreate)
         .expect(404);
     });
@@ -227,13 +227,13 @@ describe('blogs routes', () => {
     it('Should create post for blog', async () => {
       const newBlog = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(blogToCreate)
         .expect(201);
 
       const result = await request(app.getHttpServer())
         .post(`/blogger/blogs/${newBlog.body.id}/posts`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(postToCreate)
         .expect(201);
 
@@ -281,7 +281,7 @@ describe('blogs routes', () => {
     it('Should create 12 posts and return 10 of them with default search params', async () => {
       const newBlog = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(blogToCreate)
         .expect(201);
 
@@ -289,7 +289,7 @@ describe('blogs routes', () => {
         postsArr.map(async (post) => {
           await request(app.getHttpServer())
             .post(`/blogger/blogs/${newBlog.body.id}/posts`)
-            .set('Authorization', `Bearer ${accessTokenArtur}`)
+            .set('Authorization', `Bearer ${testUserAccessToken}`)
             .send(post)
             .expect(201);
         })
@@ -323,13 +323,13 @@ describe('blogs routes', () => {
     it('Should update blog if blog ID is valid', async () => {
       const result = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(blogToCreate)
         .expect(201);
 
       await request(app.getHttpServer())
         .put(`/blogger/blogs/${result.body.id}`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send({
           name: 'updated name',
           description: 'updated description',
@@ -362,14 +362,14 @@ describe('blogs routes', () => {
     it('Should update posts related to updated blog if blog name was changed', async () => {
       const result = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(blogToCreate)
         .expect(201);
 
       postToCreate.blogId = result.body.id;
       const postResult = await request(app.getHttpServer())
         .post(`/blogger/blogs/${result.body.id}/posts`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(postToCreate)
         .expect(201);
 
@@ -377,7 +377,7 @@ describe('blogs routes', () => {
 
       await request(app.getHttpServer())
         .put(`/blogger/blogs/${result.body.id}`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send({
           name: 'updated name',
           description: 'updated description',
@@ -386,7 +386,7 @@ describe('blogs routes', () => {
         .expect(204);
 
       const updatedPost = await request(app.getHttpServer()).get(`/posts/${postResult.body.id}`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .expect(200);
       expect(updatedPost.body.blogName).toBe('updated name');
     });
@@ -403,7 +403,7 @@ describe('blogs routes', () => {
 
       const createBlogResponse = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(blogToCreate)
         .expect(201);
       const createdBlog = createBlogResponse.body;
@@ -417,13 +417,13 @@ describe('blogs routes', () => {
 
       const createdPost = await request(app.getHttpServer())
         .post(`/blogger/blogs/${createdBlog.id}/posts`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(postToUpdate)
         .expect(201);
 
       const res = await request(app.getHttpServer())
         .put(`/blogger/blogs/${createdBlog.id}/posts/${createdPost.body.id}`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send({
           title: 'updated new post1',
           shortDescription: 'updated desc',
@@ -452,13 +452,13 @@ describe('blogs routes', () => {
     it('Should delete blog by ID', async () => {
       const result = await request(app.getHttpServer())
         .post('/blogger/blogs')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .send(blogToCreate)
         .expect(201);
 
       const delResult = await request(app.getHttpServer())
         .delete(`/blogger/blogs/${result.body.id}`)
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .expect(204);
 
       const response = await request(app.getHttpServer()).get(`/blogs/${result.body.id}`).expect(404);
@@ -467,7 +467,7 @@ describe('blogs routes', () => {
     it('Should not delete blog if ID is invalid', async () => {
       await request(app.getHttpServer())
         .delete('/blogger/blogs/1233')
-        .set('Authorization', `Bearer ${accessTokenArtur}`)
+        .set('Authorization', `Bearer ${testUserAccessToken}`)
         .expect(404);
     });
   });

@@ -61,7 +61,7 @@ export class BloggerBlogsController {
 
   @Get()
   async findAllBlogs(
-    @Query() blogsPaginatorQuery: BlogPaginatorOptions, //TODO check if casting into class works directly, maybe no need to create new class
+    @Query() blogsPaginatorQuery: BlogPaginatorOptions,
     @CurrentUser('id') currentUserId: string,
   ): Promise<BlogsPagination> {
     const blogsPaginatorOptions = new BlogPaginatorOptions(blogsPaginatorQuery);
@@ -117,7 +117,6 @@ export class BloggerBlogsController {
     );
   }
 
-  //TODO try to implement mongoId validation pipe
   @HttpCode(204)
   @Delete(':blogId')
   async deleteBlogById(

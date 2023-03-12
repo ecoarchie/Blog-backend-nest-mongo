@@ -129,13 +129,13 @@ export class CreatePostDto {
 }
 
 export class CreatePostWithBlogIdDto extends CreatePostDto {
-  // @Validate(IsBlogExistsConstraint) // same as below
   @IsBlogExists()
   @IsMongoId()
   @IsNotEmpty()
   blogId: string;
 }
 
+//TODO get rid of unused dtos, no need in createPostWithBlogIdDto
 export class UpdatePostDto extends CreatePostWithBlogIdDto { }
 
 export class UpdatePostWithoutBlogIdDto extends CreatePostDto { }

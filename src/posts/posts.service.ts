@@ -22,12 +22,12 @@ export class PostsService {
     private postsRepository: PostsRepository,
     private blogsRepository: BlogsRepository,
     @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
-  ) {}
+  ) { }
 
-  async createNewPost(postDto: CreatePostWithBlogIdDto) {
-    const postId = await this.postsRepository.createPost(postDto);
-    return postId.toString();
-  }
+  // async createNewPost(postDto: CreatePostWithBlogIdDto) {
+  //   const postId = await this.postsRepository.createPost(postDto);
+  //   return postId.toString();
+  // }
 
   async updatePostById(
     blogId: string,
