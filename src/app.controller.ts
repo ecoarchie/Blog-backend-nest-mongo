@@ -11,11 +11,11 @@ export class AppController {
     private readonly postsRepository: PostsRepository,
     private readonly commentsRepository: CommentsRepository,
     private readonly usersRepository: UsersRepository,
-  ) { }
+  ) {}
 
   @Get()
   async hello() {
-    return 'Hello World!'
+    return 'Hello World!';
   }
 
   @HttpCode(204)

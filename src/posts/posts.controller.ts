@@ -38,7 +38,7 @@ export class PostsController {
     private readonly commentsService: CommentsService,
     private readonly commentsQueryRepo: CommentsQueryRepository,
     private readonly blogsService: BlogsService,
-  ) { }
+  ) {}
 
   @Get()
   async findAllPosts(
@@ -65,7 +65,9 @@ export class PostsController {
       currentUserId,
     );
     if (!postFound) return res.sendStatus(404);
-    const isBlogBanned = await this.blogsService.isBlogBanned(postFound.blogId.toString())
+    const isBlogBanned = await this.blogsService.isBlogBanned(
+      postFound.blogId.toString(),
+    );
     if (isBlogBanned) return res.sendStatus(404);
     res.status(200).send(postFound);
   }

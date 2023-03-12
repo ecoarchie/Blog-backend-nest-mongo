@@ -12,7 +12,7 @@ import {
 export class CommentsQueryRepository {
   constructor(
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
-  ) { }
+  ) {}
 
   async findCommentById(commentId: string, userId: string) {
     if (!Types.ObjectId.isValid(commentId)) return null;
@@ -44,7 +44,10 @@ export class CommentsQueryRepository {
       .lean();
 
     // const totalCount = result.length;
-    const totalCount = await this.commentModel.count().where('postId').equals(new Types.ObjectId(postId));
+    const totalCount = await this.commentModel
+      .count()
+      .where('postId')
+      .equals(new Types.ObjectId(postId));
     const pagesCount = Math.ceil(totalCount / paginator.pageSize);
     return {
       pagesCount,
@@ -104,7 +107,10 @@ export class CommentsQueryRepository {
       .sort([[paginator.sortBy, paginator.sortDirection]])
       .lean();
 
-    const totalCount = await this.commentModel.count().where('postId').in(postsIds);
+    const totalCount = await this.commentModel
+      .count()
+      .where('postId')
+      .in(postsIds);
     const pagesCount = Math.ceil(totalCount / paginator.pageSize);
     const items = comments.map((c) => {
       const cPost = posts.find((p) => p._id.toString() === c.postId.toString());

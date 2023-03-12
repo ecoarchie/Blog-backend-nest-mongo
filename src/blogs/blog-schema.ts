@@ -163,7 +163,9 @@ BlogSchema.methods = {
 export class CreateBlogDto {
   @MaxLength(15)
   @IsNotEmpty()
-  @Transform(({ value }: TransformFnParams) => typeof value === 'string' ? value?.trim() : value)
+  @Transform(({ value }: TransformFnParams) =>
+    typeof value === 'string' ? value?.trim() : value,
+  )
   @IsString()
   name: string;
 
@@ -191,7 +193,7 @@ export class BindToBlogDto {
   userId: string;
 }
 
-export class UpdateBlogDto extends CreateBlogDto { }
+export class UpdateBlogDto extends CreateBlogDto {}
 
 export class BanBlogDto {
   @IsBoolean()

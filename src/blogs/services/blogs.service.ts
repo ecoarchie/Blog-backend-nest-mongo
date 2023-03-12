@@ -28,7 +28,7 @@ export class BlogsService {
     private usersQueryRepo: UsersQueryRepository,
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
     @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
-  ) { }
+  ) {}
 
   async createNewBlog(dto: CreateBlogDto, ownerInfo: BlogOwnerInfo) {
     const newBlog = new this.blogModel({
@@ -53,7 +53,10 @@ export class BlogsService {
     blog.setDescription(updateBlogDto.description);
     blog.setWebsiteUrl(updateBlogDto.websiteUrl);
     await this.blogsRepository.saveBlog(blog);
-    await this.postModel.updateMany({ blogId: new Types.ObjectId(blogId) }, { blogName: updateBlogDto.name })
+    await this.postModel.updateMany(
+      { blogId: new Types.ObjectId(blogId) },
+      { blogName: updateBlogDto.name },
+    );
   }
 
   async createBlogPost(
@@ -104,11 +107,9 @@ export class BlogsService {
     userId: string,
   ): Promise<boolean> {
     const blog = await this.blogModel.findById(blogId);
-    const bannedUser = blog
-      .getBannedUsers()
-      .find((u) => {
-        return u.id.toString() === userId && u.banInfo.isBanned;
-      });
+    const bannedUser = blog.getBannedUsers().find((u) => {
+      return u.id.toString() === userId && u.banInfo.isBanned;
+    });
     return bannedUser ? true : false;
   }
 
@@ -129,7 +130,8 @@ export class BlogsService {
         message: 'blog with this ID not found',
       });
 
-    if (blog.ownerInfo.userId.toString() !== ownerId) throw new ForbiddenException();
+    if (blog.ownerInfo.userId.toString() !== ownerId)
+      throw new ForbiddenException();
 
     const user = await this.usersQueryRepo.findUserById(userId);
     blog.addUserToBanList(userId, user.login, {

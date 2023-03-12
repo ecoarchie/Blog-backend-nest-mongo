@@ -9,7 +9,7 @@ import { Blog, BlogDocument } from '../blog-schema';
 
 @Injectable()
 export class BlogsRepository {
-  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) { }
+  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
 
   async saveBlog(blog: BlogDocument): Promise<BlogDocument['id']> {
     const result = await blog.save();

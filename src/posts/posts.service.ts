@@ -22,7 +22,7 @@ export class PostsService {
     private postsRepository: PostsRepository,
     private blogsRepository: BlogsRepository,
     @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
-  ) { }
+  ) {}
 
   // async createNewPost(postDto: CreatePostWithBlogIdDto) {
   //   const postId = await this.postsRepository.createPost(postDto);

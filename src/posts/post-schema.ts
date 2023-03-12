@@ -136,9 +136,9 @@ export class CreatePostWithBlogIdDto extends CreatePostDto {
 }
 
 //TODO get rid of unused dtos, no need in createPostWithBlogIdDto
-export class UpdatePostDto extends CreatePostWithBlogIdDto { }
+export class UpdatePostDto extends CreatePostWithBlogIdDto {}
 
-export class UpdatePostWithoutBlogIdDto extends CreatePostDto { }
+export class UpdatePostWithoutBlogIdDto extends CreatePostDto {}
 
 export class PostIdParam {
   @IsMongoId()

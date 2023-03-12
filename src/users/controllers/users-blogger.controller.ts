@@ -54,6 +54,10 @@ export class BloggerUserController {
     @Body() banUserByBloggerDto: BanUserByBloggerDto,
     @CurrentUser('id') bloggerId: string,
   ) {
-    await this.blogsService.banUserByBlogger(bloggerId, userId, banUserByBloggerDto);
+    await this.blogsService.banUserByBlogger(
+      bloggerId,
+      userId,
+      banUserByBloggerDto,
+    );
   }
 }

@@ -10,7 +10,7 @@ import {
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async findAll(
     paginatorOptions: UserPaginatorOptions,
@@ -21,17 +21,17 @@ export class UsersQueryRepository {
       paginatorOptions.banStatus === 'all'
         ? {}
         : paginatorOptions.banStatus === 'banned'
-          ? { 'banInfo.isBanned': true }
-          : { 'banInfo.isBanned': false };
+        ? { 'banInfo.isBanned': true }
+        : { 'banInfo.isBanned': false };
 
     const loginOrEmailFilter =
       paginatorOptions.searchEmailTerm || paginatorOptions.searchLoginTerm
         ? {
-          $or: [
-            { login: { $regex: loginRegex } },
-            { email: { $regex: emailRegex } },
-          ],
-        }
+            $or: [
+              { login: { $regex: loginRegex } },
+              { email: { $regex: emailRegex } },
+            ],
+          }
         : {};
 
     const result = await this.userModel

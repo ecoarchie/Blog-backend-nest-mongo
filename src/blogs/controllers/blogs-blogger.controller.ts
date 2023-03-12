@@ -44,7 +44,7 @@ export class BloggerBlogsController {
     private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commentsQueryRepo: CommentsQueryRepository,
-  ) { }
+  ) {}
 
   @Post()
   async createBlog(

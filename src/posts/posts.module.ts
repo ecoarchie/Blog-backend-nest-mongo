@@ -32,11 +32,7 @@ import { PostsRepository } from './repositories/posts.repository';
   ],
   exports: [PostsRepository, PostsQueryRepository, PostsService],
   controllers: [PostsController],
-  providers: [
-    PostsRepository,
-    PostsQueryRepository,
-    PostsService,
-  ],
+  providers: [PostsRepository, PostsQueryRepository, PostsService],
 })
 export class PostsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

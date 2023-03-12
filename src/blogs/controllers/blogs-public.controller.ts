@@ -11,7 +11,7 @@ export class BlogsController {
   constructor(
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
-  ) { }
+  ) {}
 
   @Get()
   async findAllBlogs(

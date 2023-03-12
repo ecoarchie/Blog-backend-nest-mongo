@@ -39,7 +39,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 }
 
-
 export const validationPipeOptions: ValidationPipeOptions = {
   transform: true,
   stopAtFirstError: true,
@@ -57,4 +56,4 @@ export const validationPipeOptions: ValidationPipeOptions = {
     });
     throw new BadRequestException(errorsForResponse);
   },
-}
+};

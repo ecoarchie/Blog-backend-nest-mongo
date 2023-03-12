@@ -1,21 +1,31 @@
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { AppModule } from '../src/app.module';
-import { HttpExceptionFilter, validationPipeOptions } from '../src/utils/httpexception.filter';
+import {
+  HttpExceptionFilter,
+  validationPipeOptions,
+} from '../src/utils/httpexception.filter';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { BlogPost, PostDocument, PostSchema } from '../src/posts/post-schema';
-import { Blog, BlogDocument, BlogSchema, CreateBlogDto } from '../src/blogs/blog-schema';
-import { Comment, CommentDocument, CommentSchema } from '../src/comments/comment-schema';
+import {
+  Blog,
+  BlogDocument,
+  BlogSchema,
+} from '../src/blogs/blog-schema';
+import {
+  Comment,
+  CommentDocument,
+  CommentSchema,
+} from '../src/comments/comment-schema';
 import * as jwt from 'jsonwebtoken';
-import { BlogsModule } from '../src/blogs/blogs.module';
 
 const testUser = {
-  login: "artur",
-  password: "123456",
-  email: "artur@rambler.ru"
-}
+  login: 'artur',
+  password: '123456',
+  email: 'artur@rambler.ru',
+};
 
 let testUserAccessToken: string;
 let testUserId: string;
@@ -43,14 +53,17 @@ describe('BLOGS ROUTES\n', () => {
             schema: CommentSchema,
           },
         ]),
-        AppModule
+        AppModule,
       ],
-    })
-      .compile();
+    }).compile();
 
-    postModel = moduleRef.get<Model<PostDocument>>(getModelToken(BlogPost.name))
-    blogModel = moduleRef.get<Model<BlogDocument>>(getModelToken(Blog.name))
-    commentModel = moduleRef.get<Model<CommentDocument>>(getModelToken(Comment.name))
+    postModel = moduleRef.get<Model<PostDocument>>(
+      getModelToken(BlogPost.name),
+    );
+    blogModel = moduleRef.get<Model<BlogDocument>>(getModelToken(Blog.name));
+    commentModel = moduleRef.get<Model<CommentDocument>>(
+      getModelToken(Comment.name),
+    );
 
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(new ValidationPipe(validationPipeOptions));
@@ -59,28 +72,31 @@ describe('BLOGS ROUTES\n', () => {
 
     await request(app.getHttpServer()).delete('/testing/all-data');
     await request(app.getHttpServer())
-      .post('/sa/users').set('Authorization', 'Basic YWRtaW46cXdlcnR5')
-      .send(testUser)
+      .post('/sa/users')
+      .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
+      .send(testUser);
 
     const testUserLoginResult = await request(app.getHttpServer())
       .post('/auth/login')
       .set({ 'user-agent': 'Mozilla' })
       .send({
-        loginOrEmail: "artur",
-        password: "123456"
-      })
+        loginOrEmail: 'artur',
+        password: '123456',
+      });
     testUserAccessToken = testUserLoginResult.body.accessToken;
-    const jwtDataUser: any = jwt.verify(testUserAccessToken, process.env.SECRET);
+    const jwtDataUser: any = jwt.verify(
+      testUserAccessToken,
+      process.env.SECRET,
+    );
     testUserId = jwtDataUser.userId;
   });
 
   afterAll(async () => {
     await request(app.getHttpServer()).delete('/testing/all-data');
-    await app.close()
+    await app.close();
   });
 
   describe('Super user blog routes', () => {
-
     beforeAll(async () => {
       const blogs: any[] = [];
 
@@ -91,87 +107,86 @@ describe('BLOGS ROUTES\n', () => {
           websiteUrl: `https://google.com`,
           ownerInfo: {
             userId: new Types.ObjectId(testUserId),
-            userLogin: testUser.login
-          }
+            userLogin: testUser.login,
+          },
         });
       }
-      const res = await blogModel.insertMany(blogs)
-    })
+      const res = await blogModel.insertMany(blogs);
+    });
 
     afterAll(async () => {
-      await blogModel.deleteMany({})
+      await blogModel.deleteMany({});
     });
 
     describe('GET sa/blogs - return all blogs including ban info with paging ', () => {
-
       it('should return status 200 and 15 blogs, pagesCount=2, pageSize=10, totalCount=15', async () => {
         const getBlogsRes = await request(app.getHttpServer())
           .get('/sa/blogs')
           .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
-          .expect(200)
+          .expect(200);
 
         expect(getBlogsRes.body.items.length).toBe(10);
         expect(getBlogsRes.body.pagesCount).toBe(2);
         expect(getBlogsRes.body.pageSize).toBe(10);
         expect(getBlogsRes.body.totalCount).toBe(12);
         expect(getBlogsRes.body.items[0].blogOwnerInfo.userId).toBe(testUserId);
-        expect(getBlogsRes.body.items[0].blogOwnerInfo.userLogin).toBe(testUser.login);
+        expect(getBlogsRes.body.items[0].blogOwnerInfo.userLogin).toBe(
+          testUser.login,
+        );
         expect(getBlogsRes.body.items[0]).toHaveProperty('banInfo');
-      })
-
+      });
 
       it('should return 401 status if user is unauthorized', async () => {
         const getBlogsRes = await request(app.getHttpServer())
           .get('/sa/blogs')
           .set('Authorization', 'Basic invalidPass')
-          .expect(401)
-      })
+          .expect(401);
+      });
     });
 
     describe('PUT sa/blogs/{id}/ban - Ban/unban blog', () => {
       let blog: BlogDocument;
       beforeAll(async () => {
-        blog = await blogModel.findOne()
-      })
-
+        blog = await blogModel.findOne();
+      });
 
       it('should return 204 status and ban blog when "isBanned" send as "true"', async () => {
         await request(app.getHttpServer())
           .put(`/sa/blogs/${blog.id}/ban`)
           .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
           .send({ isBanned: true })
-          .expect(204)
+          .expect(204);
 
         const updatedBlog = await blogModel.findById(blog.id);
-        expect(updatedBlog.banInfo.isBanned).toBe(true)
-      })
+        expect(updatedBlog.banInfo.isBanned).toBe(true);
+      });
 
       it('should return 204 status and unban blog when "isBanned" send as "false"', async () => {
         await request(app.getHttpServer())
           .put(`/sa/blogs/${blog.id}/ban`)
           .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
           .send({ isBanned: false })
-          .expect(204)
+          .expect(204);
 
         const updatedBlog = await blogModel.findById(blog.id);
-        expect(updatedBlog.banInfo.isBanned).toBe(false)
-      })
+        expect(updatedBlog.banInfo.isBanned).toBe(false);
+      });
 
       it('should return 400 status when "isBanned" send as invalid value', async () => {
         await request(app.getHttpServer())
           .put(`/sa/blogs/${blog.id}/ban`)
           .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
           .send({ isBanned: '' })
-          .expect(400)
-      })
+          .expect(400);
+      });
 
       it('should return 401 status if user is unauthorized', async () => {
         await request(app.getHttpServer())
           .put(`/sa/blogs/${blog.id}/ban`)
           .set('Authorization', 'Basic invalidPass')
           .send({ isBanned: true })
-          .expect(401)
-      })
+          .expect(401);
+      });
     });
 
     describe('PUT sa/blogs/{id}/bind-with-user/{userId} - Bind Blog with user (if blog does not have an owner yet)', () => {
@@ -182,7 +197,7 @@ describe('BLOGS ROUTES\n', () => {
         ownerInfo: {
           userId: null,
           userLogin: null,
-        }
+        },
       };
       let blogToCheckForInvalidInputDto: Partial<Blog> = {
         name: `blog to check`,
@@ -191,57 +206,65 @@ describe('BLOGS ROUTES\n', () => {
         ownerInfo: {
           userId: null,
           userLogin: null,
-        }
+        },
       };
       let blogToBind: BlogDocument;
       let blogToCheckForInvalidInput: BlogDocument;
       let boundBlog: BlogDocument;
       beforeAll(async () => {
-        blogToBind = await blogModel.create(blogToBindDto)
-        blogToCheckForInvalidInput = await blogModel.create(blogToCheckForInvalidInputDto)
-      })
-
+        blogToBind = await blogModel.create(blogToBindDto);
+        blogToCheckForInvalidInput = await blogModel.create(
+          blogToCheckForInvalidInputDto,
+        );
+      });
 
       it('should return status 204 with valid blogId and userId being passed and bind blog to user', async () => {
         await request(app.getHttpServer())
           .put(`/sa/blogs/${blogToBind.id}/bind-with-user/${testUserId}`)
           .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
-          .expect(204)
+          .expect(204);
 
         boundBlog = await blogModel.findById(blogToBind.id);
-        expect(boundBlog.ownerInfo.userId.toString()).toBe(testUserId)
-        expect(boundBlog.ownerInfo.userLogin).toBe(testUser.login)
-      })
-
+        expect(boundBlog.ownerInfo.userId.toString()).toBe(testUserId);
+        expect(boundBlog.ownerInfo.userLogin).toBe(testUser.login);
+      });
 
       it('should return 400 status if inputModel is incorrect or blog is already bound to any user', async () => {
         const bindToInvalidUserRes = await request(app.getHttpServer())
-          .put(`/sa/blogs/${blogToCheckForInvalidInput.id}/bind-with-user/${new Types.ObjectId()}`)
+          .put(
+            `/sa/blogs/${blogToCheckForInvalidInput.id
+            }/bind-with-user/${new Types.ObjectId()}`,
+          )
           .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
-          .expect(400)
+          .expect(400);
 
         const bindToAlreadyBoundBlogRes = await request(app.getHttpServer())
           .put(`/sa/blogs/${boundBlog.id}/bind-with-user/${testUserId}`)
           .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
-          .expect(400)
-      })
-
+          .expect(400);
+      });
 
       it('should return 401 status if sa is unauthorized', async () => {
         await request(app.getHttpServer())
           .put(`/sa/blogs/${blogToBind.id}/bind-with-user/${testUserId}`)
           .set('Authorization', 'Basic invalidPass')
-          .expect(401)
-      })
+          .expect(401);
+      });
     });
-  })
+  });
 
   describe('\n    Public users blog routes', () => {
     describe('GET /blogs - find all blogs', () => {
       it('should return object with default query params, pagesCount = 0, totalCount = 0, items = []', async () => {
         await request(app.getHttpServer())
           .get('/blogs')
-          .expect(200, { pagesCount: 0, page: 1, pageSize: 10, totalCount: 0, items: [] });
+          .expect(200, {
+            pagesCount: 0,
+            page: 1,
+            pageSize: 10,
+            totalCount: 0,
+            items: [],
+          });
       });
 
       it('given default search params should return 12 blogs, pagesCount = 2, total count = 12, items = 10 items', async () => {
@@ -261,11 +284,12 @@ describe('BLOGS ROUTES\n', () => {
               .set('Authorization', `Bearer ${testUserAccessToken}`)
               .send(blog)
               .expect(201);
-
-          })
+          }),
         );
 
-        const result = await request(app.getHttpServer()).get('/blogs').expect(200);
+        const result = await request(app.getHttpServer())
+          .get('/blogs')
+          .expect(200);
 
         expect(result.body.pagesCount).toEqual(2);
         expect(result.body.page).toEqual(1);
@@ -288,7 +312,9 @@ describe('BLOGS ROUTES\n', () => {
           .send(blogToCreate)
           .expect(201);
 
-        const result = await request(app.getHttpServer()).get(`/blogs/${blog.body.id}`).expect(200);
+        const result = await request(app.getHttpServer())
+          .get(`/blogs/${blog.body.id}`)
+          .expect(200);
 
         expect(result.body).toEqual({
           id: blog.body.id,
@@ -296,19 +322,21 @@ describe('BLOGS ROUTES\n', () => {
           description: 'desc2',
           websiteUrl: 'https://yandex.com',
           createdAt: expect.any(String),
-          isMembership: false
+          isMembership: false,
         });
       });
 
       it('should NOT find blog with invalid ID', async () => {
-        const result = await request(app.getHttpServer()).get(`/blogs/ffjak`).expect(404);
+        const result = await request(app.getHttpServer())
+          .get(`/blogs/ffjak`)
+          .expect(404);
       });
     });
 
     describe('GET blogger/blogs/{blogId}/posts - get all posts for specified blog', () => {
       beforeAll(async () => {
-        await request(app.getHttpServer()).delete('/testing/all-blogs')
-      })
+        await request(app.getHttpServer()).delete('/testing/all-blogs');
+      });
 
       const blogToCreate = {
         name: 'blog with posts',
@@ -339,11 +367,11 @@ describe('BLOGS ROUTES\n', () => {
               .set('Authorization', `Bearer ${testUserAccessToken}`)
               .send(post)
               .expect(201);
-          })
-        )
+          }),
+        );
         const result = await request(app.getHttpServer())
           .get(`/blogs/${newBlog.body.id}/posts`)
-          .expect(200)
+          .expect(200);
 
         expect(result.body).toStrictEqual({
           pagesCount: 2,
@@ -356,7 +384,9 @@ describe('BLOGS ROUTES\n', () => {
       });
 
       it('should return 404 code if blog ID doesnt exist', async () => {
-        const res = await request(app.getHttpServer()).get(`/blogs/989/posts`).expect(404);
+        const res = await request(app.getHttpServer())
+          .get(`/blogs/989/posts`)
+          .expect(404);
       });
     });
   });
@@ -478,7 +508,7 @@ describe('BLOGS ROUTES\n', () => {
           blogId: newBlog.body.id,
           blogName: 'new blog',
           createdAt: expect.stringMatching(
-            /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?/
+            /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?/,
           ),
           extendedLikesInfo: {
             likesCount: 0,
@@ -514,7 +544,9 @@ describe('BLOGS ROUTES\n', () => {
           })
           .expect(204);
 
-        const updatedBlog = await request(app.getHttpServer()).get(`/blogs/${result.body.id}`).expect(200);
+        const updatedBlog = await request(app.getHttpServer())
+          .get(`/blogs/${result.body.id}`)
+          .expect(200);
 
         expect(updatedBlog.body.name).toBe('updated name');
         expect(updatedBlog.body.description).toBe('updated description');
@@ -562,13 +594,13 @@ describe('BLOGS ROUTES\n', () => {
           })
           .expect(204);
 
-        const updatedPost = await request(app.getHttpServer()).get(`/posts/${postResult.body.id}`)
+        const updatedPost = await request(app.getHttpServer())
+          .get(`/posts/${postResult.body.id}`)
           .set('Authorization', `Bearer ${testUserAccessToken}`)
           .expect(200);
         expect(updatedPost.body.blogName).toBe('updated name');
       });
     });
-
 
     describe('PUT "blogger/blogs/{blogId}/posts/{id}" - update existing post by ID', () => {
       it('Should update blog if blog ID is valid', async () => {
@@ -609,7 +641,9 @@ describe('BLOGS ROUTES\n', () => {
           })
           .expect(204);
 
-        const updatedPost = await request(app.getHttpServer()).get(`/posts/${createdPost.body.id}`).expect(200);
+        const updatedPost = await request(app.getHttpServer())
+          .get(`/posts/${createdPost.body.id}`)
+          .expect(200);
 
         expect(updatedPost.body.title).toBe('updated new post1');
         expect(updatedPost.body.shortDescription).toBe('updated desc');
@@ -617,7 +651,6 @@ describe('BLOGS ROUTES\n', () => {
         expect(updatedPost.body.blogId).toBe(`${createdBlog.id}`);
       });
     });
-
 
     describe('DELETE blogger/blogs/{id}  - delete blog by id', () => {
       const blogToCreate = {
@@ -638,7 +671,9 @@ describe('BLOGS ROUTES\n', () => {
           .set('Authorization', `Bearer ${testUserAccessToken}`)
           .expect(204);
 
-        const response = await request(app.getHttpServer()).get(`/blogs/${result.body.id}`).expect(404);
+        const response = await request(app.getHttpServer())
+          .get(`/blogs/${result.body.id}`)
+          .expect(404);
       });
 
       it('Should not delete blog if ID is invalid', async () => {
@@ -648,6 +683,5 @@ describe('BLOGS ROUTES\n', () => {
           .expect(404);
       });
     });
-
   });
 });

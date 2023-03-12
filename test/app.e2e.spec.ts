@@ -30,8 +30,6 @@ describe('AppController (e2e)', () => {
         email: `user${i}@mail.com`,
         password: 12345,
       };
-
     }
-  })
-
+  });
 });
