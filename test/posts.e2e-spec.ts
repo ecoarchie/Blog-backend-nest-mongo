@@ -34,7 +34,7 @@ let accessTokenUser2: string;
 let user1Id: string;
 let user2Id: string;
 
-describe('posts routes', () => {
+describe('POSTS ROUTES', () => {
   let app: INestApplication;
   let postModel: Model<PostDocument>;
   let blogModel: Model<BlogDocument>;
@@ -102,6 +102,7 @@ describe('posts routes', () => {
       .post('/sa/users')
       .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
       .send(testUser2);
+
     const loginResultUser1 = await request(app.getHttpServer())
       .post('/auth/login')
       .set({ 'user-agent': 'Mozilla' })
@@ -113,14 +114,14 @@ describe('posts routes', () => {
     const jwtDataUser1: any = jwt.verify(accessTokenUser1, process.env.SECRET);
     user1Id = jwtDataUser1.userId;
 
-    const loginMaksim = await request(app.getHttpServer())
+    const loginResultUser2 = await request(app.getHttpServer())
       .post('/auth/login')
       .set({ 'user-agent': 'Mozilla' })
       .send({
         loginOrEmail: 'maksim',
         password: '123456',
       });
-    accessTokenUser2 = loginMaksim.body.accessToken;
+    accessTokenUser2 = loginResultUser2.body.accessToken;
     const jwtDataUser2: any = jwt.verify(accessTokenUser2, process.env.SECRET);
     user2Id = jwtDataUser2.userId;
   });
@@ -132,15 +133,13 @@ describe('posts routes', () => {
 
   describe('GET "/" - find all posts', () => {
     it('should return object with default query params, pagesCount = 0, totalCount = 0, items = []', async () => {
-      await request(app.getHttpServer())
-        .get('/posts')
-        .expect(200, {
-          pagesCount: 0,
-          page: 1,
-          pageSize: 10,
-          totalCount: 0,
-          items: [],
-        });
+      await request(app.getHttpServer()).get('/posts').expect(200, {
+        pagesCount: 0,
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+        items: [],
+      });
     });
 
     it('given default search params should return 12 posts, pagesCount = 2, total count = 12, items = 10 items', async () => {

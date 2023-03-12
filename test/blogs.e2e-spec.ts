@@ -9,11 +9,7 @@ import {
 } from '../src/utils/httpexception.filter';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { BlogPost, PostDocument, PostSchema } from '../src/posts/post-schema';
-import {
-  Blog,
-  BlogDocument,
-  BlogSchema,
-} from '../src/blogs/blog-schema';
+import { Blog, BlogDocument, BlogSchema } from '../src/blogs/blog-schema';
 import {
   Comment,
   CommentDocument,
@@ -190,7 +186,7 @@ describe('BLOGS ROUTES\n', () => {
     });
 
     describe('PUT sa/blogs/{id}/bind-with-user/{userId} - Bind Blog with user (if blog does not have an owner yet)', () => {
-      let blogToBindDto: Partial<Blog> = {
+      const blogToBindDto: Partial<Blog> = {
         name: `blog to bind`,
         description: `desc`,
         websiteUrl: `https://google.com`,
@@ -199,7 +195,7 @@ describe('BLOGS ROUTES\n', () => {
           userLogin: null,
         },
       };
-      let blogToCheckForInvalidInputDto: Partial<Blog> = {
+      const blogToCheckForInvalidInputDto: Partial<Blog> = {
         name: `blog to check`,
         description: `for invalid input such as invalid user Id or when blog is already bound`,
         websiteUrl: `https://google.com`,
@@ -232,7 +228,8 @@ describe('BLOGS ROUTES\n', () => {
       it('should return 400 status if inputModel is incorrect or blog is already bound to any user', async () => {
         const bindToInvalidUserRes = await request(app.getHttpServer())
           .put(
-            `/sa/blogs/${blogToCheckForInvalidInput.id
+            `/sa/blogs/${
+              blogToCheckForInvalidInput.id
             }/bind-with-user/${new Types.ObjectId()}`,
           )
           .set('Authorization', 'Basic YWRtaW46cXdlcnR5')
@@ -256,15 +253,13 @@ describe('BLOGS ROUTES\n', () => {
   describe('\n    Public users blog routes', () => {
     describe('GET /blogs - find all blogs', () => {
       it('should return object with default query params, pagesCount = 0, totalCount = 0, items = []', async () => {
-        await request(app.getHttpServer())
-          .get('/blogs')
-          .expect(200, {
-            pagesCount: 0,
-            page: 1,
-            pageSize: 10,
-            totalCount: 0,
-            items: [],
-          });
+        await request(app.getHttpServer()).get('/blogs').expect(200, {
+          pagesCount: 0,
+          page: 1,
+          pageSize: 10,
+          totalCount: 0,
+          items: [],
+        });
       });
 
       it('given default search params should return 12 blogs, pagesCount = 2, total count = 12, items = 10 items', async () => {
