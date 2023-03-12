@@ -87,10 +87,10 @@ export class UsersQueryRepository {
     return this.toUserDto(user);
   }
 
-  async getUserLoginById(id: string): Promise<string> {
+  async getUserLoginById(id: string): Promise<string | null> {
     const user = await this.userModel.findById(id).lean();
 
-    return user.login;
+    return user ? user.login : null;
   }
 
   async deleteUserById(id: string): Promise<boolean> {

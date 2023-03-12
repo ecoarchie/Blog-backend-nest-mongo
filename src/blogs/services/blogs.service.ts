@@ -82,13 +82,19 @@ export class BlogsService {
 
   async bindBlogToUser(blogId: string, userId: string): Promise<void> {
     const blog = await this.blogsRepository.findBlogById(blogId);
-    if (blog.ownerInfo?.userId)
+    if (!blog || blog?.ownerInfo?.userId)
       throw new BadRequestException({
-        message: 'Blog is already bound',
+        message: 'Blog does not exist or is already bound',
         field: 'blodId',
       });
 
     const userLogin = await this.usersQueryRepo.getUserLoginById(userId);
+    if (!userLogin) {
+      throw new BadRequestException({
+        message: 'User with passed Id does not exist',
+        field: 'userId',
+      });
+    }
     blog.bindToUser(userId, userLogin);
     await this.blogsRepository.saveBlog(blog);
   }

@@ -1,8 +1,10 @@
 import {
   ArgumentsHost,
+  BadRequestException,
   Catch,
   ExceptionFilter,
   HttpException,
+  ValidationPipeOptions,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
@@ -35,4 +37,24 @@ export class HttpExceptionFilter implements ExceptionFilter {
       });
     }
   }
+}
+
+
+export const validationPipeOptions: ValidationPipeOptions = {
+  transform: true,
+  stopAtFirstError: true,
+  exceptionFactory: (errors) => {
+    const errorsForResponse: any = [];
+
+    errors.forEach((e) => {
+      const constraintsKey = Object.keys(e.constraints);
+      constraintsKey.forEach((ckey) => {
+        errorsForResponse.push({
+          message: e.constraints[ckey],
+          field: e.property,
+        });
+      });
+    });
+    throw new BadRequestException(errorsForResponse);
+  },
 }
