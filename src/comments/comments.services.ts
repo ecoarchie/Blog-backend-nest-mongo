@@ -14,7 +14,7 @@ export class CommentsService {
   constructor(
     private commentsRepository: CommentsRepository,
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
-  ) {}
+  ) { }
 
   async createComment(
     content: string,

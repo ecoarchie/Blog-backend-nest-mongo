@@ -8,7 +8,7 @@ import {
 import * as jwt from 'jsonwebtoken';
 import { Model, Types } from 'mongoose';
 import { AppModule } from '../src/app.module';
-import { HttpExceptionFilter } from '../src/utils/httpexception.filter';
+import { HttpExceptionFilter, validationPipeOptions } from '../src/utils/httpexception.filter';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { BlogPost, PostDocument, PostSchema } from '../src/posts/post-schema';
 import { Blog, BlogDocument, BlogSchema } from '../src/blogs/blog-schema';
@@ -71,24 +71,7 @@ describe('POSTS ROUTES', () => {
 
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(
-      new ValidationPipe({
-        transform: true,
-        stopAtFirstError: true,
-        exceptionFactory: (errors) => {
-          const errorsForResponse: any = [];
-
-          errors.forEach((e) => {
-            const constraintsKey = Object.keys(e.constraints);
-            constraintsKey.forEach((ckey) => {
-              errorsForResponse.push({
-                message: e.constraints[ckey],
-                field: e.property,
-              });
-            });
-          });
-          throw new BadRequestException(errorsForResponse);
-        },
-      }),
+      new ValidationPipe(validationPipeOptions),
     );
     app.useGlobalFilters(new HttpExceptionFilter());
     await app.init();
