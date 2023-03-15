@@ -5,6 +5,7 @@ import {
   Get,
   Headers,
   HttpCode,
+  Inject,
   Ip,
   Post,
   Req,
@@ -13,7 +14,8 @@ import {
 } from '@nestjs/common';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { Request, Response } from 'express';
-import { UsersQueryRepository } from '../users/repositories/users.query-repository';
+// import { UsersQueryRepository } from '../users/repositories/users.query-repository';
+import { IUsersQueryRepository } from '../users/repositories/users.query-repository.interface';
 import { CreateUserDto, EmailDto } from '../users/user-schema';
 import { UsersService } from '../users/users.service';
 import { AuthUserDto, NewPasswordDto } from './auth.schema';
@@ -24,7 +26,8 @@ import { BearerAuthGuard } from './guards/bearer.auth.guard';
 export class AuthController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly usersQueryRepo: UsersQueryRepository,
+    @Inject('UsersQueryRepository')
+    private readonly usersQueryRepo: IUsersQueryRepository,
   ) {}
 
   @Post('login')

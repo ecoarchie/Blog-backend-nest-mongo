@@ -7,9 +7,10 @@ import {
   UserPaginatorOptions,
   UsersPagination,
 } from '../user-schema';
+import { IUsersQueryRepository } from './users.query-repository.interface';
 
 @Injectable()
-export class UsersQueryRepository {
+export class UsersQueryRepositoryMongo implements IUsersQueryRepository {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async findAll(

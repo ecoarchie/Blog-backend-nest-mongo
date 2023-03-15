@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Inject,
   NotFoundException,
   Param,
   Post,
@@ -12,7 +13,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BasicAuthGuard } from '../../auth/guards/basic.auth.guard';
-import { UsersQueryRepository } from '../repositories/users.query-repository';
+import { IUsersQueryRepository } from '../repositories/users.query-repository.interface';
+// import { UsersQueryRepository } from '../repositories/users.query-repository';
 import {
   BanUserDto,
   CreateUserDto,
@@ -25,7 +27,8 @@ import { UsersService } from '../users.service';
 @Controller('sa/users')
 export class UserController {
   constructor(
-    private readonly userQueryRepository: UsersQueryRepository,
+    @Inject('UsersQueryRepository')
+    private readonly userQueryRepository: IUsersQueryRepository,
     private readonly userService: UsersService,
   ) {}
 

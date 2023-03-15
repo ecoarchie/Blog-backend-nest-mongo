@@ -1,13 +1,20 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { Request } from 'express';
-import { UsersQueryRepository } from '../../users/repositories/users.query-repository';
+import { IUsersQueryRepository } from '../../users/repositories/users.query-repository.interface';
+// import { UsersQueryRepository } from '../../users/repositories/users.query-repository';
 import { AuthService } from '../auth.service';
 
 @Injectable()
 export class BearerAuthGuard implements CanActivate {
   constructor(
     protected authService: AuthService,
-    protected usersQueryRepo: UsersQueryRepository,
+    @Inject('UsersQueryRepository')
+    protected usersQueryRepo: IUsersQueryRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

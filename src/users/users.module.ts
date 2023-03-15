@@ -5,7 +5,10 @@ import { CommentsModule } from '../comments/comments.module';
 import { PostsModule } from '../posts/posts.module';
 import { EmailService } from '../utils/email.service';
 import { UserController } from './controllers/users-sa.controller';
-import { UsersQueryRepository } from './repositories/users.query-repository';
+import {
+  // UsersQueryRepository,
+  UsersQueryRepositoryMongo,
+} from './repositories/users.query-repository';
 import { UsersRepository } from './repositories/users.repository';
 import { SessionController } from './sessions/session.controller';
 import { Session, SessionSchema } from './sessions/session.schema';
@@ -25,22 +28,27 @@ import { UsersService } from './users.service';
         schema: SessionSchema,
       },
     ]),
-    // AuthModule,
     CommentsModule,
     PostsModule,
-    // forwardRef(() => PostsModule),
     forwardRef(() => AuthModule),
-    // forwardRef(() => CommentsModule),
   ],
   exports: [
     UsersRepository,
-    UsersQueryRepository,
+    {
+      provide: 'UsersQueryRepository',
+      useClass: UsersQueryRepositoryMongo,
+    },
+    // UsersQueryRepositoryMongo,
     UsersService,
     SessionRepository,
   ],
   controllers: [UserController, SessionController],
   providers: [
-    UsersQueryRepository,
+    // UsersQueryRepository,
+    {
+      provide: 'UsersQueryRepository',
+      useClass: UsersQueryRepositoryMongo,
+    },
     UsersRepository,
     UsersService,
     EmailService,

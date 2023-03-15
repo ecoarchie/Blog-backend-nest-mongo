@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,7 +9,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { BlogPost, CreatePostDto, PostDocument } from '../../posts/post-schema';
 import { PostsRepository } from '../../posts/repositories/posts.repository';
-import { UsersQueryRepository } from '../../users/repositories/users.query-repository';
+import { IUsersQueryRepository } from '../../users/repositories/users.query-repository.interface';
+// import { UsersQueryRepository } from '../../users/repositories/users.query-repository';
 import { BanUserByBloggerDto } from '../../users/user-schema';
 import {
   BanBlogDto,
@@ -25,7 +27,8 @@ export class BlogsService {
   constructor(
     private blogsRepository: BlogsRepository,
     private postsRepository: PostsRepository,
-    private usersQueryRepo: UsersQueryRepository,
+    @Inject('UsersQueryRepository')
+    private usersQueryRepo: IUsersQueryRepository,
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
     @InjectModel(BlogPost.name) private postModel: Model<PostDocument>,
   ) {}
