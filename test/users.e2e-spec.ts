@@ -380,11 +380,85 @@ describe('USERS ROUTES', () => {
     });
 
     describe('GET /blogger/users/blog/{id} - return all banned users for blog', () => {
-      it('should return 5 banned users with pagination. Status 200', async () => {
-        const users = await userModel.find();
+      let blog403: any;
+      beforeAll(async () => {
+        const dtos: Partial<User>[] = [];
+        for (let i = 1; i <= 5; i++) {
+          dtos.push({
+            login: `user ${i}`,
+            email: `user${i}@mail.com`,
+            password: await bcrypt.hash('123456', 1),
+          });
+        }
+        await userModel.insertMany(dtos);
+        const users = await userModel.find().lean();
+        const accessTokenRes = await request(app.getHttpServer())
+          .post('/auth/login')
+          .set({ 'user-agent': 'Mozilla' })
+          .send({
+            loginOrEmail: 'user 1',
+            password: '123456',
+          })
+          .expect(200);
+
+        accessToken = accessTokenRes.body.accessToken;
+
+        expect(users).toHaveLength(5);
+        blog = await blogModel.create({
+          name: 'blog to ban',
+          description: 'description',
+          websiteUrl: 'www.google.com',
+          ownerInfo: {
+            userId: users[0]._id,
+            userLogin: users[0].login,
+          },
+        });
+        blog403 = await blogModel.create({
+          name: 'blog to ban',
+          description: 'description',
+          websiteUrl: 'www.google.com',
+          ownerInfo: {
+            userId: new Types.ObjectId(),
+            userLogin: users[0].login,
+          },
+        });
+        validBanInputDto = {
+          isBanned: true,
+          banReason: 'stringstringstringst',
+          blogId: blog.id,
+        };
       });
 
-      it('should not return users if admin is unauthorized. Status 401', async () => {});
+      it('should return 4 banned users with pagination. Status 200', async () => {
+        const users = await userModel.find();
+        for (const u of users.slice(1)) {
+          await request(app.getHttpServer())
+            .put(`/blogger/users/${u._id.toString()}/ban`)
+            .set('Authorization', `Bearer ${accessToken}`)
+            .send(validBanInputDto)
+            .expect(204);
+        }
+        const bannedusers = await request(app.getHttpServer())
+          .get(`/blogger/users/blog/${blog.id}`)
+          .set('Authorization', `Bearer ${accessToken}`)
+          .expect(200);
+
+        expect(bannedusers.body.items).toHaveLength(4);
+      });
+
+      it('should not return users if blogger is unauthorized. Status 401', async () => {
+        await request(app.getHttpServer())
+          .get(`/blogger/users/blog/${blog.id}`)
+          .set('Authorization', `Bearer asdfsdaasdfd`)
+          .expect(401);
+      });
+
+      it('should not return users if blogger tries to ban user for not his own blog. Status 403', async () => {
+        await request(app.getHttpServer())
+          .get(`/blogger/users/blog/${blog403.id}`)
+          .set('Authorization', `Bearer ${accessToken}`)
+          .expect(403);
+      });
     });
   });
 });
